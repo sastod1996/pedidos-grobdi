@@ -7,7 +7,7 @@
         </h4>
         <div class="text-start text-sm-end">
             <small class="text-muted">
-                <i class="fas fa-info-circle"></i> 
+                <i class="fas fa-info-circle"></i>
                 <span class="d-none d-sm-inline">Use los filtros para consultar datos específicos o vea "Todos" por defecto</span>
                 <span class="d-sm-none">Use filtros para datos específicos</span>
             </small>
@@ -30,12 +30,12 @@
                     </label>
                     <select class="form-control form-control-lg" id="anio_tipo_doctor">
                         @php
-                            $currentYear = date('Y');
-                            // Mostrar años desde el actual hasta 2020 en orden descendente
-                            for ($year = $currentYear; $year >= 2020; $year--) {
-                                $selected = ($year == $currentYear) ? 'selected' : '';
-                                echo "<option value=\"$year\" $selected>$year</option>";
-                            }
+                        $currentYear = date('Y');
+                        // Mostrar años desde el actual hasta 2020 en orden descendente
+                        for ($year = $currentYear; $year >= 2020; $year--) {
+                        $selected = ($year == $currentYear) ? 'selected' : '';
+                        echo "<option value=\"$year\" $selected>$year</option>";
+                        }
                         @endphp
                     </select>
                     <small class="form-text text-muted">Seleccione un año</small>
@@ -138,24 +138,24 @@
                             </thead>
                             <tbody id="tablaTipoDoctorBody">
                                 @if(isset($data['estadisticasTabla']) && count($data['estadisticasTabla']) > 0)
-                                    @foreach($data['estadisticasTabla'] as $estadistica)
-                                        @if($estadistica['tipo'] !== 'Total')
-                                        <tr>
-                                            <td>
-                                                <span class="badge badge-soft-primary">{{ $estadistica['tipo'] }}</span>
-                                            </td>
-                                            <td class="text-center">
-                                                <strong>{{ $estadistica['total_doctores'] }}</strong>
-                                            </td>
-                                            <td class="text-center">
-                                                <span class="badge bg-info">{{ $estadistica['porcentaje'] }}%</span>
-                                            </td>
-                                            <td class="text-end">
-                                                <span class="text-success fw-bold">S/ {{ number_format($estadistica['promedio_ventas'], 2) }}</span>
-                                            </td>
-                                        </tr>
-                                        @endif
-                                    @endforeach
+                                @foreach($data['estadisticasTabla'] as $estadistica)
+                                @if($estadistica['tipo'] !== 'Total')
+                                <tr>
+                                    <td>
+                                        <span class="badge badge-soft-primary">{{ $estadistica['tipo'] }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <strong>{{ $estadistica['total_doctores'] }}</strong>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-info">{{ $estadistica['porcentaje'] }}%</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="text-success fw-bold">S/ {{ number_format($estadistica['promedio_ventas'], 2) }}</span>
+                                    </td>
+                                </tr>
+                                @endif
+                                @endforeach
                                 @else
                                 <tr>
                                     <td colspan="4" class="text-center text-muted py-4">
@@ -169,32 +169,32 @@
                     </div>
                     <!-- Footer fijo fuera del scroll -->
                     @if(isset($data['estadisticasTabla']) && count($data['estadisticasTabla']) > 0)
-                        @php
-                            $total = collect($data['estadisticasTabla'])->firstWhere('tipo', 'Total');
-                        @endphp
-                        @if($total)
-                        <div class="bg-light border-top">
-                            <table class="table mb-0">
-                                <tfoot>
-                                    <tr class="table-secondary">
-                                        <th style="min-width: 120px;">
-                                            <i class="fas fa-calculator"></i> <span class="d-none d-sm-inline">{{ $total['tipo'] }}</span>
-                                            <span class="d-sm-none">Total</span>
-                                        </th>
-                                        <th style="min-width: 80px;" class="text-center">
-                                            <span class="badge bg-primary">{{ $total['total_doctores'] }}</span>
-                                        </th>
-                                        <th style="min-width: 60px;" class="text-center">
-                                            <span class="badge bg-dark">{{ $total['porcentaje'] }}%</span>
-                                        </th>
-                                        <th style="min-width: 120px;" class="text-end">
-                                            <span class="text-primary fw-bold">S/ {{ number_format($total['promedio_ventas'], 2) }}</span>
-                                        </th>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                        @endif
+                    @php
+                    $total = collect($data['estadisticasTabla'])->firstWhere('tipo', 'Total');
+                    @endphp
+                    @if($total)
+                    <div class="bg-light border-top">
+                        <table class="table mb-0">
+                            <tfoot>
+                                <tr class="table-secondary">
+                                    <th style="min-width: 120px;">
+                                        <i class="fas fa-calculator"></i> <span class="d-none d-sm-inline">{{ $total['tipo'] }}</span>
+                                        <span class="d-sm-none">Total</span>
+                                    </th>
+                                    <th style="min-width: 80px;" class="text-center">
+                                        <span class="badge bg-primary">{{ $total['total_doctores'] }}</span>
+                                    </th>
+                                    <th style="min-width: 60px;" class="text-center">
+                                        <span class="badge bg-dark">{{ $total['porcentaje'] }}%</span>
+                                    </th>
+                                    <th style="min-width: 120px;" class="text-end">
+                                        <span class="text-primary fw-bold">S/ {{ number_format($total['promedio_ventas'], 2) }}</span>
+                                    </th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    @endif
                     @endif
                 </div>
             </div>
@@ -218,18 +218,19 @@
     </div>
 </div>
 
+@include('partials.createChart')
 <script>
-// Esperar a que jQuery esté disponible
-document.addEventListener('DOMContentLoaded', function() {
-    // Verificar que jQuery esté cargado
-    if (typeof $ === 'undefined') {
-        console.error('jQuery no está cargado');
-        return;
-    }
+    // Esperar a que jQuery esté disponible
+    document.addEventListener('DOMContentLoaded', function() {
+        // Verificar que jQuery esté cargado
+        if (typeof $ === 'undefined') {
+            console.error('jQuery no está cargado');
+            return;
+        }
 
-    // Agregar estilos responsivos para los gráficos
-    const style = document.createElement('style');
-    style.textContent = `
+        // Agregar estilos responsivos para los gráficos
+        const style = document.createElement('style');
+        style.textContent = `
         @media (max-width: 768px) {
             .card-body canvas {
                 height: 250px !important;
@@ -282,97 +283,97 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     `;
-    document.head.appendChild(style);
+        document.head.appendChild(style);
 
-    // Variables globales para gráficos
-    let tipoDoctorChart, tipoDoctorPieChart;
-    
-    // Datos iniciales del backend
-    let tipoDoctorData = @json($data ?? []);
-    console.log('Datos iniciales:', tipoDoctorData);
+        // Variables globales para gráficos
+        let tipoDoctorChart, tipoDoctorPieChart;
 
-    // Inicializar todo al cargar la página
-    if (tipoDoctorData && Object.keys(tipoDoctorData).length > 0) {
-        inicializarGraficos(tipoDoctorData);
-        actualizarTabla(tipoDoctorData);
-    }
+        // Datos iniciales del backend
+        let tipoDoctorData = @json($data ?? []);
+        console.log('Datos iniciales:', tipoDoctorData);
 
-    // Event listeners para los botones
-    $(document).on('click', '#filtrar_tipo_doctor', function(e) {
-        e.preventDefault();
-        aplicarFiltros();
-    });
-
-    $(document).on('click', '#limpiar_filtros_tipo_doctor', function(e) {
-        e.preventDefault();
-        limpiarFiltros();
-    });
-
-    // Función para aplicar filtros
-    function aplicarFiltros() {
-        const anio = $('#anio_tipo_doctor').val();
-        
-        // Validar que el año esté seleccionado
-        if (!anio) {
-            alert('Por favor seleccione un año');
-            return;
+        // Inicializar todo al cargar la página
+        if (tipoDoctorData && Object.keys(tipoDoctorData).length > 0) {
+            inicializarGraficos(tipoDoctorData);
+            actualizarTabla(tipoDoctorData);
         }
-        
-        // Mostrar loading
-        $('#filtrar_tipo_doctor').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Cargando...');
-        
-        // Petición AJAX al backend
-        $.ajax({
-            url: '{{ route("api.reportes.doctores") }}', // Ajustar la ruta según corresponda
-            method: 'GET',
-            data: {
-                anio_tipo_doctor: anio
-            },
-            dataType: 'json',
-            success: function(response) {
-                console.log('Respuesta del servidor:', response);
-                
-                if (response && response.ventasPorMes) {
-                    // Actualizar datos
-                    tipoDoctorData = response;
-                    
-                    // Actualizar tabla
-                    actualizarTabla(response);
-                    
-                    // Destruir gráficos existentes y crear nuevos
-                    destruirGraficos();
-                    inicializarGraficos(response);
-                } else {
-                    // Mostrar mensaje cuando no hay datos
-                    alert('No hay datos disponibles para el año seleccionado. Intente con otro año.');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Error en la petición:', error);
-                alert('Error al cargar los datos. Intente nuevamente.');
-            },
-            complete: function() {
-                $('#filtrar_tipo_doctor').prop('disabled', false).html('<i class="fas fa-filter"></i> <span class="d-none d-sm-inline">Filtrar</span><span class="d-sm-none">Filtrar</span>');
-            }
+
+        // Event listeners para los botones
+        $(document).on('click', '#filtrar_tipo_doctor', function(e) {
+            e.preventDefault();
+            aplicarFiltros();
         });
-    }
 
-    // Función para limpiar filtros
-    function limpiarFiltros() {
-        $('#anio_tipo_doctor').val('{{ date("Y") }}');
-        aplicarFiltros();
-    }
+        $(document).on('click', '#limpiar_filtros_tipo_doctor', function(e) {
+            e.preventDefault();
+            limpiarFiltros();
+        });
 
-    // Función para actualizar la tabla
-    function actualizarTabla(data) {
-        const tbody = $('#tablaTipoDoctorBody');
-        const estadisticas = data.estadisticasTabla || [];
-        
-        if (estadisticas.length > 0) {
-            let html = '';
-            estadisticas.forEach(estadistica => {
-                if (estadistica.tipo !== 'Total') {
-                    html += `
+        // Función para aplicar filtros
+        function aplicarFiltros() {
+            const anio = $('#anio_tipo_doctor').val();
+
+            // Validar que el año esté seleccionado
+            if (!anio) {
+                alert('Por favor seleccione un año');
+                return;
+            }
+
+            // Mostrar loading
+            $('#filtrar_tipo_doctor').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Cargando...');
+
+            // Petición AJAX al backend
+            $.ajax({
+                url: '{{ route("api.reportes.doctores") }}', // Ajustar la ruta según corresponda
+                method: 'GET',
+                data: {
+                    anio_tipo_doctor: anio
+                },
+                dataType: 'json',
+                success: function(response) {
+                    console.log('Respuesta del servidor:', response);
+
+                    if (response && response.ventasPorMes) {
+                        // Actualizar datos
+                        tipoDoctorData = response;
+
+                        // Actualizar tabla
+                        actualizarTabla(response);
+
+                        // Destruir gráficos existentes y crear nuevos
+                        destruirGraficos();
+                        inicializarGraficos(response);
+                    } else {
+                        // Mostrar mensaje cuando no hay datos
+                        alert('No hay datos disponibles para el año seleccionado. Intente con otro año.');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error en la petición:', error);
+                    alert('Error al cargar los datos. Intente nuevamente.');
+                },
+                complete: function() {
+                    $('#filtrar_tipo_doctor').prop('disabled', false).html('<i class="fas fa-filter"></i> <span class="d-none d-sm-inline">Filtrar</span><span class="d-sm-none">Filtrar</span>');
+                }
+            });
+        }
+
+        // Función para limpiar filtros
+        function limpiarFiltros() {
+            $('#anio_tipo_doctor').val('{{ date("Y") }}');
+            aplicarFiltros();
+        }
+
+        // Función para actualizar la tabla
+        function actualizarTabla(data) {
+            const tbody = $('#tablaTipoDoctorBody');
+            const estadisticas = data.estadisticasTabla || [];
+
+            if (estadisticas.length > 0) {
+                let html = '';
+                estadisticas.forEach(estadistica => {
+                    if (estadistica.tipo !== 'Total') {
+                        html += `
                         <tr>
                             <td><span class="badge badge-soft-primary">${estadistica.tipo}</span></td>
                             <td class="text-center"><strong>${estadistica.total_doctores}</strong></td>
@@ -380,75 +381,61 @@ document.addEventListener('DOMContentLoaded', function() {
                             <td class="text-end"><span class="text-success fw-bold">S/ ${parseFloat(estadistica.promedio_ventas).toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span></td>
                         </tr>
                     `;
+                    }
+                });
+                tbody.html(html);
+
+                // Actualizar footer si hay total
+                const total = estadisticas.find(e => e.tipo === 'Total');
+                if (total) {
+                    $('.bg-light .table tfoot tr th').eq(0).html(`<i class="fas fa-calculator"></i> <span class="d-none d-sm-inline">${total.tipo}</span><span class="d-sm-none">Total</span>`);
+                    $('.bg-light .table tfoot tr th').eq(1).html(`<span class="badge bg-primary">${total.total_doctores}</span>`);
+                    $('.bg-light .table tfoot tr th').eq(2).html(`<span class="badge bg-dark">${total.porcentaje}%</span>`);
+                    $('.bg-light .table tfoot tr th').eq(3).html(`<span class="text-primary fw-bold">S/ ${parseFloat(total.promedio_ventas).toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>`);
                 }
-            });
-            tbody.html(html);
-            
-            // Actualizar footer si hay total
-            const total = estadisticas.find(e => e.tipo === 'Total');
-            if (total) {
-                $('.bg-light .table tfoot tr th').eq(0).html(`<i class="fas fa-calculator"></i> <span class="d-none d-sm-inline">${total.tipo}</span><span class="d-sm-none">Total</span>`);
-                $('.bg-light .table tfoot tr th').eq(1).html(`<span class="badge bg-primary">${total.total_doctores}</span>`);
-                $('.bg-light .table tfoot tr th').eq(2).html(`<span class="badge bg-dark">${total.porcentaje}%</span>`);
-                $('.bg-light .table tfoot tr th').eq(3).html(`<span class="text-primary fw-bold">S/ ${parseFloat(total.promedio_ventas).toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>`);
-            }
-        } else {
-            tbody.html(`
+            } else {
+                tbody.html(`
                 <tr>
                     <td colspan="4" class="text-center text-muted py-4">
                         <i class="fas fa-info-circle"></i> <span class="d-none d-sm-inline">No hay datos disponibles</span><span class="d-sm-none">Sin datos</span>
                     </td>
                 </tr>
             `);
-        }
-    }
-
-    // Función para destruir gráficos existentes
-    function destruirGraficos() {
-        if (tipoDoctorChart) {
-            tipoDoctorChart.destroy();
-            tipoDoctorChart = null;
-        }
-        if (tipoDoctorPieChart) {
-            tipoDoctorPieChart.destroy();
-            tipoDoctorPieChart = null;
-        }
-    }
-
-    // Función para inicializar gráficos
-    function inicializarGraficos(data) {
-        console.log('Inicializando gráficos con data:', data);
-        
-        if (!data || !data.ventasPorMes) {
-            console.warn('Datos insuficientes para crear gráficos');
-            return;
+            }
         }
 
-        // Crear gráfico mensual
-        crearGraficoMensual(data);
-        
-        // Crear gráfico de pie
-        crearGraficoPie(data);
-    }
+        // Función para destruir gráficos existentes
+        function destruirGraficos() {
+            if (tipoDoctorChart) {
+                tipoDoctorChart.destroy();
+                tipoDoctorChart = null;
+            }
+            if (tipoDoctorPieChart) {
+                tipoDoctorPieChart.destroy();
+                tipoDoctorPieChart = null;
+            }
+        }
 
-    // Crear gráfico mensual
-    function crearGraficoMensual(data) {
-        const ctx = document.getElementById('tipoDoctorChart');
-        if (!ctx) return;
-        
-        const ventasData = data.ventasPorMes || {};
-        const labels = ventasData.meses || [];
-        const datasets = ventasData.datasets || [];
-        
-        tipoDoctorChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: datasets
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
+        // Función para inicializar gráficos
+        function inicializarGraficos(data) {
+            console.log('Inicializando gráficos con data:', data);
+
+            if (!data || !data.ventasPorMes) {
+                console.warn('Datos insuficientes para crear gráficos');
+                return;
+            }
+
+            crearGraficoMensual(data);
+
+            crearGraficoPie(data);
+        }
+
+        function crearGraficoMensual(data) {
+            const ventasData = data.ventasPorMes || {};
+            const labels = ventasData.meses || [];
+            const datasets = ventasData.datasets || [];
+
+            const extraOptions = {
                 scales: {
                     y: {
                         beginAtZero: true,
@@ -481,38 +468,28 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }
                 }
-            }
-        });
-    }
+            };
 
-    // Crear gráfico de pie
-    function crearGraficoPie(data) {
-        const ctx = document.getElementById('tipoDoctorPieChart');
-        if (!ctx) return;
-        
-        const tiposData = data.tipos || {};
-        const labels = tiposData.labels || [];
-        const datos = tiposData.datos || [];
-        
-        tipoDoctorPieChart = new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: datos,
-                    backgroundColor: [
-                        'rgba(255, 193, 7, 0.8)',
-                        'rgba(40, 167, 69, 0.8)',
-                        'rgba(220, 53, 69, 0.8)',
-                        'rgba(23, 162, 184, 0.8)',
-                        'rgba(108, 117, 125, 0.8)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
+            tipoDoctorChart = createChart('#tipoDoctorChart', labels, datasets, 'bar', extraOptions);
+        }
+
+        function crearGraficoPie(data) {
+            const tiposData = data.tipos || {};
+            const labels = tiposData.labels || [];
+            const datos = tiposData.datos || [];
+
+            const datasets = [{
+                data: datos,
+                backgroundColor: [
+                    'rgba(255, 193, 7, 0.8)',
+                    'rgba(40, 167, 69, 0.8)',
+                    'rgba(220, 53, 69, 0.8)',
+                    'rgba(23, 162, 184, 0.8)',
+                    'rgba(108, 117, 125, 0.8)'
+                ],
+                borderWidth: 1
+            }];
+            const extraOptions = {
                 plugins: {
                     legend: {
                         position: 'bottom',
@@ -523,62 +500,61 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }
                 }
-            }
-        });
-    }
+            };
 
-    // Función para hacer gráficos responsivos
-    function makeChartsResponsive() {
-        // Configuración común para todos los gráficos
-        const commonOptions = {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    labels: {
-                        font: {
-                            size: window.innerWidth < 768 ? 12 : 14
-                        }
-                    }
-                }
-            }
-        };
+            tipoDoctorPieChart = createChart('#tipoDoctorPieChart', labels, datasets, 'pie', extraOptions);
+        }
 
-        // Gráfico principal de tipo doctor
-        const tipoDoctorChartCanvas = document.getElementById('tipoDoctorChart');
-        if (tipoDoctorChartCanvas && tipoDoctorChart) {
-            tipoDoctorChart.options = { 
-                ...tipoDoctorChart.options, 
-                ...commonOptions,
-                scales: {
-                    ...tipoDoctorChart.options.scales,
-                    x: {
-                        ticks: {
-                            maxRotation: 45,
-                            minRotation: 0,
-                            autoSkip: window.innerWidth < 768
+        // Función para hacer gráficos responsivos
+        function makeChartsResponsive() {
+            // Configuración común para todos los gráficos
+            const commonOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            font: {
+                                size: window.innerWidth < 768 ? 12 : 14
+                            }
                         }
                     }
                 }
             };
-            tipoDoctorChart.update();
+
+            const tipoDoctorChartCanvas = document.getElementById('tipoDoctorChart');
+            if (tipoDoctorChartCanvas && tipoDoctorChart) {
+                tipoDoctorChart.options = {
+                    ...tipoDoctorChart.options,
+                    ...commonOptions,
+                    scales: {
+                        ...tipoDoctorChart.options.scales,
+                        x: {
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 0,
+                                autoSkip: window.innerWidth < 768
+                            }
+                        }
+                    }
+                };
+                tipoDoctorChart.update();
+            }
+
+            const pieChartCanvas = document.getElementById('tipoDoctorPieChart');
+            if (pieChartCanvas && tipoDoctorPieChart) {
+                tipoDoctorPieChart.options = {
+                    ...tipoDoctorPieChart.options,
+                    ...commonOptions
+                };
+                tipoDoctorPieChart.update();
+            }
         }
 
-        // Gráfico de pie
-        const pieChartCanvas = document.getElementById('tipoDoctorPieChart');
-        if (pieChartCanvas && tipoDoctorPieChart) {
-            tipoDoctorPieChart.options = { 
-                ...tipoDoctorPieChart.options, 
-                ...commonOptions 
-            };
-            tipoDoctorPieChart.update();
-        }
-    }
+        // Ejecutar cuando la ventana cambie de tamaño
+        window.addEventListener('resize', makeChartsResponsive);
 
-    // Ejecutar cuando la ventana cambie de tamaño
-    window.addEventListener('resize', makeChartsResponsive);
-    
-    // Ejecutar inicialmente
-    makeChartsResponsive();
-});
+        // Ejecutar inicialmente
+        makeChartsResponsive();
+    });
 </script>

@@ -28,12 +28,12 @@
             <label for="anio_general" class="form-label">Año</label>
             <select class="form-control" id="anio_general">
                 @php
-                    $currentYear = date('Y');
-                    // Mostrar años desde el actual hasta 2020 en orden descendente
-                    for ($year = $currentYear; $year >= 2020; $year--) {
-                        $selected = ($year == $currentYear) ? 'selected' : '';
-                        echo "<option value=\"$year\" $selected>$year</option>";
-                    }
+                $currentYear = date('Y');
+                // Mostrar años desde el actual hasta 2020 en orden descendente
+                for ($year = $currentYear; $year >= 2020; $year--) {
+                $selected = ($year == $currentYear) ? 'selected' : '';
+                echo "<option value=\"$year\" $selected>$year</option>";
+                }
                 @endphp
             </select>
         </div>
@@ -130,18 +130,19 @@
     </div>
 </div>
 
+@include('partials.createChart')
 <script>
-// Esperar a que jQuery esté disponible
-document.addEventListener('DOMContentLoaded', function() {
-    // Verificar que jQuery esté cargado
-    if (typeof $ === 'undefined') {
-        console.error('jQuery no está cargado');
-        return;
-    }
+    // Esperar a que jQuery esté disponible
+    document.addEventListener('DOMContentLoaded', function() {
+        // Verificar que jQuery esté cargado
+        if (typeof $ === 'undefined') {
+            console.error('jQuery no está cargado');
+            return;
+        }
 
-    // Agregar estilos responsivos para los gráficos
-    const style = document.createElement('style');
-    style.textContent = `
+        // Agregar estilos responsivos para los gráficos
+        const style = document.createElement('style');
+        style.textContent = `
         @media (max-width: 768px) {
             .card-body canvas {
                 height: 250px !important;
@@ -171,172 +172,166 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     `;
-    document.head.appendChild(style);
+        document.head.appendChild(style);
 
-    // Variables globales para gráficos
-    let chartMes, chartDia, chartTendencia;
-    
-    // Datos iniciales del backend
-    let generalData = @json($data['general'] ?? []);
-    console.log('Datos iniciales:', generalData);
+        // Variables globales para gráficos
+        let chartMes, chartDia, chartTendencia;
 
-    // Inicializar todo al cargar la página
-    if (generalData && Object.keys(generalData).length > 0) {
-        inicializarGraficos(generalData);
-        actualizarMetricas(generalData);
-    }
+        // Datos iniciales del backend
+        let generalData = @json($data['general'] ?? []);
+        console.log('Datos iniciales:', generalData);
 
-    // Event listeners para los botones
-    $(document).on('click', '#filtrar_general', function(e) {
-        e.preventDefault();
-        aplicarFiltros();
-    });
-
-    $(document).on('click', '#limpiar_general', function(e) {
-        e.preventDefault();
-        limpiarFiltros();
-    });
-
-    // Función para aplicar filtros
-    function aplicarFiltros() {
-        const mes = $('#mes_general').val();
-        const anio = $('#anio_general').val();
-        
-        // Validar que al menos el año esté seleccionado
-        if (!anio) {
-            alert('Por favor seleccione al menos un año');
-            return;
+        // Inicializar todo al cargar la página
+        if (generalData && Object.keys(generalData).length > 0) {
+            inicializarGraficos(generalData);
+            actualizarMetricas(generalData);
         }
-        
-        // Mostrar loading
-        $('#filtrar_general').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Cargando...');
-        
-        // Petición AJAX al backend
-        $.ajax({
-            url: '{{ route("api.reportes.ventas") }}',
-            method: 'GET',
-            data: {
-                mes_general: mes || '',
-                anio_general: anio || ''
-            },
-            dataType: 'json',
-            success: function(response) {
-                console.log('Respuesta del servidor:', response);
-                
-                if (response && response.general) {
-                    // Actualizar datos
-                    generalData = response.general;
-                    
-                    // Actualizar métricas
-                    actualizarMetricas(response.general);
-                    
-                    // Destruir gráficos existentes y crear nuevos
-                    destruirGraficos();
-                    inicializarGraficos(response.general);
-                } else {
-                    alert('No se recibieron datos válidos del servidor');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Error en la petición:', error);
-                alert('Error al cargar los datos. Intente nuevamente.');
-            },
-            complete: function() {
-                $('#filtrar_general').prop('disabled', false).html('<i class="fas fa-filter"></i> Filtrar');
-            }
+
+        // Event listeners para los botones
+        $(document).on('click', '#filtrar_general', function(e) {
+            e.preventDefault();
+            aplicarFiltros();
         });
-    }
 
-    // Función para limpiar filtros
-    function limpiarFiltros() {
-        $('#mes_general').val('');
-        $('#anio_general').val('{{ date("Y") }}');
-        aplicarFiltros();
-    }
+        $(document).on('click', '#limpiar_general', function(e) {
+            e.preventDefault();
+            limpiarFiltros();
+        });
 
-    // Función para actualizar las métricas
-    function actualizarMetricas(data) {
-        const totalVentas = data.total_ventas || 0;
-        const totalVisitas = data.total_visitas || 0;
-        const promedioVenta = data.promedio_venta || 0;
-        
-        $('#general .card.bg-warning h3').text('S/ ' + totalVentas.toLocaleString('es-PE', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }));
-        
-        $('#general .card.bg-danger h3').text(totalVisitas.toLocaleString());
-        
-        $('#general .card.bg-dark h3').text('S/ ' + promedioVenta.toLocaleString('es-PE', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }));
-    }
+        // Función para aplicar filtros
+        function aplicarFiltros() {
+            const mes = $('#mes_general').val();
+            const anio = $('#anio_general').val();
 
-    // Función para destruir gráficos existentes
-    function destruirGraficos() {
-        if (chartMes) {
-            chartMes.destroy();
-            chartMes = null;
+            // Validar que al menos el año esté seleccionado
+            if (!anio) {
+                alert('Por favor seleccione al menos un año');
+                return;
+            }
+
+            // Mostrar loading
+            $('#filtrar_general').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Cargando...');
+
+            // Petición AJAX al backend
+            $.ajax({
+                url: '{{ route("api.reportes.ventas") }}',
+                method: 'GET',
+                data: {
+                    mes_general: mes || '',
+                    anio_general: anio || ''
+                },
+                dataType: 'json',
+                success: function(response) {
+                    console.log('Respuesta del servidor:', response);
+
+                    if (response && response.general) {
+                        // Actualizar datos
+                        generalData = response.general;
+
+                        // Actualizar métricas
+                        actualizarMetricas(response.general);
+
+                        // Destruir gráficos existentes y crear nuevos
+                        destruirGraficos();
+                        inicializarGraficos(response.general);
+                    } else {
+                        alert('No se recibieron datos válidos del servidor');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error en la petición:', error);
+                    alert('Error al cargar los datos. Intente nuevamente.');
+                },
+                complete: function() {
+                    $('#filtrar_general').prop('disabled', false).html('<i class="fas fa-filter"></i> Filtrar');
+                }
+            });
         }
-        if (chartDia) {
-            chartDia.destroy();
-            chartDia = null;
-        }
-        if (chartTendencia) {
-            chartTendencia.destroy();
-            chartTendencia = null;
-        }
-    }
 
-    // Función para inicializar gráficos
-    function inicializarGraficos(data) {
-        console.log('Inicializando gráficos con data:', data);
-        
-        if (!data || !data.labels || !data.ventas) {
-            console.warn('Datos insuficientes para crear gráficos');
-            return;
+        // Función para limpiar filtros
+        function limpiarFiltros() {
+            $('#mes_general').val('');
+            $('#anio_general').val('{{ date("Y") }}');
+            aplicarFiltros();
         }
 
-        // Mostrar/ocultar gráficos según el tipo de datos
-        if (data.tipo === 'diario') {
-            // Mostrar solo gráfico diario
-            $('#reportesMesChart').parent().parent().hide();
-            $('#tendenciaChart').parent().parent().hide();
-            $('#ventasDiaChart').parent().parent().show();
-            
-            crearGraficoDiario(data);
-        } else {
-            // Mostrar gráficos mensuales
-            $('#ventasDiaChart').parent().parent().hide();
-            $('#reportesMesChart').parent().parent().show();
-            $('#tendenciaChart').parent().parent().show();
-            
-            crearGraficoMensual(data);
-            crearGraficoTendencia(data);
-        }
-    }
+        // Función para actualizar las métricas
+        function actualizarMetricas(data) {
+            const totalVentas = data.total_ventas || 0;
+            const totalVisitas = data.total_visitas || 0;
+            const promedioVenta = data.promedio_venta || 0;
 
-    // Crear gráfico mensual
-    function crearGraficoMensual(data) {
-        const ctx = document.getElementById('reportesMesChart');
-        if (!ctx) return;
-        
-        chartMes = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: data.labels || [],
-                datasets: [{
-                    label: 'Ventas (S/)',
-                    data: data.ventas || [],
-                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
+            $('#general .card.bg-warning h3').text('S/ ' + totalVentas.toLocaleString('es-PE', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }));
+
+            $('#general .card.bg-danger h3').text(totalVisitas.toLocaleString());
+
+            $('#general .card.bg-dark h3').text('S/ ' + promedioVenta.toLocaleString('es-PE', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }));
+        }
+
+        // Función para destruir gráficos existentes
+        function destruirGraficos() {
+            if (chartMes) {
+                chartMes.destroy();
+                chartMes = null;
+            }
+            if (chartDia) {
+                chartDia.destroy();
+                chartDia = null;
+            }
+            if (chartTendencia) {
+                chartTendencia.destroy();
+                chartTendencia = null;
+            }
+        }
+
+        // Función para inicializar gráficos
+        function inicializarGraficos(data) {
+            console.log('Inicializando gráficos con data:', data);
+
+            if (!data || !data.labels || !data.ventas) {
+                console.warn('Datos insuficientes para crear gráficos');
+                return;
+            }
+
+            // Mostrar/ocultar gráficos según el tipo de datos
+            if (data.tipo === 'diario') {
+                // Mostrar solo gráfico diario
+                $('#reportesMesChart').parent().parent().hide();
+                $('#tendenciaChart').parent().parent().hide();
+                $('#ventasDiaChart').parent().parent().show();
+
+                crearGraficoDiario(data);
+            } else {
+                // Mostrar gráficos mensuales
+                $('#ventasDiaChart').parent().parent().hide();
+                $('#reportesMesChart').parent().parent().show();
+                $('#tendenciaChart').parent().parent().show();
+
+                crearGraficoMensual(data);
+                crearGraficoTendencia(data);
+            }
+        }
+
+        // Crear gráfico mensual
+        function crearGraficoMensual(data) {
+            const labels = data.labels || [];
+            const ventas = data.ventas || [];
+
+            if (!labels.length || !ventas.length) return;
+            const datasets = [{
+                label: 'Ventas (S/)',
+                data: ventas,
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }];
+            const extraOptions = {
                 scales: {
                     y: {
                         beginAtZero: true,
@@ -369,31 +364,26 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }
                 }
-            }
-        });
-    }
+            };
+            chartMes = createChart('#reportesMesChart', labels, datasets, 'bar', extraOptions);
+        }
 
-    // Crear gráfico de tendencia
-    function crearGraficoTendencia(data) {
-        const ctx = document.getElementById('tendenciaChart');
-        if (!ctx) return;
-        
-        chartTendencia = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: data.labels || [],
-                datasets: [{
-                    label: 'Tendencia de Ventas',
-                    data: data.ventas || [],
-                    borderColor: 'rgba(255, 193, 7, 1)',
-                    backgroundColor: 'rgba(255, 193, 7, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
+        function crearGraficoTendencia(data) {
+            const labels = data.labels || [];
+            const ventas = data.ventas || [];
+
+            if (!labels.length || !ventas.length) return;
+
+            const datasets = [{
+                label: 'Tendencia de Ventas',
+                data: ventas,
+                borderColor: 'rgba(255, 193, 7, 1)',
+                backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                tension: 0.4,
+                fill: true
+            }];
+
+            const extraOptions = {
                 scales: {
                     y: {
                         beginAtZero: true,
@@ -426,29 +416,27 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }
                 }
-            }
-        });
-    }    // Crear gráfico diario
-    function crearGraficoDiario(data) {
-        const ctx = document.getElementById('ventasDiaChart');
-        if (!ctx) return;
-        
-        chartDia = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: data.labels || [],
-                datasets: [{
-                    label: 'Ventas Diarias (S/)',
-                    data: data.ventas || [],
-                    borderColor: 'rgba(40, 167, 69, 1)',
-                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
+            };
+
+            chartTendencia = createChart('#tendenciaChart', labels, datasets, 'line', extraOptions);
+        }
+
+        function crearGraficoDiario(data) {
+            const labels = data.labels || [];
+            const ventas = data.ventas || [];
+
+            if (!labels.length || !ventas.length) return;
+
+            const datasets = [{
+                label: 'Ventas Diarias (S/)',
+                data: ventas,
+                borderColor: 'rgba(40, 167, 69, 1)',
+                backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                tension: 0.4,
+                fill: true
+            }];
+
+            const extraOptions = {
                 scales: {
                     y: {
                         beginAtZero: true,
@@ -483,8 +471,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }
                 }
-            }
-        });
-    }
-});
+            };
+
+            chartDia = createChart('#ventasDiaChart', labels, datasets, 'line', extraOptions);
+        }
+    });
 </script>
