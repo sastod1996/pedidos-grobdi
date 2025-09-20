@@ -289,6 +289,7 @@ Route::middleware(['checkRole:jefe-comercial,admin'])->group(function () {
     Route::get('/reporte/ventas', [ReporteController::class, 'ventas'])->name('reporte.ventas');
     Route::get('/reporte/doctores', [ReporteController::class, 'doctores'])->name('reporte.doctores');
     Route::get('/reporte/visitadoras', [ReporteController::class, 'visitadoras'])->name('reporte.visitadoras');
+    Route::get('/api/visitadoras/visitadora', [ReporteController::class, 'apiVentasVisitadora'])->name('reporte.api.ventas.visitadora');
 
     // API endpoints para datos dinámicos
     Route::get('/api/reportes/ventas', [ReporteController::class, 'apiVentas'])->name('api.reportes.ventas');
