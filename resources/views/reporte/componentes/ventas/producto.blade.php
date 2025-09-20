@@ -780,14 +780,96 @@
                 $('#stat_precio_promedio').text(response.estadisticas.precio_promedio_formateado);
             }
 
-            // Actualizar indicador de rango (viene procesado del backend)
-            if (response.indicador_rango) {
-                $('.mt-2').html(response.indicador_rango);
+            // Renderizar indicador de rango en el frontend con datos estructurados
+            if (response.indicador) {
+                const ind = response.indicador;
+                let html = '';
+                const fmt = (d) => {
+                    if (!d) return '';
+                    const dd = new Date(d);
+                    return dd.toLocaleDateString('es-PE');
+                };
+                if (ind.tipo === 'por_defecto') {
+                    html = `<small class="badge bg-light text-dark px-3 py-1"><i class="fas fa-calendar-alt me-1"></i>Datos por defecto: <strong>${fmt(ind.desde)} - ${fmt(ind.hasta)}</strong> <span class="text-muted">(Mes actual)</span></small>`;
+                } else if (ind.tipo === 'personalizado') {
+                    html = `<small class="badge bg-info text-white px-3 py-1"><i class="fas fa-calendar-alt me-1"></i>Rango personalizado: <strong>${fmt(ind.desde)} - ${fmt(ind.hasta)}</strong></small>`;
+                } else if (ind.tipo === 'desde') {
+                    html = `<small class="badge bg-info text-white px-3 py-1"><i class="fas fa-calendar-alt me-1"></i>Desde: <strong>${fmt(ind.desde)}</strong></small>`;
+                } else if (ind.tipo === 'hasta') {
+                    html = `<small class="badge bg-info text-white px-3 py-1"><i class="fas fa-calendar-alt me-1"></i>Hasta: <strong>${fmt(ind.hasta)}</strong></small>`;
+                } else {
+                    html = `<small class="badge bg-warning text-dark px-3 py-1"><i class="fas fa-calendar-alt me-1"></i><strong>Todos los datos históricos</strong></small>`;
+                }
+                $('.mt-2').html(html);
             }
 
-            // Actualizar tabla (viene como HTML del backend)
-            if (response.tabla_html) {
-                $('#tabla_productos').html(response.tabla_html);
+            // Renderizar tabla en el frontend
+            if (response.productos && response.productos.labels && response.productos.labels.length) {
+                const productos = [];
+                const labels = response.productos.labels;
+                const ventas = response.productos.ventas || [];
+                const unidades = response.productos.unidades || [];
+                for (let i = 0; i < labels.length; i++) {
+                    productos.push({ nombre: labels[i], ventas: ventas[i] || 0, unidades: unidades[i] || 0 });
+                }
+                productos.sort((a,b) => b.ventas - a.ventas);
+
+                const totalVentas = ventas.reduce((a,b)=>a+(b||0),0);
+                let html = '';
+                productos.forEach((p, idx) => {
+                    const porcentaje = totalVentas > 0 ? (p.ventas / totalVentas) * 100 : 0;
+                    const precioProm = p.unidades > 0 ? (p.ventas / p.unidades) : 0;
+                    let badgeClass = 'bg-secondary';
+                    if (idx === 0) badgeClass = 'bg-warning';
+                    else if (idx === 1) badgeClass = 'bg-secondary';
+                    else if (idx === 2) badgeClass = 'bg-info';
+                    else if (idx < 10) badgeClass = 'bg-success';
+                    html += `
+                        <tr class="border-bottom">
+                            <td class="text-center py-3">
+                                <span class="badge ${badgeClass} px-3 py-2 fs-6">${idx===0?'🥇':idx===1?'🥈':idx===2?'🥉':''} ${idx+1}</span>
+                            </td>
+                            <td class="py-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                            <i class="fas fa-box"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold">${$('<div>').text(p.nombre).html()}</h6>
+                                        <small class="text-muted">Ranking: #${idx+1}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center py-3">
+                                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 fs-6">${(p.unidades||0).toLocaleString()}</span>
+                            </td>
+                            <td class="text-end py-3">
+                                <h6 class="mb-0 text-success fw-bold">S/ ${(p.ventas||0).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h6>
+                            </td>
+                            <td class="text-end py-3"><span class="fw-medium">S/ ${precioProm.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></td>
+                            <td class="text-center py-3">
+                                <div class="progress" style="height: 25px; background-color: #e9ecef;">
+                                    <div class="progress-bar bg-success progress-bar-striped" role="progressbar" style="width: ${porcentaje}%;" aria-valuenow="${porcentaje}" aria-valuemin="0" aria-valuemax="100">
+                                        <span class="fw-bold">${porcentaje.toFixed(1)}%</span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>`;
+                });
+                $('#tabla_productos').html(html);
+            } else {
+                $('#tabla_productos').html(`
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <div class="text-muted">
+                                <i class="fas fa-inbox fa-3x mb-3 opacity-25"></i>
+                                <h5>No hay datos disponibles</h5>
+                                <p>Ajusta los filtros para mostrar información</p>
+                            </div>
+                        </td>
+                    </tr>`);
             }
 
             // Actualizar totales de tabla
@@ -1009,7 +1091,7 @@
                 // Simular respuesta del backend para inicialización
                 const respuestaSimulada = {
                     productos: datosIniciales,
-                    productos_procesados: datosIniciales, // Se procesará en backend en futuras versiones
+                    productos_procesados: datosIniciales,
                     estadisticas: {
                         total_productos: datosIniciales.labels.length,
                         total_ventas: datosIniciales.ventas.reduce((a, b) => a + b, 0),
@@ -1029,7 +1111,7 @@
                         borderRadius: 4
                     },
                     datos_pareto: null, // Se calculará después
-                    indicador_rango: '<small class="badge bg-light text-dark px-3 py-1"><i class="fas fa-calendar-alt me-1"></i>Datos iniciales cargados</small>'
+                    indicador: null
                 };
                 actualizarInterfaz(respuestaSimulada);
             }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Application\Services\Reportes\VentasReporteService;
+use App\Application\Services\Reportes\GeoVentasService;
 use App\Application\Services\Reportes\DoctoresReporteService;
 use App\Application\Services\Reportes\VisitadorasReporteService;
 use App\Models\VisitaDoctor;
@@ -12,7 +13,7 @@ use App\Models\Distrito;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
-use App\Domain\Reports\ReportsService; // Para funcionalidades legacy de doctores
+use App\Domain\Reports\ReportsService;
 
 class ReporteController extends Controller
 {
@@ -20,7 +21,8 @@ class ReporteController extends Controller
         protected VentasReporteService $ventasService,
         protected DoctoresReporteService $doctoresService,
         protected VisitadorasReporteService $visitadorasService,
-        protected ReportsService $reportsService // inyección del antiguo servicio
+        protected ReportsService $reportsService,
+        protected GeoVentasService $geoVentasService
     ) {}
 
     public function ventas(Request $request)
@@ -68,35 +70,100 @@ class ReporteController extends Controller
                     'total_unidades_formateado' => '0',
                     'precio_promedio_formateado' => 'S/ 0.00'
                 ],
-                'tabla_html' => '<tr><td colspan="6" class="text-center py-5"><div class="text-muted"><i class="fas fa-exclamation-triangle fa-3x mb-3 text-warning"></i><h5>Error al cargar datos</h5><p>Ocurrió un error interno. Intente nuevamente.</p></div></td></tr>',
                 'configuracion_grafico' => [],
                 'datos_pareto' => ['labels' => [], 'porcentajes_acumulados' => [], 'punto_80' => 0],
-                'indicador_rango' => '<small class="badge bg-danger text-white px-3 py-1"><i class="fas fa-exclamation-triangle me-1"></i>Error en la consulta</small>',
+                'indicador' => null,
                 'mensaje' => 'Error interno del servidor'
+            ], 500);
+        }
+    }
+
+    /**
+     * API: Datos generales (tab General) - ingresos, visitas y series por año/mes
+     */
+    public function apiVentasGeneral(Request $request)
+    {
+        try {
+            $filtros = $request->only(['mes_general', 'anio_general']);
+
+            // Validación mínima: año requerido
+            if (empty($filtros['anio_general'])) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'El parámetro anio_general es requerido',
+                    'general' => []
+                ], 422);
+            }
+
+            $data = $this->ventasService->getData($filtros);
+
+            // El DTO expone la propiedad pública $general con la forma esperada por el frontend
+            $general = $data->general ?? ($data->toArray()['general'] ?? []);
+
+            return response()->json([
+                'general' => $general
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Error en apiVentasGeneral: ' . $e->getMessage());
+            return response()->json([
+                'error' => true,
+                'message' => 'Error al procesar los datos generales de ventas',
+                'general' => []
+            ], 500);
+        }
+    }
+
+    /**
+     * API: Ventas por Provincia/Departamento (normaliza campo district contra catálogos)
+     */
+    public function apiVentasProvincias(Request $request)
+    {
+        try {
+            $filtros = $request->only([
+                'fecha_inicio_provincia',
+                'fecha_fin_provincia',
+                'anio_general',
+                'mes_general',
+                'agrupacion'
+            ]);
+
+            Log::info('apiVentasProvincias filtros recibidos', $filtros);
+
+            $geo = $this->geoVentasService->getGeoVentas($filtros);
+
+            return response()->json($geo);
+        } catch (\Throwable $e) {
+            Log::error('Error en apiVentasProvincias: ' . $e->getMessage());
+            return response()->json([
+                'agrupacion' => $request->input('agrupacion', 'provincia'),
+                'labels' => [],
+                'ventas' => [],
+                'porcentaje' => [],
+                'pedidos' => [],
+                'total_ventas' => 0,
+                'total_pedidos' => 0,
+                'message' => 'Error al cargar datos',
+                'titulo' => 'Ventas por Ubigeo'
             ], 500);
         }
     }
 
     public function doctores(Request $request)
     {
-        // Aceptar nuevos filtros de rango de fechas y mantener compatibilidad con antiguos
         $filtros = $request->only([
             'fecha_inicio_tipo_doctor',
             'fecha_fin_tipo_doctor',
-            'anio_tipo_doctor', //! legacy
-            'mes',              //! legacy
+            'anio_tipo_doctor',
+            'mes',
             'tipo_medico'
         ]);
 
         $data = $this->doctoresService->getData($filtros);
-        // También necesitamos datos iniciales para la sección migrada de consumo por doctor ($doctorData)
-        // Usa mes/año actuales si no hay selección; esto replica el comportamiento legacy.
         $currentYear = now()->year;
         $currentMonth = now()->month;
         try {
             $doctorData = $this->reportsService->doctor()->getDoctorReport($currentYear, $currentMonth);
         } catch (\Throwable $e) {
-            // Fallback seguro si el servicio falla para no romper la vista
             $doctorData = [
                 'doctor' => 'N/A',
                 'tipoMedico' => 'N/A',
@@ -118,8 +185,8 @@ class ReporteController extends Controller
         $filtros = $request->only([
             'fecha_inicio_tipo_doctor',
             'fecha_fin_tipo_doctor',
-            'anio_tipo_doctor', //! legacy
-            'mes',              //! legacy
+            'anio_tipo_doctor',
+            'mes',
             'tipo_medico'
         ]);
         $data = $this->doctoresService->getData($filtros);
@@ -128,7 +195,6 @@ class ReporteController extends Controller
 
     public function visitadoras(Request $request)
     {
-        // Replicamos la lógica del antiguo ReportsController@indexVisitadoras
         $month = $request->input('month', now()->month);
 
         $initialValues = VisitaDoctor::select('estado_visita_id', DB::raw('COUNT(*) as total'))
@@ -219,10 +285,6 @@ class ReporteController extends Controller
         $month = now()->month;
 
         $doctorData = $this->reportsService->doctor()->getDoctorReport($year, $month);
-
-        // Reutilizamos la vista existente de legacy si se requiere, pero según requerimiento
-        // se integrará el contenido en la vista nueva doctor.blade (component). Para mantener compatibilidad
-        // devolvemos la misma estructura esperada por esa vista partial.
         return view('reports.doctores.index', compact('doctorData'));
     }
 
@@ -270,5 +332,48 @@ class ReporteController extends Controller
                 ['value' => 12, 'label' => 'Diciembre'],
             ]
         ]);
+    }
+
+    /**
+     * API: Obtiene pedidos detallados por departamento
+     */
+    public function apiPedidosPorDepartamento(Request $request)
+    {
+        try {
+            $departamento = $request->input('departamento');
+            $filtros = $request->only([
+                'fecha_inicio_provincia',
+                'fecha_fin_provincia',
+                'anio_general',
+                'mes_general',
+                'agrupacion'
+            ]);
+
+            if (!$departamento) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'El parámetro departamento es requerido'
+                ], 400);
+            }
+
+            Log::info('apiPedidosPorDepartamento', [
+                'departamento' => $departamento,
+                'filtros' => $filtros
+            ]);
+
+            $data = $this->geoVentasService->getPedidosDetallados($departamento, $filtros);
+
+            return response()->json($data);
+        } catch (\Throwable $e) {
+            Log::error('Error en apiPedidosPorDepartamento: ' . $e->getMessage());
+            return response()->json([
+                'error' => true,
+                'message' => 'Error al obtener los pedidos detallados',
+                'departamento' => $request->input('departamento', ''),
+                'total_pedidos' => 0,
+                'total_ventas' => 0,
+                'pedidos' => []
+            ], 500);
+        }
     }
 }
