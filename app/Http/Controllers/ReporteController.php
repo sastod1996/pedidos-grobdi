@@ -27,30 +27,34 @@ class ReporteController extends Controller
     {
         $filtros = $request->only(['mes_general', 'anio_general']);
         $data = $this->ventasService->getData($filtros);
-        
+
         return view('reporte.ventas', ['data' => $data->toArray()]);
+    }
+
+    public function apiVentasVisitadora(Request $request)
+    {
+        return $this->ventasService->getVisitadoraData($request['start_date'], $request['end_date']);
     }
 
     public function apiVentas(Request $request)
     {
         try {
             $filtros = $request->only([
-                'mes_general', 
-                'anio_general', 
-                'fecha_inicio_producto', 
+                'mes_general',
+                'anio_general',
+                'fecha_inicio_producto',
                 'fecha_fin_producto'
             ]);
-            
+
             $data = $this->ventasService->getData($filtros);
-            
+
             // Usar el nuevo método que procesa todo en el backend
             $datosCompletos = $data->getDatosProductosCompletos($filtros);
-            
+
             return response()->json($datosCompletos);
-            
         } catch (\Exception $e) {
             Log::error('Error en apiVentas: ' . $e->getMessage());
-            
+
             return response()->json([
                 'error' => true,
                 'message' => 'Error al procesar los datos de ventas',
@@ -96,7 +100,7 @@ class ReporteController extends Controller
             $doctorData = [
                 'doctor' => 'N/A',
                 'tipoMedico' => 'N/A',
-                'amountSpentByDoctorGroupedByMonth' => array_fill(1,12,0),
+                'amountSpentByDoctorGroupedByMonth' => array_fill(1, 12, 0),
                 'amountSpentByDoctorGroupedByTipo' => [],
                 'topMostConsumedProductsInTheMonthByDoctor' => [],
                 'consumedProductsInTheMonthByDoctor' => []
@@ -138,6 +142,7 @@ class ReporteController extends Controller
 
         return view('reporte.visitadoras', compact('initialValues', 'zones', 'estadosVisitas'));
     }
+
 
     /**
      * Devuelve distritos programados por zona (basado en listas de doctores)
@@ -266,5 +271,4 @@ class ReporteController extends Controller
             ]
         ]);
     }
-
 }

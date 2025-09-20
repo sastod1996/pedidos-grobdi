@@ -58,7 +58,7 @@ class VentasDTO extends ReporteDTO
     {
         // Consulta real a la tabla pedidos con join a users
         $query = Pedidos::selectRaw('users.name as visitadora, SUM(pedidos.prize) as ventas, COUNT(pedidos.id) as visitas')
-            ->join('users', 'pedidos.user_id', '=', 'users.id')
+            ->join('users', 'pedidos.visitadora_id', '=', 'users.id')
             ->groupBy('users.id', 'users.name')
             ->orderByRaw('SUM(pedidos.prize) DESC');
 
@@ -74,10 +74,47 @@ class VentasDTO extends ReporteDTO
 
         return [
             'labels' => $resultados->pluck('visitadora')->toArray(),
-            'ventas' => $resultados->pluck('ventas')->map(function($venta) { return (float) $venta; })->toArray(),
-            'visitas' => $resultados->pluck('visitas')->map(function($visita) { return (int) $visita; })->toArray()
+            'ventas' => $resultados->pluck('ventas')->map(function ($venta) {
+                return (float) $venta;
+            })->toArray(),
+            'visitas' => $resultados->pluck('visitas')->map(function ($visita) {
+                return (int) $visita;
+            })->toArray(),
+            'visitadoraData' => $this->getVentasPerVisitadoraData($filtros),
         ];
     }
+
+    public function getVentasPerVisitadoraData(array $filtros = [])
+    {
+        $query = DB::table('pedidos as p')
+            ->join('users as u', 'u.id', '=', 'p.visitadora_id')
+            ->select(
+                'u.id as visitadora_id',
+                'u.name as visitadora',
+                DB::raw('SUM(p.prize) as total_monto'),
+                DB::raw('COUNT(p.id) as total_pedidos')
+            )
+            ->where('u.role_id', 6);
+
+        if (isset($filtros['start_date']) && isset($filtros['end_date'])) {
+            $query->whereBetween('p.created_at', [$filtros['start_date'], $filtros['end_date']]);
+        }
+
+        $res = $query->groupBy('u.id', 'u.name')->get();
+
+        $totalPedidos = $res->sum('total_pedidos');
+
+        return $res->map(function ($item) use ($totalPedidos) {
+            return [
+                'visitadora' => $item->visitadora,
+                'total_monto' => (float) $item->total_monto,
+                'total_pedidos' => (int) $item->total_pedidos,
+                'porcentaje_pedidos' => $totalPedidos > 0 ? round(($item->total_pedidos / $totalPedidos) * 100, 1) : 0,
+            ];
+        })->toArray();
+    }
+
+
 
     /**
      * Obtiene datos agrupados por producto desde detail_pedidos
@@ -116,20 +153,26 @@ class VentasDTO extends ReporteDTO
 
         // Filtro por defecto: si NO se especificó año, mes ni rangos de fecha para productos,
         // limitar desde el primer día del mes actual hasta hoy.
-        if (!isset($filtros['anio_general']) && !isset($filtros['mes_general'])
-            && !isset($filtros['fecha_inicio_producto']) && !isset($filtros['fecha_fin_producto'])) {
+        if (
+            !isset($filtros['anio_general']) && !isset($filtros['mes_general'])
+            && !isset($filtros['fecha_inicio_producto']) && !isset($filtros['fecha_fin_producto'])
+        ) {
             $primerDiaMes = date('Y-m-01');
             $hoy = date('Y-m-d');
             $query->whereDate('pedidos.created_at', '>=', $primerDiaMes)
-                  ->whereDate('pedidos.created_at', '<=', $hoy);
+                ->whereDate('pedidos.created_at', '<=', $hoy);
         }
 
         $resultados = $query->get();
 
         return [
             'labels' => $resultados->pluck('producto')->toArray(),
-            'ventas' => $resultados->pluck('ventas')->map(function($venta) { return (float) $venta; })->toArray(),
-            'unidades' => $resultados->pluck('unidades')->map(function($unidad) { return (int) $unidad; })->toArray()
+            'ventas' => $resultados->pluck('ventas')->map(function ($venta) {
+                return (float) $venta;
+            })->toArray(),
+            'unidades' => $resultados->pluck('unidades')->map(function ($unidad) {
+                return (int) $unidad;
+            })->toArray()
         ];
     }
 
@@ -158,13 +201,15 @@ class VentasDTO extends ReporteDTO
         $resultados = $query->get();
 
         $totalVentas = $resultados->sum('ventas');
-        $porcentajes = $resultados->map(function($item) use ($totalVentas) {
+        $porcentajes = $resultados->map(function ($item) use ($totalVentas) {
             return $totalVentas > 0 ? round(($item->ventas / $totalVentas) * 100, 1) : 0;
         })->toArray();
 
         return [
             'labels' => $resultados->pluck('provincia')->toArray(),
-            'ventas' => $resultados->pluck('ventas')->map(function($venta) { return (float) $venta; })->toArray(),
+            'ventas' => $resultados->pluck('ventas')->map(function ($venta) {
+                return (float) $venta;
+            })->toArray(),
             'porcentaje' => $porcentajes
         ];
     }
@@ -220,7 +265,9 @@ class VentasDTO extends ReporteDTO
         return [
             'tipo' => 'diario',
             'periodo' => "Mes $mes del $anio",
-            'labels' => array_map(function($dia) { return str_pad($dia, 2, '0', STR_PAD_LEFT); }, $dias),
+            'labels' => array_map(function ($dia) {
+                return str_pad($dia, 2, '0', STR_PAD_LEFT);
+            }, $dias),
             'ventas' => $ventas,
             'visitas' => $visitas,
             'total_ventas' => array_sum($ventas),
@@ -245,8 +292,20 @@ class VentasDTO extends ReporteDTO
             ->get()
             ->keyBy('mes');
 
-        $meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-                 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        $meses = [
+            'Enero',
+            'Febrero',
+            'Marzo',
+            'Abril',
+            'Mayo',
+            'Junio',
+            'Julio',
+            'Agosto',
+            'Septiembre',
+            'Octubre',
+            'Noviembre',
+            'Diciembre'
+        ];
         $ventas = [];
         $visitas = [];
 
@@ -277,7 +336,7 @@ class VentasDTO extends ReporteDTO
     public function getDatosProductosCompletos(array $filtros = []): array
     {
         $productos = $this->getDatosProductos($filtros);
-        
+
         if (empty($productos['labels'])) {
             return [
                 'productos' => $productos,
@@ -290,7 +349,7 @@ class VentasDTO extends ReporteDTO
 
         // Procesar datos para gráficos
         $productorProcesados = $this->procesarProductosParaGraficos($productos);
-        
+
         return [
             'productos' => $productos,
             'productos_procesados' => $productorProcesados,
@@ -324,7 +383,7 @@ class VentasDTO extends ReporteDTO
         }
 
         // Ordenar por ventas descendente
-        usort($productosArray, function($a, $b) {
+        usort($productosArray, function ($a, $b) {
             return $b['ventas'] <=> $a['ventas'];
         });
 
@@ -340,7 +399,7 @@ class VentasDTO extends ReporteDTO
             $ventasOrdenadas[] = $producto['ventas'];
             $unidadesOrdenadas[] = $producto['unidades'];
             $rankings[] = $index + 1;
-            
+
             // Generar colores según el ranking
             if ($index === 0) {
                 $colores[] = 'rgba(255, 193, 7, 0.8)'; // Oro para #1
@@ -417,7 +476,7 @@ class VentasDTO extends ReporteDTO
         }
 
         // Ordenar por ventas descendente
-        usort($productosArray, function($a, $b) {
+        usort($productosArray, function ($a, $b) {
             return $b['ventas'] <=> $a['ventas'];
         });
 
@@ -476,7 +535,7 @@ class VentasDTO extends ReporteDTO
             ];
         }
 
-        usort($productosArray, function($a, $b) {
+        usort($productosArray, function ($a, $b) {
             return $b['ventas'] <=> $a['ventas'];
         });
 
@@ -584,7 +643,7 @@ class VentasDTO extends ReporteDTO
     {
         $fechaInicio = $filtros['fecha_inicio_producto'] ?? null;
         $fechaFin = $filtros['fecha_fin_producto'] ?? null;
-        
+
         $today = date('Y-m-d');
         $primerDiaMes = date('Y-m-01');
 
