@@ -24,6 +24,7 @@ class Pedidos extends Model
         'deliveryDate',
         'detailMotorizado',
         'user_id',
+        'visitadora_id',
         'zone_id',
         'voucher',
         'receta',
@@ -41,6 +42,10 @@ class Pedidos extends Model
     public function user()
     {
         return $this->belongsTo(User::class); 
+    }
+    public function visitadora()
+    {
+        return $this->belongsTo(User::class, 'visitadora_id');
     }
     public function zone()
     {

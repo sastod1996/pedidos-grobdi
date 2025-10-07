@@ -15,7 +15,7 @@ class ListaController extends Controller
      */
     public function index()
     {
-        $listas = Lista::all();
+        $listas = Lista::with('zone')->get()->sortBy('zone.name');
         return view('rutas.lista.index',compact('listas'));
     }
 

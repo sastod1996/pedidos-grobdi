@@ -3,6 +3,7 @@
 namespace App\Domain\Reports\Doctor;
 
 use App\Models\Pedidos;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
 
@@ -43,7 +44,17 @@ class DoctorReportRepository implements DoctorReportRepositoryInterface
         return array_replace(array_fill(1, 12, 0), $rawData);
     }
 
-    public function getMostConsumedProductsInTheMonthByDoctor(int $year, int $month,  ?int $doctorId = null, ?int $limit = null, ?bool $withPrices = false)
+    private function excludeArrayFromDataResults(Builder $query, string $columnName, array $wordsToExclude)
+    {
+        foreach ($wordsToExclude as $word) {
+            $query->whereRaw("LOWER({$columnName}) NOT LIKE ?", [strtolower($word)]);
+        }
+
+        return $query;
+    }
+
+
+    public function getMostConsumedProductsInTheMonthByDoctor(int $year, int $month, ?int $doctorId = null, ?int $limit = null, ?bool $withPrices = false)
     {
         $cols = ['dp.articulo', 'dp.cantidad'];
 
@@ -58,13 +69,13 @@ class DoctorReportRepository implements DoctorReportRepositoryInterface
             ->whereMonth('p.created_at', $month)
             ->where('p.id_doctor', $doctorId);
 
+        $query = $this->excludeArrayFromDataResults($query, 'dp.articulo', ['%delivery%', 'bolsa%']);
+
         $rows = $query->get();
 
         $normalized = $rows->map(function ($r) use ($withPrices) {
             $articulo = strtoupper($r->articulo);
-            $articulo = preg_replace('/\b\d+\s?(MG|MCG|G|ML|UI|UND)\b/u', '', $articulo);
             $articulo = preg_replace('/\bVIT\b/u', 'VITAMINA', $articulo);
-            $articulo = preg_replace('/\bX\b/u', '', $articulo);
             $articulo = preg_replace('/[\/\-]+$/u', '', $articulo);
             $articulo = preg_replace('/[\/\-]+\s*$/u', '', $articulo);
             $articulo = preg_replace('/\s*[\/\-]+\s*/u', ' ', $articulo);
@@ -82,7 +93,7 @@ class DoctorReportRepository implements DoctorReportRepositoryInterface
             return $normalizedData;
         });
 
-        $grouped =  $normalized->groupBy('articulo')->map(function ($items) use ($withPrices) {
+        $grouped = $normalized->groupBy('articulo')->map(function ($items) use ($withPrices) {
             $result = [
                 'articulo' => $items->first()['articulo'],
                 'total_cantidad' => $items->sum('cantidad')
@@ -117,6 +128,8 @@ class DoctorReportRepository implements DoctorReportRepositoryInterface
             ->when($doctorId, fn($q) => $q->where('p.id_doctor', $doctorId))
             ->groupBy('tipo')
             ->orderByDesc('total_sub_total')
+            ->whereRaw("LOWER(dp.articulo) NOT LIKE ?", [strtolower('%delivery%')])
+            ->whereRaw("LOWER(dp.articulo) NOT LIKE ?", [strtolower('bolsa%')])
             ->get()
             ->map(function ($item) {
                 return [

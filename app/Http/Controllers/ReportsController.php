@@ -20,8 +20,13 @@ class ReportsController extends Controller
         $this->reportsService = $reportsService;
     }
 
+    public function motorizadosView(){
+        return view('reports.motorizados.index');
+    }
+
     public function indexVisitadoras(Request $request)
     {
+        // DEPRECATED: Lógica movida a ReporteController::visitadoras
         $month = $request->input('month', now()->month);
 
         $initialValues = VisitaDoctor::select('estado_visita_id', DB::raw('COUNT(*) as total'))
@@ -43,35 +48,19 @@ class ReportsController extends Controller
 
     public function indexDoctores()
     {
-        $year = now()->year;
-        $month = now()->month;
-
-        $doctorData = $this->reportsService->doctor()->getDoctorReport($year, $month);
-
-        return view('reports.doctores.index', compact('doctorData'));
+        // DEPRECATED: lógica migrada a ReporteController::doctoresLegacy
+        abort(410, 'Endpoint deprecated, use /reporte/doctores');
     }
 
     public function getDoctorReport(Request $request)
     {
-        $monthYear = $request->input('month_year');
-
-        if ($monthYear) {
-            $parts = explode('/', $monthYear);
-            if (count($parts) === 2) {
-                $month = (int) $parts[0];
-                $year = (int) $parts[1];
-            }
-        }
-
-        $doctorId = $request->input('id_doctor');
-
-        $doctorData = $this->reportsService->doctor()->getDoctorReport($year, $month, $doctorId);
-
-        return response()->json($doctorData);
+        // DEPRECATED: lógica migrada a ReporteController::getDoctorReportLegacy
+        return response()->json(['message' => 'Deprecated endpoint. Use nueva ruta en ReporteController'], 410);
     }
 
     public function getDistritosByZone($zoneId)
     {
+        // DEPRECATED: usar ReporteController::getDistritosByZone
         $distritosByZone = Distrito::whereHas('listas', function ($q) use ($zoneId) {
             $q->where('zone_id', $zoneId);
         })->get();
@@ -81,6 +70,7 @@ class ReportsController extends Controller
 
     public function filterVisitasDoctor(Request $request)
     {
+        // DEPRECATED: usar ReporteController::filterVisitasDoctor
         $month = $request->input('month', now()->month);
         $distritos = $request->input('distritos', []);
 

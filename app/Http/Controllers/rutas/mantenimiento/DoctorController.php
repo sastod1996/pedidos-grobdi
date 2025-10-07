@@ -19,22 +19,60 @@ use Maatwebsite\Excel\Facades\Excel;
 class DoctorController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the resource with advanced filtering.
+     *
+     * This method handles the index view for doctors, applying filters based on user input.
+     * Filters include: search by name, date range for creation date, type of medical professional,
+     * and district. Results are paginated and can be sorted.
+     *
+     * @param Request $request The HTTP request object containing filter parameters.
+     * @return \Illuminate\View\View The view with filtered doctors and filter options.
      */
     public function index(Request $request)
     {
         $ordenarPor = $request->get('sort_by', 'name'); // campo por defecto
         $direccion = $request->get('direction', 'asc'); // dirección por defecto
 
+        // Obtener parámetros de filtros
         $search = $request->input('search');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $tipoMedico = $request->input('tipo_medico');
+        $distritoId = $request->input('distrito_id');
+
+        $query = Doctor::query();
+
+        // Aplicar filtros
         if ($search) {
-            $doctores = Doctor::where('name', 'like', '%' . $search . '%')
-                                ->orderBy($ordenarPor, $direccion)->paginate(20);  // Paginación, 20 por página
+            $doctores = Doctor::where('name', 'like', '%' . $search . '%')->orWhere('cmp', 'like', '%' . $search . '%')->orderBy($ordenarPor, $direccion)->paginate(20);  // Paginación, 20 por página
         } else {
             $doctores = Doctor::orderBy($ordenarPor, $direccion)->paginate(20);
         }
-        $days = Day::all();
-        return view('rutas.mantenimiento.doctor.index', compact('doctores', 'days', 'ordenarPor', 'direccion'));
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        } elseif ($startDate) {
+            $query->whereDate('created_at', '>=', $startDate);
+        } elseif ($endDate) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        if ($tipoMedico) {
+            $query->where('tipo_medico', $tipoMedico);
+        }
+
+        if ($distritoId) {
+            $query->where('distrito_id', $distritoId);
+        }
+
+        // Aplicar ordenamiento y paginación
+        $doctores = $query->orderBy($ordenarPor, $direccion)->paginate(20);
+
+        // Obtener datos para los selects
+        $distritos = Distrito::select('id', 'name')->where('provincia_id', 128)->orWhere('provincia_id', 67)->get();
+        $tiposMedico = Doctor::select('tipo_medico')->distinct()->pluck('tipo_medico');
+
+        return view('rutas.mantenimiento.doctor.index', compact('doctores', 'distritos', 'tiposMedico', 'ordenarPor', 'direccion', 'search', 'startDate', 'endDate', 'tipoMedico', 'distritoId'));
     }
     public function buscarCMP($cmp)
     {
@@ -85,8 +123,6 @@ class DoctorController extends Controller
     }
     public function guardarDoctorVisitador(Request $request)
     {
-        Logger($request->all());
-        // dd($request->all());
         $request->validate([
             'CMP' => 'required|numeric|unique:doctor,CMP',
             'first_lastname' => 'required|string|max:100',
@@ -294,9 +330,9 @@ class DoctorController extends Controller
     {
         $query = $request->get('q');
 
-        $doctors = Doctor::where('name', 'LIKE', '%' . $query . '%')
+        $doctors = Doctor::where('name', 'LIKE', '%' . $query . '%')->orWhere('first_lastname', 'LIKE', '%' . $query . '%')->orWhere('second_lastname', 'LIKE', '%' . $query . '%')
             ->limit(10)
-            ->get(['id', 'name']);
+            ->get(['id', 'name','first_lastname','second_lastname']);
 
         return response()->json($doctors);
     }

@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
 
 class RutasVisitadoraController extends Controller
 {
-    public function index()
+    public function ListarMisRutas()
     {
         $primerDiaMes = Carbon::now()->startOfMonth()->toDateString();
         $rutames = Enrutamiento::where('fecha', $primerDiaMes)->whereIn('zone_id', Auth::user()->zones->pluck('id'))->get();

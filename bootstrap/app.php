@@ -15,9 +15,14 @@ return Application::configure(basePath: dirname(__DIR__))
         channels: __DIR__.'/../routes/channels.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware) {
+    // ->withMiddleware(function (Middleware $middleware) {
+    //     $middleware->alias([
+    //         'checkRole' => RoleMiddleware::class,
+    //     ]);
+    // })
+    ->withMiddleware(function ($middleware) {
         $middleware->alias([
-            'checkRole' => RoleMiddleware::class,
+            'check.permission' => \App\Http\Middleware\CheckPermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

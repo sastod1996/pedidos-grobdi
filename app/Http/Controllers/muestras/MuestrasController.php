@@ -30,11 +30,8 @@ class MuestrasController extends Controller
 
     public function store(Request $request)
     {
-        $role = Auth::user()->role->name;
+        $this->authorize('muestras.store');
 
-        if (!in_array($role, ['admin', 'coordinador-lineas', 'visitador'])) {
-            return redirect()->route('muestras.index')->with('error', `No tienes permiso para realizar esta operación. Tu rol actual es: $role`);
-        }
 
         $validated = $request->validate([
             'nombre_muestra' => 'required|string|max:255',
@@ -91,7 +88,7 @@ class MuestrasController extends Controller
         $query = Muestras::with(['clasificacion.unidadMedida', 'tipoMuestra', 'doctor', 'clasificacionPresentacion']);
 
         // Filtros por rol
-        if ($user->hasRole('admin') || $user->hasRole('coordinador-lineas')) {
+        if ($user->hasRole('admin') || $user->hasRole('coordinador-lineas') ||$user->hasRole('supervisor')) {
             $tiposMuestra = TipoMuestra::get();
         } else if ($user->hasRole('visitador')) {
             $query->where('created_by', $user->id);
@@ -103,11 +100,27 @@ class MuestrasController extends Controller
                 'aprobado_jefe_comercial' => true,
                 'aprobado_jefe_operaciones' => true
             ]);
+        } else if ($user->hasRole('jefe-operaciones')) {
+            $restrictedRange = $this->getLimitMuestrasShowed();
+
+            if ($restrictedRange) {
+                [$start, $end] = $restrictedRange;
+                $query->where(function ($q) use ($start, $end) {
+                    $q->where('created_at', '<', $start)
+                        ->orWhere('created_at', '>=', $end);
+                });
+            }
+
+            $query->where([
+                'aprobado_coordinadora' => true,
+                'aprobado_jefe_comercial' => true
+            ]);
         } else {
             $query->where([
                 'aprobado_coordinadora' => true,
                 'aprobado_jefe_comercial' => true
             ]);
+
         }
 
         if ($request->filled('search')) {
@@ -166,6 +179,20 @@ class MuestrasController extends Controller
         }
 
         return view('muestras.index', $data);
+    }
+
+    private function getLimitMuestrasShowed()
+    {
+        $now = Carbon::now();
+
+        $startRestriction = $now->copy()->startOfWeek()->addDays(2)->setTime(14, 0, 0);
+        $endRestriction = $now->copy()->startOfWeek()->addDays(4)->setTime(12, 0, 0);
+
+        if ($now->between($startRestriction, $endRestriction)) {
+            return [$startRestriction, $endRestriction];
+        }
+
+        return null;
     }
 
     // Mostrar detalles de una muestra por su ID

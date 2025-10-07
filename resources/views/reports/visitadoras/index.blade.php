@@ -80,11 +80,11 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-8 d-flex justify-content-center">
-                        <canvas id="pieChart" style="min-height: 250px; height: 250px; max-height: 350px; max-width: 100%;"></canvas>
+                        <canvas id="reportByZoneChart" style="min-height: 250px; height: 250px; max-height: 350px; max-width: 100%;"></canvas>
                     </div>
                     <div class="col-md-4">
-                        <div class="card card-outline card-dark">
-                            <div class="card-header d-flex justify-content-center">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-center bg-dark">
                                 <h3 class="card-title mb-0">Leyenda</h3>
                             </div>
                             <div class="card-body" id="chart-legend">
@@ -94,9 +94,9 @@
                 </div>
                 <div class="row mt-5">
                     <div class="col-12">
-                        <div class="card">
+                        <div class="card card-outline card-danger">
                             <div class="card-body table-responsive p-0">
-                                <table class="table table-head-fixed text-nowrap">
+                                <table class="table table-light mb-0 text-nowrap">
                                     <thead>
                                         <tr class="text-center">
                                             <th>Distrito</th>
@@ -105,7 +105,7 @@
                                             @endforeach
                                         </tr>
                                     </thead>
-                                    <tbody id="distritos-data-table">
+                                    <tbody id="distritos-data-table" class="table-light">
                                         <tr>
                                             <td colspan="{{ count($estadosVisitas) + 1 }}" class="text-center text-muted">
                                                 No hay distritos seleccionados o los distritos seleccionados no tienen visitas para mostrar
@@ -130,10 +130,10 @@
 @section('js')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+<script src="{{ asset('js/chart-factory.js') }}"></script>
 
 <script>
     const initialValues = JSON.parse(`@json($initialValues)`);
-    var pieChartCanvas = $('#pieChart').get(0).getContext('2d');
     const estados = JSON.parse(`@json($estadosVisitas)`);
     const distritosDataTable = $('#distritos-data-table');
     const distritosContainer = $('#distritos-container');
@@ -141,15 +141,7 @@
     const monthSelect = $('#month');
     const zone = $('#zone');
 
-    var pieData = {
-        labels: [],
-        datasets: [{
-            data: [],
-            backgroundColor: [],
-        }]
-    };
-
-    var pieOptions = {
+    var options = {
         maintainAspectRatio: false,
         responsive: true,
         plugins: {
@@ -159,19 +151,18 @@
         }
     };
 
-    var pieChart = new Chart(pieChartCanvas, {
-        type: 'pie',
-        data: pieData,
-        options: pieOptions
-    });
+    reportByZoneChart = createChart('#reportByZoneChart', [], [{
+        data: [],
+        backgroundColor: [],
+    }], 'pie', options);
 </script>
 <script>
     function setInitialValues() {
         estados.map(e => {
-            pieData.labels.push(e.name);
-            pieData.datasets[0].backgroundColor.push(e.color);
-            pieData.datasets[0].data.push(initialValues[e.id] ?? 0);
-        })
+            reportByZoneChart.data.labels.push(e.name);
+            reportByZoneChart.data.datasets[0].backgroundColor.push(e.color);
+            reportByZoneChart.data.datasets[0].data.push(initialValues[e.id] ?? 0);
+        });
     }
 
     function renderRows(data) {
@@ -212,14 +203,14 @@
 
                 if (total.length === 0) {
                     toastr.info('Este distrito no tiene visitas programadas en el mes. Se mostrarán las visitas totales del mes.');
-                    pieChart.update();
+                    reportByZoneChart.update();
                     renderLegend();
                     return;
                 }
 
-                pieData.datasets[0].data = estados.map(e => total[e.id] ?? 0);
+                reportByZoneChart.data.datasets[0].data = estados.map(e => total[e.id] ?? 0);
 
-                pieChart.update();
+                reportByZoneChart.update();
                 renderLegend();
                 renderRows(data);
             }).catch(error => {
@@ -228,10 +219,14 @@
     }
 
     function renderLegend() {
-        legendContainer.html(pieData.labels.map((label, i) => `
+        const labels = reportByZoneChart.data.labels;
+        const backgroundColor = reportByZoneChart.data.datasets[0].backgroundColor;
+        const dataValues = reportByZoneChart.data.datasets[0].data;
+
+        legendContainer.html(labels.map((label, i) => `
         <div class="d-flex align-items-center mb-2" style="gap: 8px;">
-            <span class="badge me-2" style="cursor:default; background-color:${pieData.datasets[0].backgroundColor[i]}; width:18px; height:18px;">&nbsp;</span>
-            <span>${label} <small class="text-muted">(${pieData.datasets[0].data[i]})</small></span>
+            <span class="badge me-2" style="cursor:default; background-color:${backgroundColor[i]}; width:18px; height:18px;">&nbsp;</span>
+            <span>${label} <small class="text-muted">(${dataValues[i]})</small></span>
         </div>`).join(''));
     }
 </script>
@@ -269,6 +264,7 @@
                                             </div>`;
                     distritosContainer.html(distritosContainer.html() + checkbox);
                 });
+                $('#select-all-distritos').prop('checked', false);
             });
     });
 

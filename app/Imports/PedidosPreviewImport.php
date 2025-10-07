@@ -84,12 +84,19 @@ class PedidosPreviewImport implements ToCollection
                     $pedidos->turno = 0;
                     $pedidos->last_data_update = now(); // Registrar fecha de actualización
                     
+                    // Buscar visitadora por name_softlynn (nuevo requerimiento)
+                    $visitadora = null;
+                    if(isset($row[14]) && trim($row[14]) !== ''){
+                        $visitadora = User::where('name_softlynn', trim($row[14]))->first();
+                    }
                     $usuario = User::where('name', $row[19])->first();
                     if(empty($usuario)){
                         $pedidos->user_id = Auth::user()->id;
                     } else {
                         $pedidos->user_id = $usuario->id;
                     }
+                    // visitadora_id se guarda si se encontró coincidencia por name_softlynn
+                    $pedidos->visitadora_id = $visitadora?->id;
                     
                     $pedidos->save();
                     ++$rows_nuevos;
@@ -145,12 +152,12 @@ class PedidosPreviewImport implements ToCollection
                     if($pedido_exist->deliveryDate != $new_fecha) {
                         $pedido_exist->deliveryDate = $new_fecha;
                         // Recalcular nroOrder para la nueva fecha
-                        $contador_registro = Pedidos::where('deliveryDate', $new_fecha)->orderBy('nroOrder', 'desc')->first();
-                        $ultimo_nro = 1;
-                        if($contador_registro){
-                            $ultimo_nro = $contador_registro->nroOrder + 1;
-                        }
-                        $pedido_exist->nroOrder = $ultimo_nro;
+                        // $contador_registro = Pedidos::where('deliveryDate', $new_fecha)->orderBy('nroOrder', 'desc')->first();
+                        // $ultimo_nro = 1;
+                        // if($contador_registro){
+                        //     $ultimo_nro = $contador_registro->nroOrder + 1;
+                        // }
+                        // $pedido_exist->nroOrder = $ultimo_nro;
                         $hasChanges = true;
                     }
                     
@@ -178,6 +185,16 @@ class PedidosPreviewImport implements ToCollection
                     }
                     // If status is "Preparado" (2), no changes are made to productionStatus
                     
+                    // Re-evaluar visitadora por name_softlynn del excel
+                    $visitadora = null;
+                    if(isset($row[14]) && trim($row[14]) !== ''){
+                        $visitadora = User::where('name_softlynn', trim($row[14]))->first();
+                    }
+                    if($visitadora && $pedido_exist->visitadora_id != $visitadora->id){
+                        $pedido_exist->visitadora_id = $visitadora->id;
+                        $hasChanges = true;
+                    }
+
                     if($hasChanges) {
                         $pedido_exist->last_data_update = now(); // Registrar fecha de actualización
                         $pedido_exist->save();

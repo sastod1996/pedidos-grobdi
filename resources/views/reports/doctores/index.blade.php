@@ -44,7 +44,11 @@
                         General
                     </div>
                     <div class="tab-pane fade show active" id="tabs-por-visitadora" role="tabpanel" aria-labelledby="tabs-por-visitadora-tab">
+<<<<<<< HEAD
                         @include('reports.doctores.partials.porDoctor')
+=======
+                        @include('reports.doctores.partials.doctor')
+>>>>>>> f76f4ac7a11c11334cc0a0e9b770a16c887d9683
                     </div>
                     <div class="tab-pane fade" id="tabs-por-producto" role="tabpanel" aria-labelledby="tabs-por-producto-tab">
                         Producto

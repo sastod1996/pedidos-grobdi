@@ -1,34 +1,46 @@
 @extends('adminlte::page')
 
-@section('title', 'Dashboard')
+@section('title', 'Asignar Pedidos')
 @section('content')
 <div class="card mt-5">
     <h2 class="card-header">Pedidos</h2>
     <div class="card-body">
-        <form action="{{ route('asignarpedidos.index') }}" method="GET">
-            <div class="row">
-                <div class="col-xs-1 col-sm-1 col-md-1">
-                    <label for="fecha_inicio">Fecha:</label>
-                </div>
-                <div class="col-xs-2 col-sm-2 col-md-2">
-                    <input class="form-control" type="date" name="fecha" id="fecha" required>
-                </div>
-                <div class="col-xs-3 col-sm-3 col-md-3">
-                    <button type="submit" class="btn btn-outline-primary"><i class="fa fa-search"></i> Buscar</button>
-                </div>
+        <div class="card border-info shadow-lg mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0"><i class="fa fa-filter"></i> Filtros de Búsqueda</h5>
             </div>
-            @error('message')
-                <p style="color: red;">{{ $message }}</p>
-            @enderror
-        </form>
+            <div class="card-body bg-light">
+                <form id="filterForm" action="{{ route('asignarpedidos.index') }}" method="GET">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="fecha" class="form-label fw-bold text-info"><i class="fa fa-calendar"></i> Fecha</label>
+                            <input class="form-control border-info bg-light shadow-sm" type="date" name="fecha" id="fecha" value="{{ request()->query('fecha') }}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="orderId" class="form-label fw-bold text-info"><i class="fa fa-hashtag"></i> Nro de Pedido</label>
+                            <input class="form-control border-info bg-light shadow-sm" type="text" name="orderId" id="orderId" value="{{ request()->query('orderId') }}" placeholder="Ingrese número de pedido">
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button id="searchBtn" type="submit" class="btn btn-info w-100 shadow-sm"><i class="fa fa-search"></i> Buscar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        @error('message')
+            <div class="alert alert-danger mt-2 mb-2">
+                {{ $message }}
+            </div>
+        @enderror
         <br>
         <div class="row">
             @foreach($zonas as $zona)
+            <div class="table table-responsive">
                 <div class="col-xs-6 col-sm-6 col-md-6">
                     <label for="fecha_inicio">{{ $zona->name }}</label>
 
-                    <table class="table table-bordered table-striped mt-4">
-                        <thead>
+                    <table class="table table-striped table-hover border shadow-sm">
+                        <thead class="bg-dark text-white">
                             <tr>
                                 <th>Nro</th>
                                 <th>Nro pedido</th>
@@ -76,7 +88,7 @@
             
                     </table>
                 </div>
-
+            </div>
             @endforeach
         </div>
         @error('message')
@@ -93,4 +105,12 @@
 
 @section('js')
     <script> console.log("Hi, I'm using the Laravel-AdminLTE package!"); </script>
+    <script>
+        $(document).ready(function() {
+            // Cambiar texto del botón al enviar formulario
+            $('#filterForm').on('submit', function() {
+                $('#searchBtn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Buscando...');
+            });
+        });
+    </script>
 @stop

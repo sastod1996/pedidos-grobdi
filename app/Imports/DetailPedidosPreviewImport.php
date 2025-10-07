@@ -483,6 +483,7 @@ class DetailPedidosPreviewImport implements ToCollection
     }
 
     /**
+<<<<<<< HEAD
      * Verifica las modificaciones necesarias en un artículo existente
      * 
      * Este método compara los valores actuales de un artículo con los nuevos valores
@@ -564,6 +565,8 @@ class DetailPedidosPreviewImport implements ToCollection
     }
 
     /**
+=======
+>>>>>>> f76f4ac7a11c11334cc0a0e9b770a16c887d9683
      * Finaliza los resultados del análisis de vista previa
      * 
      * Este método completa el proceso de vista previa, genera el resumen final,

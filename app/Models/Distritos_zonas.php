@@ -10,6 +10,7 @@ class Distritos_zonas
             "Callao",
             "Breña",
             "Pueblo Libre",
+            "PUEBLO LIBRE *EN LA TARDE*",
             "Carabayllo",
             "Comas",
             "Independencia",
@@ -17,6 +18,7 @@ class Distritos_zonas
             "Puente Piedra",
             "San Martín de Porres",
             "San Miguel",
+            "SAN MIGUEL *EN LA TARDE*",
             "Ventanilla"
         ];
           
@@ -25,6 +27,7 @@ class Distritos_zonas
             "El Agustino",
             "Jesús María",
             "JESÃºS MARÃ­A",
+            "JESUS MARIA *EN LA TARDE*",
             "La Victoria",
             "Lince",
             "Santa Anita",

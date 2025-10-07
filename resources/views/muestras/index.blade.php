@@ -16,11 +16,11 @@ $currentParams = request()->except(['page']);
     <div class="d-flex flex-column flex-md-row justify-content-between">
         <h1>Estado de las Muestras</h1>
         <div class="btn-group mt-2 mt-md-0" role="group">
-            @if(in_array($role, ['admin', 'coordinador-lineas', 'visitador']))
+            @can('muestras.create')
             <a href="{{ route('muestras.create') }}" class="btn btn-s btn-success my-1">
                 <i class="fas fa-plus-circle mr-1"></i> Agregar Muestra
             </a>
-            @endif
+            @endcan
             <a class="btn btn-s btn-outline-success my-1" href="{{ route('muestras.exportExcel') }}">
                 <i class="fas fa-file-excel mr-1"></i>Exportar Excel
             </a>
@@ -136,7 +136,7 @@ $currentParams = request()->except(['page']);
                     <th>Precio Por Unidad</th>
                     <th>Precio Total</th>
                     @endif
-                    @if(in_array($role, ['admin','coordinador-lineas','jefe-comercial','jefe-operaciones']))
+                    @if(in_array($role, ['admin','coordinador-lineas','jefe-comercial','jefe-operaciones','supervisor']))
                     <th>Aprobar Muestra</th>
                     @endif
                     @if(in_array($role, ['admin','laboratorio']))
@@ -166,7 +166,7 @@ $currentParams = request()->except(['page']);
                     </td>
                     <td>{{ $muestra->tipo_frasco ?? 'No asignado' }}</td>
                     <td>
-                        @if(in_array($role, ['admin', 'coordinador-lineas']) && !$muestra->aprobado_coordinadora && $muestra->state)
+                        @if(in_array($role, ['admin', 'coordinador-lineas','supervisor']) && !$muestra->aprobado_coordinadora && $muestra->state)
                         <div class="d-flex">
                             <select class="custom-select rounded-0 mr-2" name="tipo_muestra" data-id="{{ $muestra->id }}" data-original="{{ $muestra->tipoMuestra ? $muestra->tipoMuestra->id : '' }}" {{ $muestra->aprobado_coordinadora ? 'disabled' : '' }}>
                                 <option disabled {{ !$muestra->tipoMuestra ? 'selected' : '' }} value="0">Seleccione un tipo de muestra</option>
@@ -212,25 +212,30 @@ $currentParams = request()->except(['page']);
                         {{ $muestra->precio && $muestra->cantidad_de_muestra ? 'S/ ' . number_format($muestra->precio * $muestra->cantidad_de_muestra, 2) : 'No asignado' }}
                     </td>
                     @endif
-                    @if(in_array($role, ['admin','coordinador-lineas','jefe-comercial','jefe-operaciones']))
+                    @if(in_array($role, ['admin','coordinador-lineas','jefe-comercial','jefe-operaciones','supervisor']))
                     <td>
                         @php
                         $rolesCheckbox = [
-                        'coordinador-lineas' => [
-                        'class' => 'coordinadora-checkbox',
-                        'checked' => $muestra->aprobado_coordinadora,
-                        'canApprove' => in_array($role, ['admin', 'coordinador-lineas']) && $muestra->state,
-                        ],
-                        'jefe-comercial' => [
-                        'class' => 'jcomercial-checkbox',
-                        'checked' => $muestra->aprobado_jefe_comercial,
-                        'canApprove' => in_array($role, ['admin', 'jefe-comercial']) && $muestra->state,
-                        ],
-                        'jefe-operaciones' => [
-                        'class' => 'joperaciones-checkbox',
-                        'checked' => $muestra->aprobado_jefe_operaciones,
-                        'canApprove' => in_array($role, ['admin', 'jefe-operaciones']) && $muestra->state,
-                        ],
+                            'coordinador-lineas' => [
+                                'class' => 'coordinadora-checkbox',
+                                'checked' => $muestra->aprobado_coordinadora,
+                                'canApprove' => in_array($role, ['admin', 'coordinador-lineas','supervisor']) && $muestra->state,
+                            ],
+                            'supervisor' => [
+                                'class' => 'coordinadora-checkbox',
+                                'checked' => $muestra->aprobado_coordinadora,
+                                'canApprove' => in_array($role, ['admin','supervisor']) && $muestra->state,
+                            ],
+                            'jefe-comercial' => [
+                                'class' => 'jcomercial-checkbox',
+                                'checked' => $muestra->aprobado_jefe_comercial,
+                                'canApprove' => in_array($role, ['admin', 'jefe-comercial']) && $muestra->state,
+                            ],
+                            'jefe-operaciones' => [
+                            'class' => 'joperaciones-checkbox',
+                            'checked' => $muestra->aprobado_jefe_operaciones,
+                            'canApprove' => in_array($role, ['admin', 'jefe-operaciones']) && $muestra->state,
+                            ],
                         ];
 
                         $config = $rolesCheckbox[$role] ?? null;
@@ -249,18 +254,19 @@ $currentParams = request()->except(['page']);
                         @endforeach
                     </td>
                     @endif
-                    @if(in_array($role, ['admin','laboratorio']))
+                    @can('muestras.markAsElaborated')
                     <td>
                         <select class="custom-select rounded-0 mr-2" name="lab_state" data-id="{{ $muestra->id }}" {{ $muestra->lab_state || !$muestra->state ? 'disabled' : '' }}>
                             <option value="0" {{ $muestra->lab_state ? 'selected' : '' }}>Pendiente</option>
                             <option value="1" {{ $muestra->lab_state ? 'selected disabled' : '' }}>Elaborada</option>
                         </select>
                     </td>
-                    @endif
+                    @endcan
                     <td>{{ $muestra->creator ? $muestra->creator->name : 'Desconocido' }}</td>
                     <td>{{ optional($muestra->doctor)->name ?? $muestra->name_doctor ?? 'No asignado' }}</td>
                     <td>
-                        @if(in_array($role, ['admin', 'coordinador-lineas']) && !$muestra->aprobado_coordinadora)
+                        @if(!$muestra->aprobado_coordinadora)
+                        @can('muestras.updateDateTimeScheduled')
                         <form action="{{ route('muestras.updateDateTimeScheduled', $muestra->id) }}" method="POST" class="d-flex flex-column" id="fecha_form_{{ $muestra->id }}">
                             @csrf
                             @method('PUT')
@@ -275,6 +281,7 @@ $currentParams = request()->except(['page']);
                                 <i class="fas fa-save"></i> Guardar
                             </button>
                         </form>
+                        @endcan
                         @else
                         <span class="{{ $muestra->datetime_scheduled ? '': 'text-danger' }}">{{ $muestra->datetime_scheduled ? \Carbon\Carbon::parse($muestra->datetime_scheduled)->format('d/m/Y H:i') : 'No asignada' }}</span>
                         @endif
@@ -288,12 +295,12 @@ $currentParams = request()->except(['page']);
                                 data-target="#muestraDetailsModal">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            @if(in_array($role, ['admin', 'coordinador-lineas', 'jefe-comercial', 'jefe-operaciones']) && $muestra->state)
-                            @if (in_array($role, ['admin', 'coordinador-lineas']))
+                            @can('muestras.edit')
                             <a href="{{ route('muestras.edit', $muestra->id) }}" class="btn btn-primary btn-sm">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            @endif
+                            @endcan
+                            @can('muestras.disable')
                             <button
                                 class="btn btn-danger btn-sm btn-show-delete"
                                 data-id="{{ $muestra->id }}"
@@ -301,7 +308,7 @@ $currentParams = request()->except(['page']);
                                 data-target="#deleteModal">
                                 <i class="fas fa-trash"></i>
                             </button>
-                            @endif
+                            @endcan
                         </div>
                     </td>
                 </tr>

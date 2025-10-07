@@ -34,9 +34,11 @@
                     <td>{{ $lista->name }}</td>
                     <td>{{ $lista->recovery ? 'Si' : 'No' }}</td>
                     <td>{{ $lista->zone->name?? '' }}</td>
-                    <td>@foreach ($lista->distritos as $distrito)
-                        {{$distrito->name }} <br>
-                    @endforeach</td>
+                    <td>
+                        @foreach ($lista->distritos as $distrito)
+                        {{$distrito->name }}<br>
+                        @endforeach
+                    </td>
                         <td>
                         <a class="btn btn-primary btn-sm" href="{{ route('lista.edit',$lista->id) }}"><i class="fa-solid fa-pen-to-square"></i> Actualizar</a>
                         <!-- <form action="{{ route('lista.destroy',$lista->id) }}" method="POST">

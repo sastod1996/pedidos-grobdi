@@ -227,7 +227,8 @@
                         let html = '';
                         if (data.length > 0) {
                             data.forEach(function(doctor) {
-                                html += `<a href="" class="list-group-item list-group-item-action doctor-item" data-id="${doctor.id}" data-name="${doctor.name}">${doctor.name}</a>`;
+                                const firstLastname = doctor.first_lastname ? doctor.first_lastname : '';
+                                html += `<a href="" class="list-group-item list-group-item-action doctor-item" data-id="${doctor.id}" data-name="${doctor.name}">${doctor.name} ${firstLastname}</a>`;
                             });
                             selectedIndex = -1;
                         }
@@ -278,7 +279,9 @@
                 const containerHeight = suggestionsList.height();
                 if (itemTop < 0) {
                     suggestionsList.scrollTop(suggestionsList.scrollTop() + itemTop);
+                    suggestionsList.scrollTop(suggestionsList.scrollTop() + itemTop);
                 } else if (itemBottom > containerHeight) {
+                    suggestionsList.scrollTop(suggestionsList.scrollTop() + (itemBottom - containerHeight));
                     suggestionsList.scrollTop(suggestionsList.scrollTop() + (itemBottom - containerHeight));
                 }
             }
@@ -288,6 +291,7 @@
         $(document).on('click', '.doctor-item', function(e) {
             e.preventDefault();
             doctorNameInput.val($(this).text());
+            idDoctorInput.val($(this).data('id'));
             idDoctorInput.val($(this).data('id'));
             suggestionsList.fadeOut();
         });

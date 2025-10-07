@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Dashboard')
+@section('title', 'Detalle del pedido')
 
 @section('content_header')
     <!-- <h1>Pedidos</h1> -->
@@ -51,6 +51,12 @@
                 {{ $pedido->paymentStatus }}
             </div>
         </div>
+        </div><div class="col-xs-4 col-sm-4 col-md-4 mt-2">
+            <div class="form-group">
+                <strong>Precio total:</strong> <br/>
+                S/ {{ $pedido->prize }}
+            </div>
+        </div>
         <div class="col-xs-12 col-sm-12 col-md-12 mt-2">
             <div class="form-group">
                 <strong>Detalles:</strong> <br/>
@@ -58,7 +64,7 @@
                     @foreach ($pedido->detailpedidos as $detail_pedidos)
                     <li class="list-group-item" data-id="{{ $detail_pedidos->id }}">
                         <form action="{{ route('historialpedidos.destroy',$detail_pedidos->id) }}" method="POST" class="form-inline">
-                            <span class="descripcion-text">{{ $detail_pedidos->articulo }} - {{ $detail_pedidos->cantidad }} unid. </span>
+                            <span class="descripcion-text">{{ $detail_pedidos->articulo }} - {{ $detail_pedidos->cantidad }} unid. - S/ {{ $detail_pedidos->sub_total }}</span>
                             <input type="text" class="descripcion-input form-control col-sm-5" value="{{ $detail_pedidos->articulo }}"style="display: none;" disabled/>
                             <input type="number" class="cantidad-input form-control  col-sm-1" value="{{ $detail_pedidos->cantidad }}"style="display: none;"/>
                             @if (Auth::user()->role->name == "jefe-operaciones" or Auth::user()->role->name == "admin" )

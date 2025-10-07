@@ -329,6 +329,16 @@ return [
         //     'label_color' => 'success',
         // ],
         [
+            'header' => 'Prueba Motorizado',
+            'can' => ['admin']
+        ],
+        [
+            'text' => 'Reportes Motorizado',
+            'url' => 'reports/motorizados',
+            'icon' => 'fas fa-briefcase',
+            'can' => ['admin']
+        ],
+        [
             'text' => 'Reportes Visitadoras Prueba',
             'url' => 'reports/visitadoras',
             'icon' => 'fas fa-briefcase',
@@ -544,6 +554,54 @@ return [
             'icon' => 'fas fa-fw fa-user',
             'can' => 'jefe-operaciones'
         ],
+        [
+            'text' => 'Roles',
+            'url' => 'roles',
+            'icon' => 'fas fa-fw fa-user-shield',
+            'can' => 'jefe-operaciones'
+        ],
+        // [
+        //     'text' => 'Permisos',
+        //     'url' => 'permisos',
+        //     'icon' => 'fas fa-fw fa-key',
+        //     'can' => 'jefe-operaciones'
+        // ],
+        [
+            'text' => 'Modulos',
+            'url' => 'modules',
+            'icon' => 'fas fa-fw fa-th-large',
+            'can' => 'jefe-operaciones'
+        ],
+        [
+            'text' => 'Vistas',
+            'url' => 'views',
+            'icon' => 'fas fa-fw fa-eye',
+            'can' => 'jefe-operaciones'
+        ],
+        // [
+        //     'text' => 'Bitacora',
+        //     'url' => 'bitacora',
+        //     'icon' => 'fas fa-fw fa-book',
+        //     'can' => 'jefe-operaciones'
+        // ],
+        // [
+        //     'text' => 'Logs',
+        //     'url' => 'logs',
+        //     'icon' => 'fas fa-fw fa-file-alt',
+        //     'can' => 'jefe-operaciones'
+        // ],
+        // [
+        //     'text' => 'Backups',
+        //     'url' => 'backups',
+        //     'icon' => 'fas fa-fw fa-database',
+        //     'can' => 'jefe-operaciones'
+        // ],
+        // [
+        //     'text' => 'Configuracion',
+        //     'url' => 'ajustes',
+        //     'icon' => 'fas fa-fw fa-cogs',
+        //     'can' => 'jefe-operaciones'
+        // ],
         //sidebar Supervisor
         [
             'header' => 'Supervisor',
@@ -803,16 +861,6 @@ return [
                 ],
             ],
         ],
-        'Chartjs' => [
-            'active' => false,
-            'files' => [
-                [
-                    'type' => 'js',
-                    'asset' => false,
-                    'location' => '//cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.min.js',
-                ],
-            ],
-        ],
         'Sweetalert2' => [
             'active' => true,
             'files' => [
@@ -835,6 +883,61 @@ return [
                     'type' => 'js',
                     'asset' => false,
                     'location' => '//cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/pace.min.js',
+                ],
+            ],
+        ],
+        'Moment' => [
+            'active' => true,
+            'files' => [
+                [
+                    'type' => 'js',
+                    'asset' => false,
+                    'location' => '//cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js',
+                ],
+            ],
+        ],
+        'Chartjs' => [
+            'active' => true,
+            'files' => [
+                [
+                    'type' => 'js',
+                    'asset' => false,
+                    'location' => '//cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
+                ],
+            ],
+        ],
+        'DateRangePicker' => [
+            'active' => true,
+            'files' => [
+                [
+                    'type' => 'css',
+                    'asset' => false,
+                    'location' => '//cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.css',
+                ],
+                [
+                    'type' => 'js',
+                    'asset' => false,
+                    'location' => '//cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.min.js',
+                ],
+            ],
+        ],
+        'DatePicker' => [
+            'active' => true,
+            'files' => [
+                [
+                    'type' => 'css',
+                    'asset' => false,
+                    'location' => '//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css',
+                ],
+                [
+                    'type' => 'js',
+                    'asset' => false,
+                    'location' => '//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js',
+                ],
+                [
+                    'type' => 'js',
+                    'asset' => false,
+                    'location' => '//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.es.min.js',
                 ],
             ],
         ],

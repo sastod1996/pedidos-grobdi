@@ -19,6 +19,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'name_softlynn',
         'email',
         'password',
         'active',
@@ -50,6 +51,10 @@ class User extends Authenticatable
     public function pedidos()
     {
         return $this->hasMany(Pedidos::class); // Un post tiene muchos comentarios
+    }
+    public function pedidosVisitadora()
+    {
+        return $this->hasMany(Pedidos::class, 'visitadora_id');
     }
     public function role()
     {

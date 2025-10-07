@@ -3,15 +3,22 @@
 @section('title', 'Doctores')
 
 @section('content_header')
-    <h1>Doctores</h1>
+                <h5 class="mb-0 text-primary"><i class="fa fa-users"></i> Gestión de Doctores</h5>
+
 @stop
 
 @section('content')
 <div class="card mt-2">
-    <div class="card-header">
-        <div class="d-grid gap-2 d-md-flex justify-content-md-medium">
-            <a class="btn btn-success btn-sm" href="{{ route('doctor.create') }}"> <i class="fa fa-plus"></i> Registrar datos</a>
-            <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#itemModal"> <i class="fa fa-file-excel"></i> Cargar Doctores</button>
+    <div class="card-header bg-light border-bottom">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex gap-2">
+                <a class="btn btn-success btn-sm" href="{{ route('doctor.create') }}" data-bs-toggle="tooltip" title="Crear un nuevo doctor manualmente">
+                    <i class="fa fa-plus-circle"></i> Registrar Nuevo
+                </a>
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#itemModal" data-bs-toggle="tooltip" title="Importar doctores desde archivo Excel">
+                    <i class="fa fa-upload"></i> Importar Excel
+                </button>
+            </div>
         </div>
     </div>
     <div class="card-body">
@@ -24,10 +31,52 @@
         @error('archivo')
         <p style="color: red;">{{ $message }}</p>
         @enderror
-        <form method="GET" action="{{ route('doctor.index') }}">
-            <input type="text" name="search" placeholder="Buscar..." value="{{ request('search') }}" class="form-control">
-            <!-- <button type="submit" class="btn btn-primary">Buscar</button> -->
-        </form>
+
+        <!-- Card de Filtros -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fa fa-filter"></i> Filtros de Búsqueda</h5>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="{{ route('doctor.index') }}" class="row g-3">
+                    <div class="col-md-6">
+                        <label for="search" class="form-label"><i class="fa fa-search"></i> Buscar por Nombre</label>
+                        <input type="text" name="search" id="search" placeholder="Buscar..." value="{{ $search }}" class="form-control">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="start_date" class="form-label"><i class="fa fa-calendar-alt"></i> Fecha de Creación (Inicio)</label>
+                        <input type="text" name="start_date" id="start_date" value="{{ $startDate }}" class="form-control flatpickr">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="end_date" class="form-label"><i class="fa fa-calendar-alt"></i> Fecha de Creación (Fin)</label>
+                        <input type="text" name="end_date" id="end_date" value="{{ $endDate }}" class="form-control flatpickr">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="tipo_medico" class="form-label"><i class="fa fa-user-md"></i> Tipo de Médico</label>
+                        <select name="tipo_medico" id="tipo_medico" class="form-select">
+                            <option value="">Todos</option>
+                            @foreach($tiposMedico as $tipo)
+                                <option value="{{ $tipo }}" {{ $tipoMedico == $tipo ? 'selected' : '' }}>{{ $tipo }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="distrito_id" class="form-label"><i class="fa fa-map-marker-alt"></i> Distrito</label>
+                        <select name="distrito_id" id="distrito_id" class="form-select">
+                            <option value="">Todos</option>
+                            @foreach($distritos as $distrito)
+                                <option value="{{ $distrito->id }}" {{ $distritoId == $distrito->id ? 'selected' : '' }}>{{ $distrito->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-12 d-flex justify-content-end gap-2">
+                        <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> Buscar</button>
+                        <a href="{{ route('doctor.index') }}" class="btn btn-secondary"><i class="fa fa-eraser"></i> Limpiar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <div class="card-body table-responsive p-0" style="height: 800px;">
             <table class="table table-head-fixed text-nowrap display" id="miTabla">
                 <thead>
@@ -119,8 +168,24 @@
 
 @section('css')
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+@endsection
 
 @section('js')
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        flatpickr('.flatpickr', {
+            dateFormat: 'Y-m-d',
+            allowInput: true
+        });
 
-@stop
+        // Inicializar tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>
+@endsection
