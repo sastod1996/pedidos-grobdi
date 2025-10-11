@@ -6,6 +6,7 @@ use App\Domain\Interfaces\ReportsRepositoryInterface;
 use App\Models\Departamento;
 use App\Models\Distrito;
 use App\Models\Doctor;
+use App\Models\Muestras;
 use App\Models\Pedidos;
 use App\Models\Provincia;
 use App\Models\VisitaDoctor;
@@ -45,7 +46,7 @@ class ReportsRepository implements ReportsRepositoryInterface
                 $q->whereBetween('p.created_at', [$startDate, $endDate]);
             })->groupBy('u.id', 'u.name')
             ->get()->map(
-                fn($item) => (object) 
+                fn($item) => (object)
                 [
                     'visitadora' => $item->visitadora,
                     'total_amount' => (float) $item->total_amount,
@@ -217,7 +218,8 @@ class ReportsRepository implements ReportsRepositoryInterface
                 $join->on('dr.id', '=', 'p.id_doctor')
                     ->whereYear('p.created_at', $year);
             })
-            ->select('
+            ->select(
+                '
                 dr.tipo_medico,
                 COUNT(DISTINCT dr.id) as total_doctores,
                 COALESCE(SUM(p.prize), 0) as total_amount,
@@ -303,5 +305,38 @@ class ReportsRepository implements ReportsRepositoryInterface
     {
         return Distrito::select('id', 'name', 'provincia_id')
             ->with(['provincia:id,name'])->get();
+    }
+
+    /* -------- Muestras -------- */
+    public function countMuestrasByTipo(string $startDate, string $endDate): Collection
+    {
+        return DB::table('tipo_muestras as tm')
+            ->leftJoin('muestras as m', function ($join) use ($startDate, $endDate) {
+                $join->on('tm.id', '=', 'm.id_tipo_muestra')
+                    ->whereBetween('m.created_at', [$startDate, $endDate]);
+            })
+            ->selectRaw('tm.name as tipo, COUNT(m.id) as total')
+            ->groupBy('tm.name')
+            ->get();
+    }
+
+    public function countMuestrasByTipoFrasco(string $startDate, string $endDate): Collection
+    {
+        $result = Muestras::selectRaw('tipo_frasco, COUNT(*) as total')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->groupBy('tipo_frasco')
+            ->pluck('total', 'tipo_frasco');
+
+        // Asegurar que todos los tipos del ENUM aparezcan, incluso con 0
+        $allTipoFrasco = collect(Muestras::TIPOS_FRASCO)->mapWithKeys(function ($tipo) use ($result) {
+            return [$tipo => $result->get($tipo, 0)];
+        });
+
+        return $allTipoFrasco->map(function ($total, $tipo) {
+            return (object) [
+                'tipo_frasco' => $tipo,
+                'total' => $total,
+            ];
+        })->values();
     }
 }

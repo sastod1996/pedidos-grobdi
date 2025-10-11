@@ -36,6 +36,7 @@ class Muestras extends Model
         'delete_reason'
     ];
 
+    public const TIPOS_FRASCO = ['Frasco Original', 'Frasco Muestra'];
 
     // Relación con Clasificacion
     public function clasificacion()
