@@ -111,7 +111,7 @@ $detalleUrlTemplate = $canShowPedido ? route('pedidoslaboratorio.show', ['pedido
                         @if($canUpdatePedido)
                         <td>
                             <div class="form-check">
-                                <input class="form-check-input pedido-checkbox" type="checkbox" value="{{ $pedido->id }}" id="checkbox{{ $pedido->id }}"
+                                <input class="form-check-input border border-info" type="checkbox" value="{{ $pedido->id }}" id="checkbox{{ $pedido->id }}"
                                        {{ $pedido->productionStatus === 1 ? 'disabled' : '' }}>
                                 <label class="form-check-label" for="checkbox{{ $pedido->id }}"></label>
                             </div>
