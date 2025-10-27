@@ -96,14 +96,13 @@
             </div>
         </div>
 
-        <div class="card-body table-responsive p-0" style="max-height: 800px;">
-            <table class="table table-grobdi table-striped table-hover table-bordered" id="miTabla">
+        <div class="card-body table-responsive">
+            <table class="table table-striped  table-grobdi" id="miTabla">
                 <thead>
-
                     <tr>
                         <th>
                             <a href="{{ route('doctor.index', ['sort_by' => 'name', 'direction' => $ordenarPor == 'name' && $direccion == 'asc' ? 'desc' : 'asc']) }}">
-                                Nombre 
+                                Nombre
                                 @if ($ordenarPor == 'name')
                                     {{ $direccion == 'asc' ? '↑' : '↓' }}
                                 @endif
@@ -119,7 +118,7 @@
                         <th>Acciones</th>
                     </tr>
                 </thead>
-    
+
                 <tbody>
                 @forelse ($doctores as $doctor)
                     <tr class={{ $doctor->state == 0 ? 'table-danger': ''}}>
@@ -156,7 +155,7 @@
                     </tr>
                 @endforelse
                 </tbody>
-    
+
             </table>
             {!! $doctores->appends(request()->except('page'))->links() !!}
         </div>
@@ -175,11 +174,11 @@
                         @csrf
                         <div class="mb-5">
                             <label for="doctor_excel" class="form-label"><strong>Cargar target Doctores:</strong></label>
-                            <input 
-                                type="file" 
-                                name="archivo" 
+                            <input
+                                type="file"
+                                name="archivo"
                                 class="form-control"
-                                accept=".xlsx, .csv,.xls" 
+                                accept=".xlsx, .csv,.xls"
                                 id="doctor_excel"
                                 required
                             >
