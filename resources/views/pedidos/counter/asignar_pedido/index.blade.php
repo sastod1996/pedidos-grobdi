@@ -38,9 +38,9 @@
             @foreach($zonas as $zona)
             <div class="col-xs-6 col-sm-6 col-md-6">
                 <label for="fecha_inicio">{{ $zona->name }}</label>
-                
+
                 <div class="table table-responsive">
-                    <table class="table table-striped table-hover border shadow-sm">
+                    <table class="table table-striped table-grobdi border shadow-sm">
                         <thead class="bg-dark text-white">
                             <tr>
                                 <th>Nro</th>
@@ -51,7 +51,7 @@
                                 <th width="120px">Opciones</th>
                             </tr>
                         </thead>
-            
+
                         <tbody>
                         @forelse ($pedidos as $pedido)
                             @if ($pedido->zone_id == $zona->id)
@@ -68,13 +68,13 @@
                                         <option disabled>Cambiar zona</option>
                                         @foreach ($zonas as $zon)
                                             <option value={{ $zon->id }} {{ $pedido->zone_id ===  $zon->id  ? 'selected' : '' }}>{{$zon->name}}</option>
-                                        
+
                                         @endforeach
                                     </select>
                                 </td>
                                 <td>
                                     <!-- <a class="btn btn-success btn-sm" data-toggle="modal" data-target="#createModal" href="{{ route('asignarpedidos.show',$pedido->id) }}"><i class="fa fa-eye"></i> ver</a> -->
-                        
+
                                     <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-pencil-square"></i> cambiar</button>
                                 </td>
                                 </form>
@@ -86,7 +86,7 @@
                             </tr>
                         @endforelse
                         </tbody>
-            
+
                     </table>
                 </div>
             </div>
@@ -95,7 +95,7 @@
         @error('message')
             <p style="color: red;">{{ $message }}</p>
         @enderror
-        
+
   </div>
 </div>
 @endcan
