@@ -23,7 +23,7 @@
     @session('danger')
         <div class="alert alert-danger" role="alert"> {{ $value }} </div>
     @endsession
-        <table class="table table-bordered table-striped mt-4">
+        <table class="table table-bordered table-striped table-grobdi">
             <thead>
                 <tr>
                     <th>Fecha - Mes</th>
@@ -31,7 +31,7 @@
                     <th>Acciones</th>
                 </tr>
             </thead>
-  
+
             <tbody>
             @forelse ($rutas as $ruta)
                 <tr>
@@ -49,7 +49,7 @@
                 </tr>
             @endforelse
             </tbody>
-  
+
         </table>
     </div>
 </div>

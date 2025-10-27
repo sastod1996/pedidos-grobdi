@@ -20,7 +20,7 @@
     @session('success')
         <div class="alert alert-success" role="alert"> {{ $value }} </div>
     @endsession
-        <table class="table table-bordered table-striped mt-4">
+        <table class="table table-bordered table-striped table-grobdi">
             <thead>
                 <tr>
                     <th>Nombre</th>
@@ -30,7 +30,7 @@
                     <th>Acciones</th>
                 </tr>
             </thead>
-  
+
             <tbody>
             @forelse ($listas as $lista)
                 <tr>
@@ -63,7 +63,7 @@
                 </tr>
             @endforelse
             </tbody>
-  
+
         </table>
     </div>
 </div>

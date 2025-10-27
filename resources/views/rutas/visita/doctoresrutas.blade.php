@@ -63,8 +63,8 @@
                             </select>
                         </div>
                     </div>
-                    <div class="table table-responsive table-grobdi">
-                        <table class="table" id="miTabla">
+                    <div class="table table-responsive">
+                        <table class="table table-grobdi" id="miTabla">
                             <thead>
                                 <tr>
                                     <th>Nombre</th>

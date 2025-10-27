@@ -34,7 +34,7 @@
     @can('enrutamiento.agregarlista')
     <h1>Días del Mes</h1>
 
-    <table>
+    <table class="table-grobdi">
         <thead>
             <tr>
                 <th>Lunes</th>

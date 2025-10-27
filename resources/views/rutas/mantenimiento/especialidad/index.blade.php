@@ -23,7 +23,7 @@
                     <div class="alert alert-success" role="alert"> {{ $value }} </div>
                 @endsession
                 <div class="table table-responsive">
-                    <table class="table table-bordered table-striped mt-4">
+                    <table class="table table-bordered table-striped table-grobdi">
                         <thead>
                             <tr>
                                 <th>Nombre</th>
@@ -31,7 +31,7 @@
                                 <th width="220px">Opciones</th>
                             </tr>
                         </thead>
-              
+
                         <tbody>
                         @forelse ($especialidad as $especia)
                             <tr>
@@ -58,14 +58,14 @@
                             </tr>
                         @endforelse
                         </tbody>
-              
+
                     </table>
                 </div>
-                
+
                 {!! $especialidad->appends(request()->except('page'))->links() !!}
-        
+
             </div>
-        </div> 
+        </div>
 
     </div>
 </div>
