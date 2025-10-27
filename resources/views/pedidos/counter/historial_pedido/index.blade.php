@@ -15,12 +15,15 @@
                     <label for="fecha_fin">Fecha de fin:</label>
                     <input class="form-control" type="date" name="fecha_fin" id="fecha_fin" required>
                 </div>
-                <button type="submit" class="btn btn-outline-primary"><i class="fa fa-search"></i> Buscar</button>
+                <div class="col-xs-3 col-sm-3 col-md-3 align-content-center align-items-center">
+                    <button type="submit" class="btn btn-outline-primary"><i class="fa fa-search"></i> Buscar</button>
+
+                </div>
             </div>
         </form>
         <form action="{{ route('historialpedidos.index') }}" method="GET">
             <br>
-            <div class="col-xs-12 col-sm-12 col-md-12">
+            <div class="col-xs-12 col-sm-12 col-md-12 mb-4">
                 <label for="buscar">Buscar:</label>
                 <input class="form-control" type="text" name="buscar" id="buscar" required>
             </div>
@@ -32,12 +35,12 @@
             <div class="alert alert-success" role="alert"> {{ $value }} </div>
         @endsession
         <div class="table-responsive">
-            <table class="table table-bordered table-striped mt-4">
+            <table class="table table-bordered table-striped table-grobdi">
                 <thead>
                     <tr>
-                        <th width="95px">
+                        <th>
                             <a href="{{ route('historialpedidos.index', ['sort_by' => 'orderId', 'direction' => $ordenarPor == 'orderId' && $direccion == 'asc' ? 'desc' : 'asc','fecha_inicio'=>request()->query('fecha_inicio')?request()->query('fecha_inicio'):date('Y-m-d'),'fecha_fin'=>request()->query('fecha_fin')?request()->query('fecha_fin'):date('Y-m-d')]) }}">
-                                Id Pedido 
+                                Id Pedido
                                 @if ($ordenarPor == 'orderId')
                                     {{ $direccion == 'asc' ? '↑' : '↓' }}
                                 @endif
@@ -47,10 +50,10 @@
                         <th>Fecha de Entrega</th>
                         <th>Estado Producción</th>
                         <th>Estado Entrega</th>
-                        <th width="120px">Opciones</th>
+                        <th>Opciones</th>
                     </tr>
                 </thead>
-    
+
                 <tbody>
                 @forelse ($pedidos as $pedido)
                     <tr>
@@ -61,7 +64,7 @@
                         <td>{{ $pedido->deliveryStatus}}</td>
                         <td>
                             <form action="{{ route('cargarpedidos.destroy',$pedido->id) }}" method="POST">
-                
+
                                 <a class="btn btn-info btn-sm" href="{{ route('historialpedidos.show',$pedido->id) }}"><i class="fa fa-info"></i> Detalles</a>
                                 @csrf
                                 @method('DELETE')
@@ -81,7 +84,7 @@
 
 
     </div>
-</div> 
+</div>
 @endcan
 @stop
 

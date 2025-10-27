@@ -15,7 +15,7 @@ $canUpdatePedido = $user?->can('pedidoscontabilidad.update');
     <h2 class="card-header">Pedidos</h2>
     <div class="card-body">
         <form action="{{ route('pedidoscontabilidad.index') }}" method="GET">
-            <div class="row">
+            <div class="row mb-4">
                 <div class="col-xs-2 col-sm-2 col-md-2">
                     <label for="fecha_inicio">Fecha de inicio:</label>
                     <input class="form-control" type="date" name="fecha_inicio" id="fecha_inicio" required>
@@ -45,7 +45,7 @@ $canUpdatePedido = $user?->can('pedidoscontabilidad.update');
         @session('success')
             <div class="alert alert-success" role="alert"> {{ $value }} </div>
         @endsession
-        <table class="table table-bordered table-striped mt-4">
+        <table class="table table-bordered table-striped table-grobdi">
             <thead>
                 <tr>
                     <th>Nro pedido</th>
@@ -59,7 +59,7 @@ $canUpdatePedido = $user?->can('pedidoscontabilidad.update');
                     @endif
                 </tr>
             </thead>
-  
+
             <tbody>
             @forelse ($pedidos as $pedido)
                 <tr id="pedido-row-{{ $pedido->id }}">
@@ -186,12 +186,12 @@ $canUpdatePedido = $user?->can('pedidoscontabilidad.update');
                 </tr>
             @endforelse
             </tbody>
-  
+
         </table>
-        
+
 
   </div>
-</div> 
+</div>
 
 @endcan
 @stop
@@ -252,7 +252,7 @@ $canUpdatePedido = $user?->can('pedidoscontabilidad.update');
         });
         }
     });
-    
+
 
 </script>
 @stop
