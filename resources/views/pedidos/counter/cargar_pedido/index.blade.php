@@ -391,8 +391,7 @@ $filtersColumnClass = $canDownloadWord ? 'col-lg-9 col-12' : 'col-12';
             altInput: true,
             dateFormat: "Y-m-d",
             altFormat: "d/m/Y",
-            locale: 'es',
-            maxDate: "today"
+            locale: 'es'
         });
         $('#miTabla').DataTable({
             language: {
