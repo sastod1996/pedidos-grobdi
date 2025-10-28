@@ -8,6 +8,7 @@
 				</div>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
 			</div>
+            
 			<div class="modal-body py-4">
 				<form class="debitar-form">
 					<div class="row g-4">

@@ -14,8 +14,12 @@
                         equipo de visitadoras.</p>
                 </div>
                 <div class="bonificaciones-action-group d-flex gap-2">
-                    <a class="btn btn-danger btn-lg px-4" href="{{ route('bonificaciones.configuracion') }}">Configurar meta</a>
-                    <a class="btn btn-primary btn-lg px-4" href="{{ route('bonificaciones.create') }}">Nuevo mes</a>
+                    <button type="button" class="btn btn-danger btn-lg px-4" id="openConfigModal"
+                        data-toggle="modal" data-target="#configuracionModal" data-bs-toggle="modal" data-bs-target="#configuracionModal">
+                        Configurar meta
+                    </button>
+                    <!-- Abrir modal en lugar de navegar a create -->
+                    <button type="button" class="btn btn-primary btn-lg px-4" data-bs-toggle="modal" data-bs-target="#createBonificacionModal">Nuevo mes</button>
                 </div>
             </div>
         </div>
@@ -45,7 +49,7 @@
                 </form>
             </div>
         </div>
-        <div class="row gy-3 mb-4">
+        {{-- <div class="row gy-3 mb-4">
             <div class="col-12 col-md-6 col-xl-3">
                 <div class="bonificaciones-card bg-white shadow-sm d-flex align-items-center gap-3">
                     <div class="bonificaciones-icon bg-primary text-white">
@@ -94,7 +98,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
         <div class="card shadow-sm border-0">
             <div
@@ -115,7 +119,7 @@
                             <tr>
                                 <th scope="col">Meta</th>
                                 <th scope="col">Tipo Médico</th>
-                                <th scope="col">Avance</th>
+                                {{-- <th scope="col">Avance</th> --}}
                                 <th scope="col" class="text-center">Opciones</th>
                             </tr>
                         </thead>
@@ -123,7 +127,7 @@
                             <tr class="text-center">
                                 <td>Octubre 2025</td>
                                 <td>Prescriptor</td>
-                                <td>
+                                {{-- <td>
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="progress flex-grow-1" style="height: 6px;">
                                             <div class="progress-bar bg-primary" role="progressbar" style="width: 82%;"
@@ -131,15 +135,17 @@
                                         </div>
                                         <span class="fw-semibold">82%</span>
                                     </div>
-                                </td>
+                                </td> --}}
                                 <td class="text-center">
-                                    <a href="{{ route('bonificaciones.view') }}" class="text-primary fw-semibold me-2">Ver</a>
+                                    <a href="/dev/bonificaciones/view" class="text-warning fw-semibold me-2" title="Ver" style="text-decoration: none;">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
                                 </td>
                             </tr>
                             <tr class="text-center">
                                 <td>Octubre 2025</td>
                                 <td>Comprador</td>
-                                <td>
+                                {{-- <td>
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="progress flex-grow-1" style="height: 6px;">
                                             <div class="progress-bar bg-primary" role="progressbar" style="width: 70%;"
@@ -147,15 +153,17 @@
                                         </div>
                                         <span class="fw-semibold">70%</span>
                                     </div>
-                                </td>
+                                </td> --}}
                                 <td class="text-center">
-                                    <a href="{{ route('bonificaciones.view') }}" class="text-primary fw-semibold me-2">Ver</a>
+                                    <a href="/dev/bonificaciones/view" class="text-warning fw-semibold me-2" title="Ver" style="text-decoration: none;">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
                                 </td>
                             </tr>
 							<tr class="text-center">
                                 <td>Septiembre 2025</td>
                                 <td>Prescriptor</td>
-                                <td>
+                                {{-- <td>
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="progress flex-grow-1" style="height: 6px;">
                                             <div class="progress-bar bg-primary" role="progressbar" style="width: 82%;"
@@ -163,15 +171,17 @@
                                         </div>
                                         <span class="fw-semibold">82%</span>
                                     </div>
-                                </td>
+                                </td> --}}
                                 <td class="text-center">
-                                    <a href="{{ route('bonificaciones.view') }}" class="text-primary fw-semibold me-2">Ver</a>
+                                    <a href="/dev/bonificaciones/view" class="text-warning fw-semibold me-2" title="Ver" style="text-decoration: none;">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
                                 </td>
                             </tr>
                             <tr class="text-center">
                                 <td>Septiembre 2025</td>
                                 <td>Comprador</td>
-                                <td>
+                                {{-- <td>
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="progress flex-grow-1" style="height: 6px;">
                                             <div class="progress-bar bg-primary" role="progressbar" style="width: 70%;"
@@ -179,15 +189,17 @@
                                         </div>
                                         <span class="fw-semibold">70%</span>
                                     </div>
-                                </td>
+                                </td> --}}
                                 <td class="text-center">
-                                    <a href="{{ route('bonificaciones.view') }}" class="text-primary fw-semibold me-2">Ver</a>
+                                    <a href="/dev/bonificaciones/view" class="text-warning fw-semibold me-2" title="Ver" style="text-decoration: none;">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
                                 </td>
                             </tr>
 							<tr class="text-center">
                                 <td>Agosto 2025</td>
                                 <td>Prescriptor</td>
-                                <td>
+                                {{-- <td>
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="progress flex-grow-1" style="height: 6px;">
                                             <div class="progress-bar bg-primary" role="progressbar" style="width: 82%;"
@@ -195,15 +207,17 @@
                                         </div>
                                         <span class="fw-semibold">82%</span>
                                     </div>
-                                </td>
+                                </td> --}}
                                 <td class="text-center">
-                                    <a href="{{ route('bonificaciones.view') }}" class="text-primary fw-semibold me-2">Ver</a>
+                                    <a href="/dev/bonificaciones/view" class="text-warning fw-semibold me-2" title="Ver" style="text-decoration: none;">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
                                 </td>
                             </tr>
                             <tr class="text-center">
                                 <td>Agosto 2025</td>
                                 <td>Comprador</td>
-                                <td>
+                                {{-- <td>
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="progress flex-grow-1" style="height: 6px;">
                                             <div class="progress-bar bg-primary" role="progressbar" style="width: 70%;"
@@ -211,15 +225,17 @@
                                         </div>
                                         <span class="fw-semibold">70%</span>
                                     </div>
-                                </td>
+                                </td> --}}
                                 <td class="text-center">
-                                    <a href="{{ route('bonificaciones.view') }}" class="text-primary fw-semibold me-2">Ver</a>
+                                    <a href="/dev/bonificaciones/view" class="text-warning fw-semibold me-2" title="Ver" style="text-decoration: none;">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
                                 </td>
                             </tr>
 							<tr class="text-center">
                                 <td>Julio 2025</td>
                                 <td>Prescriptor</td>
-                                <td>
+                                {{-- <td>
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="progress flex-grow-1" style="height: 6px;">
                                             <div class="progress-bar bg-primary" role="progressbar" style="width: 82%;"
@@ -227,15 +243,17 @@
                                         </div>
                                         <span class="fw-semibold">82%</span>
                                     </div>
-                                </td>
+                                </td> --}}
                                 <td class="text-center">
-                                    <a href="{{ route('bonificaciones.view') }}" class="text-primary fw-semibold me-2">Ver</a>
+                                    <a href="/dev/bonificaciones/view" class="text-warning fw-semibold me-2" title="Ver" style="text-decoration: none;">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
                                 </td>
                             </tr>
                             <tr class="text-center">
                                 <td>Julio 2025</td>
                                 <td>Comprador</td>
-                                <td>
+                                {{-- <td>
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="progress flex-grow-1" style="height: 6px;">
                                             <div class="progress-bar bg-primary" role="progressbar" style="width: 70%;"
@@ -243,15 +261,17 @@
                                         </div>
                                         <span class="fw-semibold">70%</span>
                                     </div>
-                                </td>
+                                </td> --}}
                                 <td class="text-center">
-                                    <a href="{{ route('bonificaciones.view') }}" class="text-primary fw-semibold me-2">Ver</a>
+                                    <a href="/dev/bonificaciones/view" class="text-warning fw-semibold me-2" title="Ver" style="text-decoration: none;">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
                                 </td>
                             </tr>
 							<tr class="text-center">
                                 <td>Junio 2025</td>
                                 <td>Prescriptor</td>
-                                <td>
+                                {{-- <td>
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="progress flex-grow-1" style="height: 6px;">
                                             <div class="progress-bar bg-primary" role="progressbar" style="width: 82%;"
@@ -259,15 +279,17 @@
                                         </div>
                                         <span class="fw-semibold">82%</span>
                                     </div>
-                                </td>
+                                </td> --}}
                                 <td class="text-center">
-                                    <a href="{{ route('bonificaciones.view') }}" class="text-primary fw-semibold me-2">Ver</a>
+                                    <a href="/dev/bonificaciones/view" class="text-warning fw-semibold me-2" title="Ver" style="text-decoration: none;">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
                                 </td>
                             </tr>
                             <tr class="text-center">
                                 <td>Junio 2025</td>
                                 <td>Comprador</td>
-                                <td>
+                                {{-- <td>
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="progress flex-grow-1" style="height: 6px;">
                                             <div class="progress-bar bg-primary" role="progressbar" style="width: 70%;"
@@ -275,9 +297,11 @@
                                         </div>
                                         <span class="fw-semibold">70%</span>
                                     </div>
-                                </td>
+                                </td> --}}
                                 <td class="text-center">
-                                    <a href="{{ route('bonificaciones.view') }}" class="text-primary fw-semibold me-2">Ver</a>
+                                    <a href="/dev/bonificaciones/view" class="text-warning fw-semibold me-2" title="Ver" style="text-decoration: none;">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
                                 </td>
                             </tr>
                         </tbody>
@@ -286,9 +310,13 @@
             </div>
         </div>
     </div>
+    {{-- Include modal partial for creating bonificaciones --}}
+    @include('bonificaciones.partials.createModal')
+    @include('bonificaciones.partials.configModal')
 @stop
 
 @section('css')
+
     <style>
         .bonificaciones-hero-card {
             background-color: #f8efef;

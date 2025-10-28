@@ -2,11 +2,6 @@
 
 @section('title', 'Pedidos')
 
-@section('content_header')
-
-    <!-- <h1>Pedidos</h1> -->
-@stop
-
 @php
 $user = auth()->user();
 $role = $user?->role->name;
@@ -160,7 +155,7 @@ $filtersColumnClass = $canDownloadWord ? 'col-lg-9 col-12' : 'col-12';
             </div>
         </div>
         <div class="table table-responsive">
-            <table class="table table-striped table-hover table-grobdi" id="miTabla">
+            <table class="table table-striped table-grobdi" id="miTabla">
                 <thead>
                     <tr>
                         <th>Nro</th>
@@ -170,14 +165,14 @@ $filtersColumnClass = $canDownloadWord ? 'col-lg-9 col-12' : 'col-12';
                         <th>Est. Pago</th>
                         <th>Turno</th>
                         <th>Est. Entrega</th>
-                        <th width="200px">distrito</th>
-                        <th width="200px">Voucher</th>
-                        <th width="200px">Estado Producción</th>
-                        <th width="200px">Receta</th>
-                        <th width="200px">Zona</th>
-                        <th width="200px">Usuario</th>
+                        <th>distrito</th>
+                        <th>Voucher</th>
+                        <th>Estado Producción</th>
+                        <th>Receta</th>
+                        <th>Zona</th>
+                        <th>Usuario</th>
                         @if($showOptionsColumn)
-                        <th width="220px">Opciones</th>
+                        <th>Opciones</th>
                         @endif
                     </tr>
                 </thead>
@@ -430,17 +425,17 @@ $filtersColumnClass = $canDownloadWord ? 'col-lg-9 col-12' : 'col-12';
                                         <p class="observaciones-col">${i.observacion ?? ''}</p>
                                     </td>
                                     <td class="text-center align-content-center">
-                                        ${i.foto_domicilio ? 
+                                        ${i.foto_domicilio ?
                                             `<button class="btn btn-info btn-sm btn-show-details" data-img="${i.foto_domicilio.url}" data-datetime="${i.foto_domicilio.datetime}" data-lat="${i.foto_domicilio.location.lat}" data-lng="${i.foto_domicilio.location.lng}">Ver</button>`
                                         : '—'}
                                     </td>
                                     <td class="text-center align-content-center">
-                                        ${i.foto_entrega ? 
+                                        ${i.foto_entrega ?
                                             `<button class="btn btn-info btn-sm btn-show-details" data-img="${i.foto_entrega.url}" data-datetime="${i.foto_entrega.datetime}" data-lat="${i.foto_entrega.location.lat}" data-lng="${i.foto_entrega.location.lng}">Ver</button>`
                                         : '—'}
                                     </td>
                                     <td class="text-center align-content-center">
-                                        ${i.receptor_info ? 
+                                        ${i.receptor_info ?
                                             `<button class="btn btn-info btn-sm btn-show-details" data-img="${i.receptor_info.firma}" data-nombre="${i.receptor_info.nombre}">Ver</button>`
                                         : '—'}
                                     </td>
@@ -473,7 +468,7 @@ $filtersColumnClass = $canDownloadWord ? 'col-lg-9 col-12' : 'col-12';
                                 `<p><strong>Fecha y hora:</strong> ${datetime}</p>` :
                                 `<p><strong>Nombre del receptor: </strong> ${nombre}</p>`
                             }
-                            ${lat && lng ? 
+                            ${lat && lng ?
                                 `<a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank">Ver ubicación de la foto</a>`:
                                 ''
                             }`
@@ -526,7 +521,7 @@ $filtersColumnClass = $canDownloadWord ? 'col-lg-9 col-12' : 'col-12';
                                         <p class="observaciones-col">${estado.observacion ?? ''}</p>
                                     </td>
                                     <td class="text-center align-content-center">${estado.foto_domicilio ? `
-                                        <button class="btn btn-info btn-sm btn-show-details" 
+                                        <button class="btn btn-info btn-sm btn-show-details"
                                             data-img="${estado.foto_domicilio.url}"
                                             data-datetime="${estado.foto_domicilio.datetime}"
                                             data-lat="${estado.foto_domicilio.location.lat}"
@@ -535,7 +530,7 @@ $filtersColumnClass = $canDownloadWord ? 'col-lg-9 col-12' : 'col-12';
                                         </button>` : '—'}
                                     </td>
                                     <td class="text-center align-content-center">${estado.foto_entrega ? `
-                                        <button class="btn btn-info btn-sm btn-show-details" 
+                                        <button class="btn btn-info btn-sm btn-show-details"
                                             data-img="${estado.foto_entrega.url}"
                                             data-datetime="${estado.foto_entrega.datetime}"
                                             data-lat="${estado.foto_entrega.location.lat}"
@@ -545,7 +540,7 @@ $filtersColumnClass = $canDownloadWord ? 'col-lg-9 col-12' : 'col-12';
                                     </td>
                                     <td class="text-center align-content-center">
                                         ${estado.receptor_info ? `
-                                        <button class="btn btn-info btn-sm btn-show-details" 
+                                        <button class="btn btn-info btn-sm btn-show-details"
                                             data-img="${estado.receptor_info.firma}"
                                             data-nombre="${estado.receptor_info.nombre}"
                                             >

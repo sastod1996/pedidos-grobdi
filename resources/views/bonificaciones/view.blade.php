@@ -16,7 +16,7 @@
                     Última actualización: 12/10/2025 08:15 a. m.
                 </div>
                  <div class="align-items-end d-flex mt-2 mt-md-0 ms-auto"></div>
-                    <a href="{{ route('bonificaciones.index') }}" class="btn btn-secondary align-items-end">
+                    <a href="/dev/bonificaciones" class="btn btn-secondary align-items-end">
                         &larr; Volver
                     </a>
                  </div>

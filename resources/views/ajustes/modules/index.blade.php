@@ -2,13 +2,16 @@
 
 @section('title', 'Módulos')
 
-@section('content_header')
-    <h1>🧩 Gestión de Módulos</h1>
-@stop
 
 @section('content')
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
-        <a href="{{ route('modules.create') }}" class="btn btn-primary">➕ Nuevo Módulo</a>
+    <div class="grobdi-header">
+        <div class="grobdi-title">
+            <div>
+                <h2>Gestión de Módulos</h2>
+                <p>Administra los módulos del sistema</p>
+            </div>
+            <a href="{{ route('modules.create') }}" class="btn">➕ Nuevo Módulo</a>
+        </div>
     </div>
 
     <div class="card shadow-sm">
@@ -35,19 +38,22 @@
                                 <td class="align-middle text-muted">{{ $module->description ?: 'Sin descripción' }}</td>
                                 <td class="text-center align-middle">
                                     @can('modules.edit')
-                                        <a href="{{ route('modules.edit', $module) }}" class="btn btn-sm btn-warning mb-1">✏️ Editar</a>
+                                        <a href="{{ route('modules.edit', $module) }}" class="btn btn-sm btn-warning mb-1">✏️
+                                            Editar</a>
                                     @endcan
                                     @can('modules.delete')
                                         <form action="{{ route('modules.destroy', $module) }}" method="POST" class="d-inline">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar este módulo?')">🗑️ Eliminar</button>
+                                            <button type="submit" class="btn btn-sm btn-danger"
+                                                onclick="return confirm('¿Eliminar este módulo?')">🗑️ Eliminar</button>
                                         </form>
                                     @endcan
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="text-center text-muted py-4">No hay módulos registrados actualmente.</td>
+                                <td colspan="4" class="text-center text-muted py-4">No hay módulos registrados
+                                    actualmente.</td>
                             </tr>
                         @endforelse
                     </tbody>

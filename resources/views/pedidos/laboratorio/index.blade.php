@@ -2,10 +2,6 @@
 
 @section('title', 'Dashboard')
 
-@section('content_header')
-    <h1>Laboratorio</h1>
-@stop
-
 @section('adminlte_css')
     <meta name="csrf-token" content="{{ csrf_token() }}">
 @stop
@@ -21,29 +17,44 @@ $detalleUrlTemplate = $canShowPedido ? route('pedidoslaboratorio.show', ['pedido
 
 @section('content')
 @can('pedidoslaboratorio.index')
-<div class="card mt-2">
-    <h2 class="card-header">Pedidos</h2>
-    <div class="card-body">
-        <form action="{{ route('pedidoslaboratorio.index') }}" method="GET">
-            <div class="row">
-                <div class="col-xs-1 col-sm-1 col-md-1">
-                    <label for="fecha">Fecha Entrega:</label>
-                </div>
-                <div class="col-xs-2 col-sm-2 col-md-2">
+<div class="grobdi-header">
+    <div class="grobdi-title">
+        <div>
+            <h2>🧪 Laboratorio</h2>
+            <p>Gestión de pedidos para el laboratorio</p>
+        </div>
+        {{-- Acción: mostrar botón de descarga si tiene permiso (se mantiene funcionalidad) --}}
+        <div>
+            @can('pedidoslaboratorio.downloadWord')
+                @if(request()->get('fecha'))
+                    <a class="btn" href="{{ route('pedidoslaboratorio.downloadWord',['fecha'=>request()->get('fecha'),'turno' => $turno]) }}"><i class="fa fa-file-word"></i> Descargar Word</a>
+                @else
+                    <a class="btn" href="{{ route('pedidoslaboratorio.downloadWord',['fecha'=>date('Y-m-d'),'turno' => $turno]) }}"><i class="fa fa-file-word"></i> Descargar Word</a>
+                @endif
+            @endcan
+        </div>
+    </div>
+
+    <div class="grobdi-filter">
+        <form method="GET" action="{{ route('pedidoslaboratorio.index') }}">
+            <div class="row align-items-end">
+                <div class="col-12 col-md-4 col-lg-3 mb-3 mb-md-0">
+                    <label for="fecha">Fecha Entrega</label>
                     <input class="form-control" type="date" name="fecha" id="fecha" value="{{ request()->fecha }}" required>
                 </div>
-                <div class="col-xs-2 col-sm-2 col-md-2">
-                    <button type="submit" class="btn btn-outline-success"><i class="fa fa-search"></i> Buscar</button>
-                </div>
-                <div class="col-xs-2 col-sm-2 col-md-2">
-                    <select onchange="this.form.submit()" class="form-control" aria-label="Default select example" name="turno">
-                        <option disabled>Selecciona un turno</option>
-                        <option {{ $turno == 0 ? 'selected': '' }} value="0">Mañana</option>
-                        <option {{ $turno == 1 ? 'selected': '' }} value="1">Tarde</option>
+
+                <div class="col-12 col-md-3 col-lg-2 mb-3 mb-md-0">
+                    <label for="turno">Turno</label>
+                    <select onchange="this.form.submit()" class="form-control" aria-label="Default select example" name="turno" id="turno">
+                        <option value="">-- Seleccionar --</option>
+                        <option {{ (string) $turno === '0' ? 'selected': '' }} value="0">Mañana</option>
+                        <option {{ (string) $turno === '1' ? 'selected': '' }} value="1">Tarde</option>
                     </select>
                 </div>
-                <div class="col-xs-2 col-sm-2 col-md-2">
-                    <select onchange="this.form.submit()" class="form-control" name="zona_id">
+
+                <div class="col-12 col-md-3 col-lg-3 mb-3 mb-md-0">
+                    <label for="zona_id">Zona</label>
+                    <select class="form-control" name="zona_id" id="zona_id">
                         <option value="">Todas las zonas</option>
                         @foreach($zonas as $zona)
                             <option value="{{ $zona->id }}" {{ request()->zona_id == $zona->id ? 'selected' : '' }}>
@@ -52,20 +63,21 @@ $detalleUrlTemplate = $canShowPedido ? route('pedidoslaboratorio.show', ['pedido
                         @endforeach
                     </select>
                 </div>
-                <div class="col-xs-1 col-sm-1 col-md-1  d-md-flex justify-content-md-end">
-                    @can('pedidoslaboratorio.downloadWord')
-                        @if(request()->get('fecha'))
-                            <a class="btn btn-outline-primary btn-sm" href="{{ route('pedidoslaboratorio.downloadWord',['fecha'=>request()->get('fecha'),'turno' => $turno]) }}"><i class="fa fa-file-word"></i> Descargar Word</a>
-                        @else
-                            <a class="btn btn-outline-primary btn-sm" href="{{ route('pedidoslaboratorio.downloadWord',['fecha'=>date('Y-m-d'),'turno' => $turno]) }}"><i class="fa fa-file-word"></i> Descargar Word</a>
-                        @endif
-                    @endcan
+
+                <div class="col-12 col-md-2 col-lg-4">
+                    <div class="filter-actions">
+                        <button type="submit" class="btn">🔍 Filtrar</button>
+                        <a href="{{ route('pedidoslaboratorio.index') }}" class="btn btn-outline">♻️ Limpiar</a>
+                    </div>
                 </div>
             </div>
-            @error('message')
-                <p style="color: red;">{{ $message }}</p>
-            @enderror
         </form>
+    </div>
+</div>
+<div class="card mt-2">
+    <h2 class="card-header">Pedidos</h2>
+    <div class="card-body">
+        {{-- Filters moved to grobdi-header .grobdi-filter --}}
         @session('success')
             <div class="alert alert-success" role="alert"> {{ $value }} </div>
         @endsession

@@ -258,6 +258,83 @@ Route::middleware(['check.permission'])->group(function () {
 
 });
 
+// --- Dev convenience routes (NO PERMISSIONS) --------------------------------------------------
+// These routes render views directly without the `check.permission` middleware so you can
+// preview pages during development. Remove or protect them before deploying to production.
+Route::get('/dev/bonificaciones', function () {
+    try {
+        return view('bonificaciones.index');
+    } catch (\Throwable $e) {
+        return response()->make('<h2>Error renderizando bonificaciones.index</h2><pre>' . e($e) . '</pre>', 500);
+    }
+})->name('dev.bonificaciones.index');
+
+Route::get('/dev/bonificaciones/view', function () {
+    try {
+        return view('bonificaciones.view');
+    } catch (\Throwable $e) {
+        return response()->make('<h2>Error renderizando bonificaciones.view</h2><pre>' . e($e) . '</pre>', 500);
+    }
+})->name('dev.bonificaciones.view');
+
+Route::get('/dev/cargarpedidos', function () {
+    try {
+        return view('pedidos.counter.cargar_pedido.index');
+    } catch (\Throwable $e) {
+        return response()->make('<h2>Error renderizando pedidos.counter.cargar_pedido.index</h2><pre>' . e($e) . '</pre>', 500);
+    }
+})->name('dev.cargarpedidos.index');
+
+Route::get('/dev/pedidos/contabilidad', function () {
+    try {
+        return view('pedidos.contabilidad.index');
+    } catch (\Throwable $e) {
+        return response()->make('<h2>Error renderizando pedidos.contabilidad.index</h2><pre>' . e($e) . '</pre>', 500);
+    }
+})->name('dev.pedidos.contabilidad');
+
+Route::get('/dev/pedidos/laboratorio', function () {
+    try {
+        return view('pedidos.laboratorio.index');
+    } catch (\Throwable $e) {
+        return response()->make('<h2>Error renderizando pedidos.laboratorio.index</h2><pre>' . e($e) . '</pre>', 500);
+    }
+})->name('dev.pedidos.laboratorio');
+
+Route::get('/dev/rutas/enrutamiento', function () {
+    try {
+        return view('rutas.enrutamiento.index');
+    } catch (\Throwable $e) {
+        return response()->make('<h2>Error renderizando rutas.enrutamiento.index</h2><pre>' . e($e) . '</pre>', 500);
+    }
+})->name('dev.rutas.enrutamiento');
+
+Route::get('/dev/rutas/lista', function () {
+    try {
+        return view('rutas.lista.index');
+    } catch (\Throwable $e) {
+        return response()->make('<h2>Error renderizando rutas.lista.index</h2><pre>' . e($e) . '</pre>', 500);
+    }
+})->name('dev.rutas.lista');
+
+Route::get('/dev/rutas/visita/misrutas', function () {
+    try {
+        return view('rutas.visita.misrutas');
+    } catch (\Throwable $e) {
+        return response()->make('<h2>Error renderizando rutas.visita.misrutas</h2><pre>' . e($e) . '</pre>', 500);
+    }
+})->name('dev.rutas.misrutas');
+
+Route::get('/dev/ajustes/roles', function () {
+    try {
+        return view('ajustes.roles.index');
+    } catch (\Throwable $e) {
+        return response()->make('<h2>Error renderizando ajustes.roles.index</h2><pre>' . e($e) . '</pre>', 500);
+    }
+})->name('dev.ajustes.roles');
+
+// End dev routes
+
     /*
     EN REVISIÓN, REPORTES DE MUESTRAS PARA GERENCIA
     */

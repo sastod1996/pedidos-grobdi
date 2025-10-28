@@ -2,7 +2,6 @@
 
 @section('title', 'Pedidos')
 
-
 @php
 $user = auth()->user();
 $canDownloadExcel = $user?->can('pedidoscontabilidad.downloadExcel');
@@ -11,41 +10,59 @@ $canUpdatePedido = $user?->can('pedidoscontabilidad.update');
 
 @section('content')
 @can('pedidoscontabilidad.index')
-<div class="card mt-5">
-    <h2 class="card-header">Pedidos</h2>
-    <div class="card-body">
-        <form action="{{ route('pedidoscontabilidad.index') }}" method="GET">
-            <div class="row mb-4">
-                <div class="col-xs-2 col-sm-2 col-md-2">
-                    <label for="fecha_inicio">Fecha de inicio:</label>
-                    <input class="form-control" type="date" name="fecha_inicio" id="fecha_inicio" required>
-                </div>
-                <div class="col-xs-2 col-sm-2 col-md-2">
-                    <label for="fecha_fin">Fecha de fin:</label>
-                    <input class="form-control" type="date" name="fecha_fin" id="fecha_fin" required>
-                </div>
-                <div class="col-xs-6 col-sm-6 col-md-6">
-
-                    <button type="submit" class="btn btn-outline-primary"><i class="fa fa-search"></i> Buscar</button>
-                </div>
-                <div class="col-xs-2 col-sm-2 col-md-2">
-                    @can('pedidoscontabilidad.downloadExcel')
-                        @if(request()->get('fecha_inicio'))
-                            <a class="btn btn-outline-success btn-sm" href="{{ route('pedidoscontabilidad.downloadExcel',['fechainicio' => request()->get('fecha_inicio'),'fechafin' => request()->get('fecha_fin')]) }}"><i class="fa fa-file-word"></i> Descargar Excel</a>
-                        @else
-                            <a class="btn btn-outline-success btn-sm" href="{{ route('pedidoscontabilidad.downloadExcel',['fechainicio' => date('Y-m-d'),'fechafin' => date('Y-m-d')]) }}"><i class="fa fa-file-excel"></i> Descargar Excel</a>
-                        @endif
-                    @endcan
-                </div>
+<div class="container">
+    <div class="grobdi-header">
+        <div class="grobdi-title">
+            <div>
+                <h2>📑 Pedidos - Contabilidad</h2>
+                <p>Filtra y revisa los pedidos para contabilidad</p>
             </div>
-            @error('message')
-                <p style="color: red;">{{ $message }}</p>
-            @enderror
-        </form>
-        @session('success')
-            <div class="alert alert-success" role="alert"> {{ $value }} </div>
-        @endsession
-        <table class="table table-bordered table-striped table-grobdi">
+            <div>
+                @can('pedidoscontabilidad.downloadExcel')
+                    @if(request()->get('fecha_inicio'))
+                        <a class="btn" href="{{ route('pedidoscontabilidad.downloadExcel',['fechainicio' => request()->get('fecha_inicio'),'fechafin' => request()->get('fecha_fin')]) }}"><i class="fa fa-file-excel"></i> Descargar Excel</a>
+                    @else
+                        <a class="btn" href="{{ route('pedidoscontabilidad.downloadExcel',['fechainicio' => date('Y-m-d'),'fechafin' => date('Y-m-d')]) }}"><i class="fa fa-file-excel"></i> Descargar Excel</a>
+                    @endif
+                @endcan
+            </div>
+        </div>
+
+        <div class="grobdi-filter">
+            <form action="{{ route('pedidoscontabilidad.index') }}" method="GET">
+                <div class="row align-items-end">
+                    <div class="col-12 col-md-4 mb-3 mb-md-0">
+                        <label for="fecha_inicio">Fecha de inicio</label>
+                        <input class="form-control" type="date" name="fecha_inicio" id="fecha_inicio" value="{{ request()->get('fecha_inicio') }}" required>
+                    </div>
+
+                    <div class="col-12 col-md-4 mb-3 mb-md-0">
+                        <label for="fecha_fin">Fecha de fin</label>
+                        <input class="form-control" type="date" name="fecha_fin" id="fecha_fin" value="{{ request()->get('fecha_fin') }}" required>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <div class="filter-actions">
+                            <button type="submit" class="btn">🔍 Filtrar</button>
+                            <a href="{{ route('pedidoscontabilidad.index') }}" class="btn btn-outline">♻️ Limpiar</a>
+                        </div>
+                    </div>
+                </div>
+                @error('message')
+                    <p style="color: red;">{{ $message }}</p>
+                @enderror
+            </form>
+        </div>
+    </div>
+
+    <div class="card mt-3">
+        <h2 class="card-header">Pedidos</h2>
+        <div class="card-body">
+            @session('success')
+                <div class="alert alert-success" role="alert"> {{ $value }} </div>
+            @endsession
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-grobdi">
             <thead>
                 <tr>
                     <th>Nro pedido</th>
@@ -153,7 +170,7 @@ $canUpdatePedido = $user?->can('pedidoscontabilidad.update');
                                             @foreach ($array_voucher as $voucher)
                                                 <div class="col-xs-4 col-sm-4 col-md-4">
                                                     Nro de Operación: <strong>{{ $voucher['nro_operacion'] }}</strong><br>
-                                                    <img src="{{ asset($voucher['voucher']) }}" alt="{{ $pedido->orderId }} width="400" height="400"">
+                                                    <img src="{{ asset($voucher['voucher']) }}" alt="{{ $pedido->orderId }}" width="400" height="400">
                                                 </div>
                                             @endforeach
                                         @endif

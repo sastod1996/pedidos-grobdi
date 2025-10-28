@@ -2,34 +2,36 @@
 
 @section('title', 'Roles')
 
-@section('content_header')
-    <h1>Sistema de control de roles</h1>
-@stop
-
 @section('content')
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
-        <a href="{{ route('roles.create') }}" class="btn btn-primary">➕ Nuevo Rol</a>
-    </div>
+    <div class="grobdi-header">
+        <div class="grobdi-title">
+            <div>
+                <h2>Gestión de Roles</h2>
+                <p>Administra y filtra los roles del sistema</p>
+            </div>
+            <a href="{{ route('roles.create') }}" class="btn">➕ Nuevo Rol</a>
+        </div>
 
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <form method="GET" action="{{ route('roles.index') }}" class="w-100">
+        <div class="grobdi-filter">
+            <form method="GET" action="{{ route('roles.index') }}">
                 <div class="row align-items-end">
-                    <div class="form-group col-12 col-md-6 col-lg-5 mb-3 mb-md-0">
-                        <label for="role_id" class="mb-1">Filtrar por rol</label>
+                    <div class="col-12 col-md-6 col-lg-5 mb-3 mb-lg-0">
+                        <label for="role_id">Filtrar por rol</label>
                         <select name="role_id" id="role_id" class="form-control">
                             <option value="">Todos los roles</option>
-                            @foreach($roleOptions as $roleOption)
-                                <option value="{{ $roleOption->id }}" {{ (string)($selectedRole ?? '') === (string)$roleOption->id ? 'selected' : '' }}>
+                            @foreach ($roleOptions as $roleOption)
+                                <option value="{{ $roleOption->id }}"
+                                    {{ (string) ($selectedRole ?? '') === (string) $roleOption->id ? 'selected' : '' }}>
                                     {{ $roleOption->name }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
+
                     <div class="col-12 col-md-6 col-lg-7">
-                        <div class="d-flex flex-column flex-sm-row justify-content-center align-items-stretch">
-                            <button type="submit" class="btn btn-primary btn-block mb-2 mb-sm-0 mr-sm-3">🔍 Filtrar</button>
-                            <a href="{{ route('roles.index') }}" class="btn btn-outline-secondary btn-block">♻️ Limpiar</a>
+                        <div class="filter-actions">
+                            <button type="submit" class="btn">🔍 Filtrar</button>
+                            <a href="{{ route('roles.index') }}" class="btn btn-outline">♻️ Limpiar</a>
                         </div>
                     </div>
                 </div>
@@ -62,23 +64,28 @@
                                     @if ($role->views->isEmpty() && $role->modules->isEmpty())
                                         <span class="text-muted">Sin permisos asignados</span>
                                     @else
-                                        <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#role-permissions-{{ $role->id }}">
+                                        <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
+                                            data-target="#role-permissions-{{ $role->id }}">
                                             👁️ Ver permisos
                                         </button>
                                     @endif
                                 </td>
                                 <td class="text-center">
-                                    <a href="{{ route('roles.edit', $role) }}" class="btn btn-sm btn-warning mb-1">✏️ Editar</a>
-                                    <a href="{{ route('roles.permissions', $role) }}" class="btn btn-sm btn-info mb-1">🛡️ Permisos</a>
+                                    <a href="{{ route('roles.edit', $role) }}" class="btn btn-sm btn-warning mb-1">✏️
+                                        Editar</a>
+                                    <a href="{{ route('roles.permissions', $role) }}" class="btn btn-sm btn-info mb-1">🛡️
+                                        Permisos</a>
                                     <form action="{{ route('roles.destroy', $role) }}" method="POST" class="d-inline">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar?')">🗑️ Eliminar</button>
+                                        <button type="submit" class="btn btn-sm btn-danger"
+                                            onclick="return confirm('¿Eliminar?')">🗑️ Eliminar</button>
                                     </form>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="text-center text-muted py-4">No se encontraron roles para el filtro seleccionado.</td>
+                                <td colspan="4" class="text-center text-muted py-4">No se encontraron roles para el
+                                    filtro seleccionado.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -100,7 +107,6 @@
 
 @section('js')
 
-    <script>
-    </script>
-    
+    <script></script>
+
 @stop
