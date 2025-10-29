@@ -127,6 +127,7 @@ Route::middleware(['check.permission'])->group(function () {
     Route::put('/cargarpedidos/actualizarPago/{id}', CargarPedidosController::class.'@actualizarPago')->name('cargarpedidos.actualizarPago');
     Route::put('/cargarpedidos/cargarImagenReceta/{id}', CargarPedidosController::class.'@cargarImagenReceta')->name('cargarpedidos.cargarImagenReceta');
     Route::delete('cargarpedidos/eliminarFotoVoucher/{id}', CargarPedidosController::class.'@eliminarFotoVoucher')->name('cargarpedidos.eliminarFotoVoucher');
+    Route::delete('cargarpedidos/eliminarFotoReceta/{id}', CargarPedidosController::class.'@eliminarFotoReceta')->name('cargarpedidos.eliminarFotoReceta');
     Route::put('/cargarpedidos/actualizarTurno/{id}', CargarPedidosController::class.'@actualizarTurno')->name('cargarpedidos.actualizarTurno');
 
     // New routes for preview functionality
