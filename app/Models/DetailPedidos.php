@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class DetailPedidos extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'pedidos_id',
         'articulo',
@@ -24,10 +26,10 @@ class DetailPedidos extends Model
     ];
     public function pedido()
     {
-        return $this->belongsTo(Pedidos::class,'pedidos_id'); 
+        return $this->belongsTo(Pedidos::class, 'pedidos_id');
     }
     public function usuario_produccion()
     {
-        return $this->belongsTo(User::class,'usuario_produccion_id'); 
+        return $this->belongsTo(User::class, 'usuario_produccion_id');
     }
 }

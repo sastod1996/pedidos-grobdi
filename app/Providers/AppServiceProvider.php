@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Domain\Interfaces\ReportsRepositoryInterface;
 use App\Infrastructure\Repository\ReportsRepository;
 use App\Models\View;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
@@ -31,6 +32,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        JsonResource::withoutWrapping();
         $this->app['events']->listen(BuildingMenu::class, function (BuildingMenu $event) {
             $user = Auth::user();
 

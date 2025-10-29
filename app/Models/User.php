@@ -58,16 +58,21 @@ class User extends Authenticatable
     }
     public function role()
     {
-        return $this->belongsTo(Role::class); 
+        return $this->belongsTo(Role::class);
     }
     public function zones()
     {
         return $this->belongsToMany(Zone::class, 'user_zones');
     }
-    
+
     public function hasRole($role)
     {
         return $this->role && $this->role->name === $role;
     }
-    
+
+    public function scopeVisitadoras($query)
+    {
+        return $query->where('role_id', 6);
+    }
+
 }

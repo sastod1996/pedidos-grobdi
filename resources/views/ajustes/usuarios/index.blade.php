@@ -2,15 +2,21 @@
 
 @section('title', 'Usuarios')
 
+@section('content_header')
+    <h1>👥 Gestión de Usuarios</h1>
+@stop
+
 @section('content')
     <div class="card shadow-sm mt-2">
-        <div class="grobdi-header">
-            <div class="grobdi-title">
-                <div>
-                    <h2>📋 Lista de Usuarios</h2>
-                    <p>Administra los usuarios del sistema</p>
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col">
+                    <span class="text-lg fw-bold">Lista de usuarios</span>
                 </div>
-                <a href="{{ route('usuarios.create') }}" class="btn">➕ Crear Usuario</a>
+                <div class="col text-right">
+                    <a class="btn btn-success" href="{{ route('usuarios.create') }}"><i class="fas fa-plus"></i> Crear
+                        Usuario</a>
+                </div>
             </div>
         </div>
         <div class="card-body">
@@ -21,48 +27,46 @@
                 <table class="table table-bordered table-striped table-hover table-grobdi mb-0">
                     <thead>
                         <tr>
-                            <th>👤 Nombre</th>
+                            <th>🎃 Nombre</th>
                             <th>✉️ Email</th>
                             <th>🛡️ Rol</th>
                             <th>🗺️ Zonas</th>
-                            <th class="text-center">Estado</th>
-                            <th class="text-center">Editar</th>
-                            <th class="text-center">Acciones</th>
+                            <th>Estado</th>
+                            <th>Editar</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($usuarios as $usuario)
-                            <tr class="{{ $usuario->active == 0 ? 'table-danger' : '' }}">
-                                <td class="align-middle">{{ $usuario->name }}</td>
-                                <td class="align-middle">{{ $usuario->email }}</td>
-                                <td class="align-middle">{{ $usuario->role->name }}</td>
-                                <td class="align-middle">
-                                    @forelse($usuario->zones as $zonas)
-                                        <span class="badge badge-info mr-1 mb-1">{{ $zonas->name }}</span>
+                            @php
+                                $isActive = $usuario->active == true;
+                            @endphp
+                            <tr class="{{ $isActive == false ? 'table-danger' : '' }}">
+                                <td>{{ $usuario->name }}</td>
+                                <td>{{ $usuario->email }}</td>
+                                <td>{{ $usuario->role->name }}</td>
+                                <td class="text-center">
+                                    @forelse($usuario->zones as $zona)
+                                        <span
+                                            class="badge badge-info {{ count($usuario->zones) > 1 ? 'mr-1 mb-1 text-xs' : 'text-sm' }}">{{ $zona->name }}</span>
                                     @empty
                                         <span class="text-muted">Sin zonas asignadas</span>
                                     @endforelse
                                 </td>
-                                <td class="align-middle text-center">
-                                    @if ($usuario->active == 1)
-                                        <span class="badge badge-success">Activo</span>
-                                    @else
-                                        <span class="badge badge-secondary">Inactivo</span>
-                                    @endif
+                                <td class="text-center">
+                                    <span
+                                        class="badge badge-{{ $isActive ? 'success' : 'secondary' }}">{{ $isActive ? 'Activo' : 'Inactivo' }}</span>
                                 </td>
-                                <td class="align-middle text-center">
+                                <td class="text-center">
                                     <a class="btn btn-primary btn-sm" href="{{ route('usuarios.edit', $usuario) }}">✏️
                                         Actualizar</a>
                                 </td>
-                                <td class="align-middle text-center">
+                                <td class="text-center">
                                     <form action="{{ route('usuarios.destroy', $usuario->id) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
-                                        @if ($usuario->active == 1)
-                                            <button type="submit" class="btn btn-danger btn-sm">🚫 Inhabilitar</button>
-                                        @else
-                                            <button type="submit" class="btn btn-success btn-sm">✅ Habilitar</button>
-                                        @endif
+                                        <button type="submit"
+                                            class="btn w-100 btn-sm btn-{{ $isActive ? 'outline-dark' : 'dark' }}">{{ $isActive ? '🔴 Inhabilitar' : '🟢 Habilitar' }}</button>
                                     </form>
                                 </td>
                             </tr>

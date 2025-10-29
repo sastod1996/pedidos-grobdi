@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Http;
 use Symfony\Component\DomCrawler\Crawler;
 
 class Doctor extends Model
 {
+    use HasFactory;
     protected $table = 'doctor';
 
     protected $fillable = [
@@ -107,7 +110,7 @@ class Doctor extends Model
     {
         return $this->hasMany(Muestras::class, 'id_doctor');
     }
-    
+
     public function pedidos()
     {
         return $this->hasMany(Pedidos::class, 'id_doctor');
@@ -117,5 +120,18 @@ class Doctor extends Model
     {
         $this->attributes['name'] = $value;
         $this->attributes['name_softlynn'] = $value;
+    }
+
+    protected function fullName(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => trim(
+                implode(' ', array_filter([
+                    $this->name,
+                    $this->first_lastname,
+                    $this->second_lastname
+                ]))
+            )
+        );
     }
 }

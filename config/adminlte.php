@@ -66,7 +66,7 @@ return [
 
     'logo' => '<b>Grobdi</b>',
     'logo_img' => 'images/logo_solo.png',
-    'logo_img_class' => 'brand-image  elevation-3',
+    'logo_img_class' => 'brand-image elevation-1',
     'logo_img_xl' => null,
     'logo_img_xl_class' => 'brand-image-xs',
     'logo_img_alt' => 'Admin Logo',
@@ -114,11 +114,11 @@ return [
         'enabled' => true,
         'mode' => 'fullscreen',
         'img' => [
-            'path' => 'images/logo_solo.png',
+            'path' => 'images/nave_espacial.png',
             'alt' => 'Grobdi Preloader Image',
             'effect' => 'animation__shake',
-            'width' => 80,
-            'height' => 80,
+            'width' => 160,
+            'height' => 500,
         ],
     ],
 
@@ -258,7 +258,7 @@ return [
         */
 
     'use_route_url' => false,
-    'dashboard_url' => 'home',
+    'dashboard_url' => '/',
     'logout_url' => 'logout',
     'login_url' => 'login',
     'register_url' => 'register',

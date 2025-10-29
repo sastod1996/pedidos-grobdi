@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class View extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'description',
         'icon',
@@ -14,11 +16,13 @@ class View extends Model
         'module_id',
         'is_menu'
     ];
-    public function module() {
+    public function module()
+    {
         return $this->belongsTo(Module::class);
     }
 
-    public function roles() {
+    public function roles()
+    {
         return $this->belongsToMany(Role::class, 'roles_views');
     }
 }

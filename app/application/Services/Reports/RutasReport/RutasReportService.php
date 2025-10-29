@@ -6,10 +6,6 @@ use App\Application\DTOs\Reports\Rutas\ReportZonesDto;
 use App\Application\Services\Reports\ReportBaseService;
 use App\Infrastructure\Repository\ReportsRepository;
 use App\Models\EstadoVisita;
-use App\Models\Muestras;
-use App\Models\TipoMuestra;
-use Carbon\Carbon;
-use Illuminate\Support\Collection;
 
 class RutasReportService extends ReportBaseService
 {
@@ -58,77 +54,5 @@ class RutasReportService extends ReportBaseService
             $data,
             compact('month', 'year', 'distritos')
         );
-    }
-
-    public function getMuestrasReport(array $filters = []): array
-    {
-        $start_date = Carbon::parse($filters['start_date'] ?? now()->startOfMonth())->startOfDay();
-        $end_date = Carbon::parse($filters['end_date'] ?? now())->endOfDay();
-
-        $rawData = $this->repo->getRawMuestrasData($start_date, $end_date);
-
-        $dataFrascoOriginal = $rawData->where('tipo_frasco', 'Frasco Original')->values();
-        $dataFrascoMuestra = $rawData->where('tipo_frasco', 'Frasco Muestra')->values();
-
-        return [
-            'general_stats' => [
-                'total_muestras' => count($rawData),
-                'total_quantity' => $this->getMuestrasQuantity($rawData),
-                'total_amount' => $this->getMuestrasTotalAmount($rawData),
-                'by_tipo_frasco' => $this->groupByTipoFrasco($rawData),
-                'by_tipo_muestra' => $this->groupByTipoMuestra($rawData)
-            ],
-            'data' => [
-                'frasco_original' => $dataFrascoOriginal,
-                'frasco_muestra' => $dataFrascoMuestra,
-            ],
-            'filters' => compact('start_date', 'end_date')
-        ];
-    }
-
-    private function groupByTipoFrasco(Collection $muestras): array
-    {
-        return collect(Muestras::TIPOS_FRASCO)->mapWithKeys(function (string $tipoFrasco) use ($muestras) {
-            $group = $muestras->where('tipo_frasco', $tipoFrasco);
-
-            return [
-                $tipoFrasco => $this->getPartialGeneralStats($group)
-            ];
-        })->all();
-    }
-
-    private function groupByTipoMuestra(Collection $muestras): array
-    {
-        $allTipos = TipoMuestra::all()->keyBy('id');
-
-        $muestrasPorTipo = $muestras
-            ->filter(fn($m) => $m->tipoMuestra)
-            ->groupBy(fn($m) => $m->tipoMuestra->id);
-
-        return $allTipos->mapWithKeys(function (TipoMuestra $tipo) use ($muestrasPorTipo) {
-            $group = $muestrasPorTipo->get($tipo->id, collect());
-
-            return [
-                $tipo->name => $this->getPartialGeneralStats($group)
-            ];
-        })->all();
-    }
-
-    private function getPartialGeneralStats(Collection $collection): array
-    {
-        return [
-            'count' => count($collection),
-            'quantity' => $this->getMuestrasQuantity($collection),
-            'amount' => $this->getMuestrasTotalAmount($collection)
-        ];
-    }
-
-    private function getMuestrasQuantity(Collection $collection): int
-    {
-        return $collection->sum('cantidad_de_muestra');
-    }
-    private function getMuestrasTotalAmount(Collection $collection): float
-    {
-        return $collection->sum(fn($m) => ($m->precio ?? 0) * $m->cantidad_de_muestra);
     }
 }

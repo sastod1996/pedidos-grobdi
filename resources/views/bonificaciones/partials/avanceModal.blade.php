@@ -17,32 +17,8 @@
                                 <th>Monto sin IGV</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>Doctor 1</td>
-                                <td>15</td>
-                                <td>S/ 7,500.00</td>
-                            </tr>
-                            <tr>
-                                <td>Doctor 2</td>
-                                <td>10</td>
-                                <td>S/ 13,500.00</td>
-                            </tr>
-                            <tr>
-                                <td>Doctor 3</td>
-                                <td>25</td>
-                                <td>S/ 20,000.00</td>
-                            </tr>
-                            <tr>
-                                <td>Doctor 4</td>
-                                <td>5</td>
-                                <td>S/ 10,000.00</td>
-                            </tr>
-                            <tr>
-                                <td>Doctor 5</td>
-                                <td>8</td>
-                                <td>S/ 12,000.00</td>
-                            </tr>
+                        <tbody id="doctorsTableBody">
+                            <!-- Rows will be injected from backend via JS -->
                         </tbody>
                     </table>
                 </div>
@@ -75,7 +51,11 @@
                     </div>
                     <div class="col-12 col-lg-7">
                         <div class="avance-chart-container">
-                            <canvas id="avanceChart"></canvas>
+                            <div class="d-flex flex-column w-100">
+                                <div style="height:260px;">
+                                    <canvas id="avanceChart"></canvas>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

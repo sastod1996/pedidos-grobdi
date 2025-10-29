@@ -20,7 +20,7 @@ class ReportsController extends Controller
         $data = $this->reportsService->ventas()->createInitialReport();
         return view('reports.ventas.index', compact('data'));
     }
-    public function getGeneralReport(Request $request)
+    public function getVentasGeneralReport(Request $request)
     {
         $filters = [
             'month' => $request->input('month'),
@@ -134,19 +134,28 @@ class ReportsController extends Controller
     public function muestrasView()
     {
         $arrayTabs = [
-            ['name' => 'resumen', 'icon' => 'fas fa-tablets'],
+            ['name' => 'general', 'icon' => 'fas fa-tablets'],
+            ['name' => 'doctor', 'icon' => 'fas fa-user-md'],
         ];
 
-        $data = $this->reportsService->rutas()->getMuestrasReport();
+        $data = $this->reportsService->muestras()->createInitialReport();
 
         return view('reports.muestras.index', compact('arrayTabs', 'data'));
     }
-    public function getMuestrasReport(Request $request)
+    public function getMuestrasGeneralReport(Request $request)
     {
         $filters = [
             'start_date' => $request->input('start_date'),
             'end_date' => $request->input('end_date'),
         ];
-        return response()->json($this->reportsService->rutas()->getMuestrasReport($filters), 200);
+        return response()->json($this->reportsService->muestras()->getGeneralReport($filters)->toArray(), 200);
     }
+    /* public function getMuestrasDoctorReport(Request $request)
+    {
+        $filters = [
+            'start_date' => $request->input('start_date'),
+            'end_date' => $request->input('end_date'),
+        ];
+        return response()->json($this->reportsService->muestras()->getDoctorReport($filters), 200);
+    } */
 }
