@@ -278,30 +278,7 @@ Route::middleware(['check.permission'])->group(function () {
 
 });
 
-/*
-EN REVISIÓN, REPORTES DE MUESTRAS PARA GERENCIA
-*/
 
-// GERENCIACONTROLLER
-
-// REVISION //
-// Reporte gerencia - Clasificaciones
-Route::get('/reporte', [gerenciaController::class, 'mostrarReporte'])->name('muestras.reporte');
-
-// REVISION //
-// Reporte Gerencia frasco original
-Route::get('/reporte/frasco-original', [gerenciaController::class, 'mostrarReporteFrascoOriginal'])->name('muestras.reporte.frasco-original');
-
-// REVISION //
-// Reporte Gerencia Frasco Muestra
-Route::get('/reporte/frasco-muestra', [gerenciaController::class, 'mostrarReporteFrascoMuestra'])->name('muestras.reporte.frasco-muestra');
-
-// REVISION //
-// exportar pdf en Reportes
-Route::get('reporte/PDF-frascoMuestra', [gerenciaController::class, 'exportarPDF'])->name('muestras.exportarPDF');
-
-// REVISION //
-Route::get('reporte/PDF-frascoOriginal', [gerenciaController::class, 'exportarPDFFrascoOriginal'])->name('muestras.frasco.original.pdf');
 
 // COTIZADOR GENERAL----------
 // modulos del softlyn
