@@ -130,7 +130,7 @@
         }
 
         .skull {
-            filter: drop-shadow(0 0 10px #fff);
+            filter: drop-shadow(0 0 5px #fff);
             position: absolute;
             z-index: 0;
             height: auto;
