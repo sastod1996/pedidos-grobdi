@@ -36,10 +36,6 @@
                 <img src="/images/halloween_theme/skull.png" class="skull">
             </div>
 
-            <img src="/images/halloween_theme/veins_1.webp" class="vena">
-            <img src="/images/halloween_theme/veins_2.webp" class="vena">
-            <img src="/images/halloween_theme/veins_3.webp" class="vena">
-
             <img src="/images/halloween_theme/monstruo_rojo.png" class="red-monster">
 
             <div class="iris"></div>
@@ -316,78 +312,6 @@
             animation: reptileLook 20s infinite;
         }
 
-        .vena {
-            position: absolute;
-            z-index: 19;
-            transform: translate(-50%, -50%);
-            width: auto;
-            height: 105px;
-        }
-
-        @keyframes pulseVena2 {
-
-            0%,
-            100% {
-                transform: rotate(-120deg) scale(1);
-            }
-
-            50% {
-                transform: rotate(-120deg) scale(1.05);
-            }
-        }
-
-        @keyframes pulseVena3 {
-
-            0%,
-            100% {
-                transform: rotate(120deg) scale(1);
-            }
-
-            50% {
-                transform: rotate(120deg) scale(1.05);
-            }
-        }
-
-        /* Si hay cuarta */
-        @keyframes pulseVena4 {
-
-            0%,
-            100% {
-                transform: rotate(180deg) scale(1);
-            }
-
-            50% {
-                transform: rotate(180deg) scale(1.05);
-            }
-        }
-
-        /* .vena derecha */
-        .vena:nth-of-type(2) {
-            top: 30%;
-            right: 40.5%;
-            transform: rotate(-120deg);
-            transform-origin: center;
-            animation: pulseVena2 4s infinite;
-        }
-
-        /* .vena izquierda */
-        .vena:nth-of-type(3) {
-            top: 31.5%;
-            left: 38%;
-            transform: rotate(120deg);
-            transform-origin: center;
-            animation: pulseVena3 4s infinite;
-        }
-
-        /* .vena centro */
-        .vena:nth-of-type(4) {
-            top: 24.7%;
-            left: 48%;
-            transform: rotate(180deg);
-            transform-origin: center;
-            animation: pulseVena4 4s infinite;
-        }
-
         @keyframes pumpkinPulse {
 
             0%,
@@ -526,25 +450,6 @@
 
 
         @media (max-width: 1200px) {
-            .vena {
-                height: 100px;
-            }
-
-            .vena:nth-of-type(2) {
-                top: 35%;
-                right: 40.5%;
-            }
-
-            .vena:nth-of-type(3) {
-                top: 35%;
-                left: 38%;
-            }
-
-            .vena:nth-of-type(4) {
-                top: 30.5%;
-                left: 48%;
-            }
-
             .calabaza-1 .body {
                 max-width: 120px;
             }
@@ -606,9 +511,6 @@
 
         /* Ajuste para pantallas pequeñas */
         @media (max-width: 768px) {
-            .vena {
-                height: 60px;
-            }
 
             .calabaza-2 {
                 display: none;
