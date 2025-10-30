@@ -283,6 +283,7 @@
                 }
             }
         );
+        console.log(initialDoctorReport);
         let doctorAmountSpentMonthlyGroupedByTipoChart = createChart(
             '#amount-spent-monthly-grouped-by-tipo-chart',
             initialDoctorReport.data.amount_spent_monthly_grouped_by_tipo.map(i => i.tipo), [{
@@ -305,7 +306,7 @@
             });
 
         let doctorMostConsumedProductsChart = createChart('#most-consumed-products-monthly-chart',
-            initialDoctorReport.data.most_consumed_products_monthly.map(i => i.articulo), [{
+            fullMostConsumedProducts.slice(0, 3).map(i => i.articulo), [{
                 label: 'Cantidad comprada',
                 data: fullMostConsumedProducts.slice(0, 3).map(i => i.total_cantidad),
                 backgroundColor: 'rgba(212, 12, 13, 0.5)',
