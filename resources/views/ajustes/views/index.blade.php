@@ -2,22 +2,24 @@
 
 @section('title', 'Vistas')
 
-@section('content_header')
-    <h1>🖼️ Gestión de Vistas</h1>
-@stop
-
 @section('content')
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
-        <a href="{{ route('views.create') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Nueva Vista</a>
-    </div>
+    <div class="grobdi-header">
+        <div class="grobdi-title">
+            <div>
+                <h2>Gestión de Vistas</h2>
+                <p>Administra las vistas del sistema</p>
+            </div>
+            <a href="{{ route('views.create') }}" class="btn">
+                <i class="fas fa-plus"></i> Nueva Vista
+            </a>
+        </div>
 
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <form method="GET" action="{{ route('views.index') }}" class="w-100">
-                <div class="row align-items-end">
-                    <div class="form-group col-12 col-md-6 col-lg-5 mb-3 mb-md-0">
-                        <label for="module_id" class="mb-1">Filtrar por módulo</label>
-                        <select name="module_id" id="module_id" class="form-control">
+        <div class="grobdi-filter">
+            <form method="GET" action="{{ route('views.index') }}">
+                <div class="row">
+                    <div class="col-12 col-md-6 col-lg-8">
+                        <label for="module_id">Filtrar por módulo</label>
+                        <select name="module_id" id="module_id">
                             <option value="">Todos los módulos</option>
                             @foreach ($modules as $module)
                                 <option value="{{ $module->id }}"
@@ -27,12 +29,11 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-12 col-md-6 col-lg-7">
-                        <div class="d-flex flex-column flex-sm-row justify-content-between"
-                            style="place-items: end; gap: 0.5rem;">
-                            <button type="submit" class="btn btn-primary btn-block">🔍
-                                Filtrar</button>
-                            <a href="{{ route('views.index') }}" class="btn btn-outline-dark btn-block">♻️ Limpiar</a>
+
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="filter-actions">
+                            <button type="submit">🔍 Filtrar</button>
+                            <a href="{{ route('views.index') }}" class="btn btn-outline">♻️ Limpiar</a>
                         </div>
                     </div>
                 </div>

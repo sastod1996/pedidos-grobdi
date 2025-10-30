@@ -2,23 +2,19 @@
 
 @section('title', 'Usuarios')
 
-@section('content_header')
-    <h1>👥 Gestión de Usuarios</h1>
-@stop
-
 @section('content')
     <div class="card shadow-sm mt-2">
-        <div class="card-header">
-            <div class="row align-items-center">
-                <div class="col">
-                    <span class="text-lg fw-bold">Lista de usuarios</span>
+        <div class="grobdi-header">
+            <div class="grobdi-title">
+                <div>
+                    <h2>Lista de usuarios</h2>
                 </div>
-                <div class="col text-right">
-                    <a class="btn btn-success" href="{{ route('usuarios.create') }}"><i class="fas fa-plus"></i> Crear
-                        Usuario</a>
-                </div>
+                <a class="btn" href="{{ route('usuarios.create') }}">
+                    <i class="fas fa-plus"></i> Crear Usuario
+                </a>
             </div>
         </div>
+
         <div class="card-body">
             @session('success')
                 <div class="alert alert-success" role="alert"> {{ $value }} </div>

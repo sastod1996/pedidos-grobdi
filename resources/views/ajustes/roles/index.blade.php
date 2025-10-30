@@ -2,43 +2,45 @@
 
 @section('title', 'Roles')
 
-@section('content_header')
-    <h1>🥸 Gestión de roles</h1>
-@stop
 
 @section('content')
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
-        <a href="{{ route('roles.create') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Nuevo Rol</a>
+ <div class="grobdi-header">
+    <div class="grobdi-title">
+        <div>
+            <h2>Gestión de Roles</h2>
+            <p>Administra los roles del sistema</p>
+        </div>
+        <a href="{{ route('roles.create') }}" class="btn">
+            <i class="fas fa-plus"></i> Nuevo Rol
+        </a>
     </div>
 
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <form method="GET" action="{{ route('roles.index') }}" class="w-100">
-                <div class="row align-items-end">
-                    <div class="form-group col-12 col-md-6 col-lg-5 mb-3 mb-md-0">
-                        <label for="role_id" class="mb-1">Filtrar por rol</label>
-                        <select name="role_id" id="role_id" class="form-control">
-                            <option value="">Todos los roles</option>
-                            @foreach ($roleOptions as $roleOption)
-                                <option value="{{ $roleOption->id }}"
-                                    {{ (string) ($selectedRole ?? '') === (string) $roleOption->id ? 'selected' : '' }}>
-                                    {{ $roleOption->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-12 col-md-6 col-lg-7">
-                        <div class="d-flex flex-column flex-sm-row justify-content-between"
-                            style="place-items: end; gap: 0.5rem;">
-                            <button type="submit" class="btn btn-primary btn-block">🔍
-                                Filtrar</button>
-                            <a href="{{ route('roles.index') }}" class="btn btn-outline-dark btn-block">♻️ Limpiar</a>
-                        </div>
+    <div class="grobdi-filter">
+        <form method="GET" action="{{ route('roles.index') }}">
+            <div class="row">
+                <div class="col-12 col-md-6 col-lg-8">
+                    <label for="role_id">Filtrar por rol</label>
+                    <select name="role_id" id="role_id">
+                        <option value="">Todos los roles</option>
+                        @foreach ($roleOptions as $roleOption)
+                            <option value="{{ $roleOption->id }}"
+                                {{ (string) ($selectedRole ?? '') === (string) $roleOption->id ? 'selected' : '' }}>
+                                {{ $roleOption->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="filter-actions">
+                        <button type="submit">🔍 Filtrar</button>
+                        <a href="{{ route('roles.index') }}" class="btn btn-outline">♻️ Limpiar</a>
                     </div>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
+</div>
 
     <div class="card shadow-sm">
         <div class="card-header">
