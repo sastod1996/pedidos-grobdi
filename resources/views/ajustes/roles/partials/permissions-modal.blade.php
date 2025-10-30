@@ -3,7 +3,7 @@
     $modules = $role->modules->sortBy('name');
     $viewsGrouped = $role->views
         ->sortBy(function ($view) {
-            return strtolower($view->description ?? '');
+            return strtolower($view->name ?? '');
         })
         ->groupBy(function ($view) {
             return optional($view->module)->name ?: 'Sin módulo';
@@ -58,11 +58,11 @@
                             @endphp
                             <div class="card mb-2 shadow-sm">
                                 <div class="card-header p-0" id="{{ $headingId }}">
-                                    <button class="btn btn-link btn-block text-left d-flex justify-content-between align-items-center py-3 px-3" 
-                                            type="button" 
-                                            data-toggle="collapse" 
-                                            data-target="#{{ $collapseId }}" 
-                                            aria-expanded="{{ $loop->first ? 'true' : 'false' }}" 
+                                    <button class="btn btn-link btn-block text-left d-flex justify-content-between align-items-center py-3 px-3"
+                                            type="button"
+                                            data-toggle="collapse"
+                                            data-target="#{{ $collapseId }}"
+                                            aria-expanded="{{ $loop->first ? 'true' : 'false' }}"
                                             aria-controls="{{ $collapseId }}"
                                             style="text-decoration: none; color: inherit;">
                                         <span class="d-flex align-items-center">
@@ -75,9 +75,9 @@
                                         </div>
                                     </button>
                                 </div>
-                                <div id="{{ $collapseId }}" 
-                                     class="collapse {{ $loop->first ? 'show' : '' }}" 
-                                     aria-labelledby="{{ $headingId }}" 
+                                <div id="{{ $collapseId }}"
+                                     class="collapse {{ $loop->first ? 'show' : '' }}"
+                                     aria-labelledby="{{ $headingId }}"
                                      data-parent="#permissions-accordion-{{ $role->id }}">
                                     <div class="card-body bg-light">
                                         @if ($group['views']->isNotEmpty())
@@ -86,7 +86,7 @@
                                                     <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-2">
                                                         <div class="d-flex align-items-start p-2 bg-white rounded border">
                                                             <i class="fas fa-check-circle text-success mr-2 mt-1" style="font-size: 0.875rem;"></i>
-                                                            <span class="small">{{ $view->description }}</span>
+                                                            <span class="small">{{ $view->name }}</span>
                                                         </div>
                                                     </div>
                                                 @endforeach

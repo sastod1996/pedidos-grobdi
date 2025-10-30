@@ -44,7 +44,7 @@ class AppServiceProvider extends ServiceProvider
 
                     foreach ($role->views->where('module_id', $module->id)->where('is_menu', true) as $view) {
                         $submenu[] = [
-                            'text' => $view->description,
+                            'text' => $view->name,
                             'route' => $view->url,
                             'icon' => $view->icon ?? 'far fa-circle',
                         ];

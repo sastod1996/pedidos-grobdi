@@ -47,6 +47,7 @@
                 <tr>
                     <th>ID</th>
                     <th>Nombre</th>
+                    <th>Descripción</th>
                     <th>Ruta</th>
                     <th>Módulo</th>
                     <th>Menú</th>
@@ -57,7 +58,8 @@
                 @forelse ($views as $view)
                     <tr>
                         <td class="text-center">{{ $view->id }}</td>
-                        <td>{{ $view->description }}</td>
+                        <td>{{ $view->name }}</td>
+                        <td class="text-secondary small">{{ $view->description ?? 'Sin descripción' }}</td>
                         <td>{{ $view->url }}</td>
                         <td>{{ $view->module->name }}</td>
                         <td class="text-center text-lg">
@@ -74,7 +76,7 @@
                         </td>
                     </tr>
                 @empty
-                    @include('empty-table', ['dataLength' => 0, 'colspan' => 6])
+                    @include('empty-table', ['dataLength' => 0, 'colspan' => 7])
                 @endforelse
             </tbody>
         </table>

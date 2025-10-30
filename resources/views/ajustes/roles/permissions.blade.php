@@ -76,7 +76,13 @@
                                     <div class="col-12 col-md-6 col-xl-4 mb-2">
                                         <div class="custom-control custom-checkbox">
                                             <input type="checkbox" class="custom-control-input view-checkbox" id="view-{{ $module->id }}-{{ $view->id }}" name="views[]" value="{{ $view->id }}" data-module-id="{{ $module->id }}" {{ $viewChecked ? 'checked' : '' }}>
-                                            <label class="custom-control-label" for="view-{{ $module->id }}-{{ $view->id }}">{{ $view->description }}</label>
+                                            <label class="custom-control-label" for="view-{{ $module->id }}-{{ $view->id }}">
+                                                <div class="d-flex flex-column">
+                                                    <span class="mr-2">{{ $view->name }}</span>
+                                                    {{-- Descripción en gris, visible completa y con wrap cuando sea larga --}}
+                                                    <small class="text-muted mt-1">{{ $view->description ?? 'Sin descripción' }}</small>
+                                                </div>
+                                            </label>
                                         </div>
                                     </div>
                                 @empty
@@ -155,6 +161,8 @@
             $accordion.find('.select-all-checkbox').each(function () {
                 updateSelectAll($(this).data('module-id'));
             });
+
+            // No se usan popovers ni tooltips aquí: la descripción se muestra inline en gris.
         });
     </script>
 @endsection

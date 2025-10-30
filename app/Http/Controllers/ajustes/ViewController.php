@@ -37,7 +37,7 @@ class ViewController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'description' => 'required',
+            'name' => 'required',
             'url' => 'required|unique:views',
             'module_id' => 'required|exists:modules,id',
             'is_menu' => 'nullable|boolean',
@@ -56,7 +56,7 @@ class ViewController extends Controller
     public function update(Request $request, View $view)
     {
         $request->validate([
-            'description' => 'required',
+            'name' => 'required',
             'url' => 'required|unique:views,url,' . $view->id,
             'module_id' => 'required|exists:modules,id',
             'is_menu' => 'nullable|boolean',
