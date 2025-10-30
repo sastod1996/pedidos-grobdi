@@ -436,17 +436,17 @@
                                         <p class="observaciones-col">${i.observacion ?? ''}</p>
                                     </td>
                                     <td class="text-center align-content-center">
-                                        ${i.foto_domicilio ? 
+                                        ${i.foto_domicilio ?
                                             `<button class="btn btn-info btn-sm btn-show-details" data-img="${i.foto_domicilio.url}" data-datetime="${i.foto_domicilio.datetime}" data-lat="${i.foto_domicilio.location.lat}" data-lng="${i.foto_domicilio.location.lng}">Ver</button>`
                                         : '—'}
                                     </td>
                                     <td class="text-center align-content-center">
-                                        ${i.foto_entrega ? 
+                                        ${i.foto_entrega ?
                                             `<button class="btn btn-info btn-sm btn-show-details" data-img="${i.foto_entrega.url}" data-datetime="${i.foto_entrega.datetime}" data-lat="${i.foto_entrega.location.lat}" data-lng="${i.foto_entrega.location.lng}">Ver</button>`
                                         : '—'}
                                     </td>
                                     <td class="text-center align-content-center">
-                                        ${i.receptor_info ? 
+                                        ${i.receptor_info ?
                                             `<button class="btn btn-info btn-sm btn-show-details" data-img="${i.receptor_info.firma}" data-nombre="${i.receptor_info.nombre}">Ver</button>`
                                         : '—'}
                                     </td>
@@ -455,13 +455,53 @@
                     error: function(xhr) {
                         const message = xhr.responseJSON?.message || xhr.statusText ||
                             "Error desconocido";
-                        tableShowError(provinciasDetailPedidosByDepartamentoBody, 7, message);
+                        // Mostrar el error en el body correcto de la tabla de historial
+                        tableShowError(deliveryRecordsTbody, 7, message);
                     }
                 });
             }
 
             $(document).on('click', '.btn-show-delivery-records', function(e) {
                 openDeliveryRecords($(this).data('id'));
+            });
+
+            // Handler para mostrar detalles del pedido en modal (botón "Ver")
+            $(document).on('click', '.btn-show-order', function() {
+                const url = $(this).data('url');
+                const modalEl = $('#orderDetailsModal');
+                const content = $('#order-details-content');
+
+                // Mostrar loader mientras carga
+                content.html(`
+                    <div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Cargando...</span>
+                        </div>
+                    </div>
+                `);
+
+                // Petición AJAX para obtener el partial con los detalles
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    success: function(response) {
+                        // El controlador devuelve JSON { success: true, html: '...' } cuando es AJAX
+                        if (response && typeof response === 'object' && response.html) {
+                            content.html(response.html);
+                        } else if (typeof response === 'string') {
+                            // A veces puede devolver HTML directo
+                            content.html(response);
+                        } else {
+                            content.html('<div class="alert alert-warning">Respuesta inesperada del servidor.</div>');
+                        }
+                        modalEl.modal('show');
+                    },
+                    error: function(xhr) {
+                        const message = xhr.responseText || xhr.responseJSON?.message || xhr.statusText || 'Error al cargar detalles';
+                        content.html(`<div class="alert alert-danger">${message}</div>`);
+                        modalEl.modal('show');
+                    }
+                });
             });
 
             $(document).on('click', '.btn-show-details', function() {
@@ -479,7 +519,7 @@
                                 `<p><strong>Fecha y hora:</strong> ${datetime}</p>` :
                                 `<p><strong>Nombre del receptor: </strong> ${nombre}</p>`
                             }
-                            ${lat && lng ? 
+                            ${lat && lng ?
                                 `<a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank">Ver ubicación de la foto</a>`:
                                 ''
                             }`

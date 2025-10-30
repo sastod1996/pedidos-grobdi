@@ -27,7 +27,7 @@ class DoctorSyncService
 
         try {
             $fechaFin = Carbon::now(); // Hoy
-            $fechaInicio = Carbon::now()->subDays(10); // 10 días antes
+            $fechaInicio = Carbon::now()->subDays(30); // 30 días antes
 
             // Obtener pedidos sin doctor asignado
             $pedidosSinDoctor = Pedidos::whereNull('id_doctor')
@@ -39,7 +39,7 @@ class DoctorSyncService
                 ->get();
 
             $resultados['procesados'] = $pedidosSinDoctor->count();
-            
+
             Log::info("Iniciando sincronización de doctores", [
                 'total_pedidos' => $resultados['procesados']
             ]);
@@ -52,7 +52,7 @@ class DoctorSyncService
             foreach ($pedidosSinDoctor as $pedido) {
                 try {
                     $doctorEncontrado = $this->buscarDoctorPorNombre(
-                        $pedido->doctorName, 
+                        $pedido->doctorName,
                         $doctores
                     );
 
@@ -77,7 +77,7 @@ class DoctorSyncService
                         ]);
                     } else {
                         $resultados['no_encontrados']++;
-                        
+
                         Log::warning("Doctor no encontrado para pedido", [
                             'pedido_id' => $pedido->id,
                             'order_id' => $pedido->orderId,
@@ -86,7 +86,7 @@ class DoctorSyncService
                     }
                 } catch (\Exception $e) {
                     $resultados['errores']++;
-                    
+
                     Log::error("Error al procesar pedido", [
                         'pedido_id' => $pedido->id,
                         'error' => $e->getMessage()
@@ -95,10 +95,10 @@ class DoctorSyncService
             }
 
             Log::info("Sincronización completada", $resultados);
-            
+
         } catch (\Exception $e) {
             $resultados['errores']++;
-            
+
             Log::error("Error general en sincronización", [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
@@ -123,7 +123,7 @@ class DoctorSyncService
 
         // Normalizar y obtener palabras del nombre del pedido
         $palabrasPedido = $this->normalizarYObtenerPalabras($nombrePedido);
-        
+
         if ($palabrasPedido->isEmpty()) {
             Log::warning("No se pudieron obtener palabras del nombre del pedido", [
                 'nombre_pedido' => $nombrePedido
@@ -147,14 +147,14 @@ class DoctorSyncService
 
             // Normalizar y obtener palabras del doctor
             $palabrasDoctor = $this->normalizarYObtenerPalabras($doctor->name_softlynn);
-            
+
             if ($palabrasDoctor->isEmpty()) {
                 continue;
             }
 
             // Calcular porcentaje de coincidencia
             $porcentajeCoincidencia = $this->calcularPorcentajeCoincidencia(
-                $palabrasPedido, 
+                $palabrasPedido,
                 $palabrasDoctor
             );
 
@@ -170,7 +170,7 @@ class DoctorSyncService
                 if ($porcentajeCoincidencia > $mayorPorcentaje) {
                     $mayorPorcentaje = $porcentajeCoincidencia;
                     $mejorCoincidencia = $doctor;
-                    
+
                     Log::info("Nueva mejor coincidencia encontrada", [
                         'doctor_id' => $doctor->id,
                         'doctor_name' => $doctor->name_softlynn,
@@ -215,7 +215,7 @@ class DoctorSyncService
     {
         // Primero normalizar caracteres especiales comunes
         $nombre = $this->normalizarCaracteresEspeciales($nombre);
-        
+
         // Verificar encoding UTF-8
         if (!mb_check_encoding($nombre, 'UTF-8')) {
             $nombre = mb_convert_encoding($nombre, 'UTF-8', 'auto');
@@ -223,16 +223,16 @@ class DoctorSyncService
 
         // Convertir a minúsculas para comparación uniforme
         $nombre = mb_strtolower($nombre, 'UTF-8');
-        
+
         // Remover títulos médicos comunes y puntuación
         $nombre = preg_replace('/\b(dr|dra|doctor|doctora)\.?\s*/i', '', $nombre);
-        
+
         // Remover puntuación y caracteres que no son letras (mantener espacios)
         $nombre = preg_replace('/[^\p{L}\s]/u', ' ', $nombre);
-        
+
         // Normalizar espacios múltiples
         $nombre = preg_replace('/\s+/', ' ', trim($nombre));
-        
+
         // Dividir en palabras y filtrar palabras muy cortas
         return collect(explode(' ', $nombre))
             ->filter(function ($palabra) {
@@ -254,19 +254,19 @@ class DoctorSyncService
     {
         // Log para debug
         Log::debug("Normalizando nombre", ['original' => $nombre]);
-        
+
         // Casos específicos para caracteres problemáticos comunes
         $nombre = str_replace('MUAOZ', 'MUÑOZ', $nombre);
         $nombre = str_replace('MUNOZ', 'MUÑOZ', $nombre);
         $nombre = str_replace('PENA', 'PEÑA', $nombre);
         $nombre = str_replace('NUNO', 'NUÑO', $nombre);
-        
+
         // Usar regex para patrones comunes de caracteres malformados
         $nombre = preg_replace('/MU.{1,3}OZ/i', 'MUÑOZ', $nombre);
         $nombre = preg_replace('/PE.{1,2}A$/i', 'PEÑA', $nombre);
-        
+
         Log::debug("Nombre normalizado", ['resultado' => $nombre]);
-        
+
         return $nombre;
     }
 
@@ -289,10 +289,10 @@ class DoctorSyncService
 
         // Encontrar intersección (palabras comunes)
         $interseccion = array_intersect($array1, $array2);
-        
+
         // Calcular porcentaje basado en el conjunto más pequeño
         $totalPalabras = min(count($array1), count($array2));
-        
+
         if ($totalPalabras === 0) {
             return 0.0;
         }

@@ -36,3 +36,5 @@ class VisitorGoalController extends Controller
         }
     }
 }
+
+

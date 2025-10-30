@@ -12,9 +12,6 @@
                         <p class="text-muted mb-0">Resumen del cumplimiento, comisiones y desembolsos para las visitadoras durante el mes.</p>
                     </div>
                 </div>
-                <div class="text-muted small mt-2 mt-md-0">
-                    Última actualización: 12/10/2025 08:15 a. m.
-                </div>
                  <div class="align-items-end d-flex mt-2 mt-md-0 ms-auto"></div>
                     <a href="{{ route('bonificaciones.index') }}" class="btn btn-secondary align-items-end">
                         &larr; Volver
@@ -46,57 +43,58 @@
 							</tr>
 						</thead>
 						<tbody>
-							<tr data-pedidos="182">
-								<td class="fw-semibold">Visitadora 1</td>
-								<td>3.50%</td>
-								<td>S/ 15,000.00</td>
-								<td>50%</td>
-								<td>0%</td>
-								<td>S/ 7,500.00</td>
-								<td>S/ 0.00</td>
-								<td>S/ -</td>
-								<td>30/10/2025</td>
-								<td>
-									<div class="bonificaciones-actions">
-										<a href="#" class="bonificaciones-link-action bonificaciones-link-action--view" data-bs-toggle="modal" data-bs-target="#avanceModal">ver avance</a>
-										<a href="#" class="bonificaciones-link-action bonificaciones-link-action--debit" data-bs-toggle="modal" data-bs-target="#debitarModal">debitar</a>
-									</div>
-								</td>
-							</tr>
-							<tr data-pedidos="205">
-								<td class="fw-semibold">Visitadora 2</td>
-								<td>4.50%</td>
-								<td>S/ 10,000.00</td>
-								<td>95%</td>
-								<td>1.00%</td>
-								<td>S/ 13,500.00</td>
-								<td>S/ 130.50</td>
-								<td>S/ 130.50</td>
-								<td>31/10/2025</td>
-								<td>
-									<div class="bonificaciones-actions">
-										<a href="#" class="bonificaciones-link-action bonificaciones-link-action--view" data-bs-toggle="modal" data-bs-target="#avanceModal">ver avance</a>
-										<a href="#" class="bonificaciones-link-action bonificaciones-link-action--debit" data-bs-toggle="modal" data-bs-target="#debitarModal">debitar</a>
-									</div>
-								</td>
-							</tr>
-							<tr>
-								<td class="fw-semibold">Visitadora 3</td>
-								<td>3.50%</td>
-								<td>S/ 25,000.00</td>
-								<td>100%</td>
-								<td>3.50%</td>
-								<td>S/ 20,000.00</td>
-								<td>S/ 700.00</td>
-								<td>S/ 700.00</td>
-								<td>01/11/2025</td>
-								<td>
-									<div class="bonificaciones-actions">
-										<a href="#" class="bonificaciones-link-action bonificaciones-link-action--view" data-bs-toggle="modal" data-bs-target="#avanceModal">ver avance</a>
-										<a href="#" class="bonificaciones-link-action bonificaciones-link-action--debit" data-bs-toggle="modal" data-bs-target="#debitarModal">debitar</a>
-									</div>
-								</td>
-							</tr>
+							@forelse($data as $vg)
+								<tr data-pedidos="{{ $vg['total_sub_total_sin_igv'] ?? '' }}" data-visitor-goal-id="{{ $vg['id'] }}">
+									<td class="fw-semibold">{{ $vg['visitadora']['name'] ?? '-' }}</td>
+									<td>{{ $vg['commission_percentage'] ?? '-' }}</td>
+									<td>{{ $vg['goal_amount'] ?? '-' }}</td>
+									@php
+										$__pct = isset($vg['porcentaje_actual']) ? floatval($vg['porcentaje_actual']) : null;
+										$__pct_clamped = $__pct !== null ? max(0, min(100, $__pct)) : null;
+									@endphp
+									<td>
+										<div class="d-flex align-items-center gap-2">
+											<div class="me-2 fw-semibold">{{ $__pct !== null ? number_format($__pct, 2) . '%' : '-' }}</div>
+											<div class="progress flex-grow-1">
+												<div class="progress-bar bg-success" role="progressbar" style="width: {{ $__pct_clamped !== null ? $__pct_clamped.'%' : '0%' }};" aria-valuenow="{{ $__pct_clamped ?? 0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+											</div>
+										</div>
+									</td>
+									<td>{{ $vg['comision_actual'] ?? '-' }}</td>
+									<td>{{ $vg['total_sub_total_sin_igv'] ?? '-' }}</td>
+									<td>{{ $vg['monto_comisionado'] ?? '-' }}</td>
+									<td>
+										@php
+											$debited = $vg['debited_amount'] ?? null;
+										@endphp
+										@if(is_numeric($debited))
+											S/ {{ number_format((float)$debited, 2, '.', ',') }}
+										@elseif(!empty($debited))
+											{{ $debited }}
+										@else
+											-
+										@endif
+									</td>
+									<td>
+										@php $debitedAt = $vg['debited_datetime'] ?? null; @endphp
+										@if($debitedAt && $debitedAt !== 'No se ha debitado aún')
+											{{ $debitedAt }}
+										@else
+											{{ $debitedAt ?? '-' }}
+										@endif
+									</td>
+									<td>
+										<div class="bonificaciones-actions">
+											<a href="#" data-visitor-goal-id="{{ $vg['id'] }}" class="bonificaciones-link-action bonificaciones-link-action--view" data-bs-toggle="modal" data-bs-target="#avanceModal">ver avance</a>
+											<a href="#" data-visitor-goal-id="{{ $vg['id'] }}" class="bonificaciones-link-action bonificaciones-link-action--debit" data-bs-toggle="modal" data-bs-target="#debitarModal">debitar</a>
+										</div>
+									</td>
+								</tr>
+							@empty
+								<tr class="text-center">
+									<td colspan="10">No hay datos para esta meta.</td>
+								</tr>
+							@endforelse
 						</tbody>
 					</table>
 				</div>
@@ -274,6 +272,7 @@
 	<script>
 		$(document).ready(function() {
 			var avanceChartInstance = null;
+			var doctorsChartInstance = null;
 			var currencyFormatter = new Intl.NumberFormat('es-PE', {
 				style: 'currency',
 				currency: 'PEN',
@@ -340,14 +339,15 @@
 				});
 			}
 
-			function updateSummary(row) {
-				var pedidos = row.data('pedidos') || 'N/D';
-				var porcentaje = parseFloat(row.find('td').eq(3).text().replace('%', '').trim()) || 0;
-				var meta = parseCurrency(row.find('td').eq(2).text());
-				var sinIgv = parseCurrency(row.find('td').eq(5).text());
-				var comisionado = parseCurrency(row.find('td').eq(6).text());
-				var faltante = meta - sinIgv;
+			// Update modal summary using API response data
+			function updateSummaryFromApi(apiData, nombre) {
+				var pedidos = apiData.total_pedidos ?? 'N/D';
+				var sinIgv = parseFloat(apiData.total_amount_without_igv) || 0;
+				var comisionado = parseFloat(apiData.commissioned_amount) || 0;
+				var faltante = parseFloat(apiData.faltante_para_meta) || 0;
+				var porcentaje = parseFloat(apiData.avance_meta_general) || 0;
 
+				$('#avanceModalLabel').text(nombre + ' - Octubre, 2025, Médico Prescriptor');
 				$('#modal-pedidos-total').text(pedidos);
 				$('#modal-monto-sinigv').text(currencyFormatter.format(sinIgv));
 				$('#modal-comisionado').text(currencyFormatter.format(comisionado));
@@ -369,23 +369,80 @@
 					estadoEl.text(porcentaje.toFixed(2) + '%').addClass('text-primary');
 				}
 
+				// Defer rendering the chart until the modal is visible (canvas needs layout).
+				// Store the porcentaje on the modal and let the shown.bs.modal handler render it.
 				$('#avanceModal').data('avancePercent', porcentaje);
 			}
 
 			$('.bonificaciones-link-action--debit').on('click', function(e) {
 				e.preventDefault();
+				// Ensure form action in the debitar modal is set before showing it
+				var trigger = this;
+				var visitorGoalId = trigger.getAttribute('data-visitor-goal-id') || $(this).closest('tr').data('visitor-goal-id');
+				var container = document.getElementById('debitarModalBody');
+				if (container && visitorGoalId) {
+					var template = container.getAttribute('data-update-url-template');
+					if (template) {
+						var actionUrl = template.replace('__ID__', visitorGoalId);
+						var form = document.getElementById('formDebitar');
+						if (form) {
+							form.setAttribute('action', actionUrl);
+							form.dataset.visitorGoalId = visitorGoalId;
+						}
+					}
+				}
+
 				$('#debitarModal').modal('show');
 			});
 
 			$('.bonificaciones-link-action--view').on('click', function(e) {
 				e.preventDefault();
-				var row = $(this).closest('tr');
-				var nombre = row.find('td').eq(0).text();
+				var trigger = this;
+				var visitorGoalId = trigger.getAttribute('data-visitor-goal-id') || $(this).closest('tr').data('visitor-goal-id');
+				var nombre = $(this).closest('tr').find('td').eq(0).text();
 
-				$('#avanceModalLabel').text(nombre + ' - Octubre, 2025, Médico Prescriptor');
-				updateSummary(row);
+				if (!visitorGoalId) {
+					// fallback to static behavior
+					var row = $(this).closest('tr');
+					updateSummaryFromApi({
+						total_pedidos: row.data('pedidos'),
+						total_amount_without_igv: row.find('td').eq(5).text().replace(/[^0-9.-]+/g, ''),
+						faltante_para_meta: 0,
+						avance_meta_general: parseFloat(row.find('td').eq(3).text().replace('%','')) || 0,
+						commissioned_amount: row.find('td').eq(6).text().replace(/[^0-9.-]+/g, '')
+					}, nombre);
+					$('#avanceModal').modal('show');
+					return;
+				}
 
-				$('#avanceModal').modal('show');
+				// call backend for chart data
+				var tokenEl = document.querySelector('meta[name="csrf-token"]');
+				var token = tokenEl ? tokenEl.getAttribute('content') : '';
+
+				// Use the bonificaciones route for details
+				fetch('{{ url('bonificaciones/metas/details') }}' + '/' + visitorGoalId, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRF-TOKEN': token
+					},
+					body: JSON.stringify({})
+				}).then(function(res){
+					return res.json();
+				}).then(function(json){
+					if (json && json.success) {
+						var chartData = json['chart-data'] || {};
+						var doctorsData = json['doctors-data'] || [];
+						updateSummaryFromApi(chartData, nombre);
+						updateDoctorsFromApi(doctorsData);
+						$('#avanceModal').modal('show');
+					} else {
+						alert('No se pudo obtener los datos de avance.');
+					}
+				}).catch(function(err){
+					console.error(err);
+					alert('Error al obtener datos de avance.');
+				});
 			});
 
 			$('#avanceModal').on('shown.bs.modal', function() {
@@ -396,7 +453,78 @@
 					avanceChartInstance.destroy();
 					avanceChartInstance = null;
 				}
+				if (typeof doctorsChartInstance !== 'undefined' && doctorsChartInstance) {
+					doctorsChartInstance.destroy();
+					doctorsChartInstance = null;
+				}
 			});
+
+			// Render doctors list and chart
+			function updateDoctorsFromApi(doctors) {
+				// doctors: array of objects { name, total_pedidos, total_amount_without_igv } or similar
+				const listEl = document.getElementById('doctorsList');
+				const tableBody = document.getElementById('doctorsTableBody');
+				// If neither list nor table exist, nothing to do
+				if (!listEl && !tableBody) return;
+				if (listEl) listEl.innerHTML = '';
+				if (tableBody) tableBody.innerHTML = '';
+				const labels = [];
+				const values = [];
+				const bgColors = [];
+				(doctors || []).forEach(function(d, idx){
+					const name = d.doctor_name || d.name || d.nombre || d.doctor || ('Doctor ' + (idx+1));
+					const pedidos = d.total_pedidos ?? d.pedidos ?? d.count ?? 0;
+					const monto = parseFloat(d.total_amount_without_igv ?? d.monto_sin_igv ?? d.amount ?? 0) || 0;
+					labels.push(name);
+					values.push(monto);
+					const color = 'hsl(' + ((idx * 47) % 360) + ' 70% 50%)';
+					bgColors.push(color);
+
+					const item = document.createElement('div');
+					item.className = 'list-group-item d-flex justify-content-between align-items-center';
+					item.innerHTML = '<div class="small fw-semibold">' + name + '</div>' +
+						'<div class="text-end small text-muted">' + pedidos + ' pedidos<br><strong>S/ ' + monto.toLocaleString('es-PE', {minimumFractionDigits:2, maximumFractionDigits:2}) + '</strong></div>';
+					if (listEl) listEl.appendChild(item);
+
+					// Also append row to the table in the modal (if present)
+					if (tableBody) {
+						const tr = document.createElement('tr');
+						const tdName = document.createElement('td'); tdName.className = 'fw-semibold'; tdName.textContent = name;
+						const tdPedidos = document.createElement('td'); tdPedidos.textContent = pedidos;
+						const tdMonto = document.createElement('td'); tdMonto.textContent = 'S/ ' + monto.toLocaleString('es-PE', {minimumFractionDigits:2, maximumFractionDigits:2});
+						tr.appendChild(tdName);
+						tr.appendChild(tdPedidos);
+						tr.appendChild(tdMonto);
+						tableBody.appendChild(tr);
+					}
+				});
+
+				// draw horizontal bar chart
+				const ctx = document.getElementById('doctorsChart');
+				if (!ctx) return;
+				if (typeof doctorsChartInstance !== 'undefined' && doctorsChartInstance) {
+					doctorsChartInstance.destroy();
+				}
+
+				doctorsChartInstance = new Chart(ctx, {
+					type: 'bar',
+					data: {
+						labels: labels,
+						datasets: [{
+							label: 'Monto sin IGV',
+							data: values,
+							backgroundColor: bgColors,
+						}]
+					},
+					options: {
+						indexAxis: 'y',
+						responsive: true,
+						maintainAspectRatio: false,
+						plugins: { legend: { display: false } },
+						scales: { x: { ticks: { callback: function(value){ return 'S/ ' + value.toLocaleString(); } } } }
+					}
+				});
+			}
 		});
 	</script>
 @stop

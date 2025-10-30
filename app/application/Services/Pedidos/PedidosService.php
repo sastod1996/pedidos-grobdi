@@ -18,41 +18,67 @@ class PedidosService
         ?string $startDate = null,
         ?string $endDate = null
     ) {
-        $query = DetailPedidos::query()
-            ->where('detail_pedidos.status', true)
-            ->join('pedidos as p', 'detail_pedidos.pedidos_id', '=', 'p.id')
-            ->join('doctor as dr', 'p.id_doctor', '=', 'dr.id')
-            ->where('p.status', true)
-            ->where('dr.tipo_medico', $tipoMedico);
+        // Build date range based on either startDate/endDate or month/year
+        if ($startDate !== null && $endDate !== null) {
+            $start = Carbon::parse($startDate)->startOfDay();
+            $end = Carbon::parse($endDate)->endOfDay();
+        } else {
+            $m = $month ?? now()->month;
+            $y = $year ?? now()->year;
+            $start = Carbon::createFromDate($y, $m, 1)->startOfDay();
+            $end = Carbon::createFromDate($y, $m, 1)->endOfMonth()->endOfDay();
+        }
 
         $excludedWords = ['%delivery%', 'bolsa%'];
-        $this->excludeArrayFromDataResults($query, 'detail_pedidos.articulo', $excludedWords);
 
-        $this->applyDateFilter($query, 'p.created_at', $startDate, $endDate, $month, $year);
+        // Start from doctors and left join pedidos and detail_pedidos so doctors with zero pedidos are returned
+        $query = DB::table('doctor as dr')
+            ->where('dr.tipo_medico', $tipoMedico)
+            ->leftJoin('pedidos as p', function ($join) use ($start, $end) {
+                $join->on('p.id_doctor', '=', 'dr.id')
+                    ->where('p.status', true)
+                    ->whereBetween('p.created_at', [$start, $end]);
+            })
+            ->leftJoin('detail_pedidos as dp', function ($join) use ($excludedWords) {
+                $join->on('dp.pedidos_id', '=', 'p.id')
+                    ->where('dp.status', true);
 
-        return $query->select([
+                // apply excluded words to the join so excluded detail rows are not considered
+                foreach ($excludedWords as $w) {
+                    $join->where('dp.articulo', 'not like', $w);
+                }
+            });
+
+        $rows = $query->select([
             'dr.id',
             'dr.name',
             'dr.first_lastname',
             'dr.second_lastname',
-            DB::raw('SUM(detail_pedidos.sub_total) as total_sub_total')
+            DB::raw('COALESCE(SUM(dp.sub_total), 0) as total_sub_total'),
+            DB::raw('COUNT(DISTINCT p.id) as total_pedidos')
         ])
             ->groupBy('dr.id', 'dr.name', 'dr.first_lastname', 'dr.second_lastname')
-            ->get()
-            ->map(function ($item) {
-                $parts = array_filter([
-                    $item->name ?? '',
-                    $item->first_lastname ?? '',
-                    $item->second_lastname ?? ''
-                ], fn($part) => !empty(trim($part)));
+            ->get();
 
-                return (object) [
-                    'id' => $item->id,
-                    'name' => implode(' ', $parts),
-                    'total_sub_total' => (float) $item->total_sub_total,
-                    'monto_sin_igv' => $item->total_sub_total * 0.82
-                ];
-            });
+        return $rows->map(function ($item) {
+            $parts = array_filter([
+                $item->name ?? '',
+                $item->first_lastname ?? '',
+                $item->second_lastname ?? ''
+            ], fn($part) => !empty(trim($part)));
+
+            $subTotal = is_numeric($item->total_sub_total) ? (float) $item->total_sub_total : 0.0;
+
+            return (object) [
+                'id' => $item->id,
+                'name' => implode(' ', $parts),
+                'total_sub_total' => $subTotal,
+                'total_pedidos' => (int) ($item->total_pedidos ?? 0),
+                'monto_sin_igv' => $subTotal * 0.82,
+                // alias used by frontend JS
+                'total_amount_without_igv' => $subTotal * 0.82,
+            ];
+        });
     }
 
     private function applyDateFilter($query, string $column, ?string $startDate, ?string $endDate, ?int $month, ?int $year)

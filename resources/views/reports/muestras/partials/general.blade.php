@@ -1,3 +1,6 @@
+@php
+    $generalReport = $data['generalReport'];
+@endphp
 <div class="row">
     <div class="col-12">
         <div class="card bg-dark card-outline card-danger">
@@ -90,7 +93,7 @@
                     </canvas>
                     @include('empty-chart', [
                         'dataLength' => array_sum(
-                            array_column($data['general_stats']['by_tipo_muestra'], 'count')),
+                            array_column($generalReport['general_stats']['by_tipo_muestra'], 'count')),
                     ])
                 </div>
             </div>
@@ -124,7 +127,7 @@
                     <canvas id="resume-tipo-frasco-chart" height="300px">
                     </canvas>
                     @include('empty-chart', [
-                        'dataLength' => $data['general_stats']['total_muestras'],
+                        'dataLength' => $generalReport['general_stats']['total_muestras'],
                     ])
                 </div>
             </div>
@@ -168,11 +171,11 @@
                                 </thead>
                                 <tbody id="resume-frasco-original-tbody">
                                     @include('empty-table', [
-                                        'dataLength' => count($data['data']['frasco_original']),
+                                        'dataLength' => count($generalReport['data']['frasco_original']),
                                         'colspan' => 5,
                                     ])
-                                    @if (isset($data['data']['frasco_original']) && count($data['data']['frasco_original']) > 0)
-                                        @foreach ($data['data']['frasco_original'] as $muestra)
+                                    @if (isset($generalReport['data']['frasco_original']) && count($generalReport['data']['frasco_original']) > 0)
+                                        @foreach ($generalReport['data']['frasco_original'] as $muestra)
                                             <tr>
                                                 <td>{{ $muestra['nombre_muestra'] }}</td>
                                                 <td class="text-center">{{ $muestra['cantidad_de_muestra'] }}</td>
@@ -193,11 +196,11 @@
                                     <tr>
                                         <th><i class="fas fa-calculator"></i> TOTAL</th>
                                         <th class="text-center" id="tfoot-frasco-original-cantidad">
-                                            {{ $data['general_stats']['by_tipo_frasco']['Frasco Original']['count'] }}
+                                            {{ $generalReport['general_stats']['by_tipo_frasco']['Frasco Original']['count'] }}
                                         </th>
                                         <th></th>
                                         <th class="text-center" id="tfoot-frasco-original-amount">S/
-                                            {{ $data['general_stats']['by_tipo_frasco']['Frasco Original']['amount'] }}
+                                            {{ $generalReport['general_stats']['by_tipo_frasco']['Frasco Original']['amount'] }}
                                         </th>
                                         <th></th>
                                     </tr>
@@ -220,11 +223,11 @@
                                 </thead>
                                 <tbody id="resume-frasco-muestra-tbody">
                                     @include('empty-table', [
-                                        'dataLength' => count($data['data']['frasco_muestra']),
+                                        'dataLength' => count($generalReport['data']['frasco_muestra']),
                                         'colspan' => 5,
                                     ])
-                                    @if (isset($data['data']['frasco_muestra']) && count($data['data']['frasco_muestra']) > 0)
-                                        @foreach ($data['data']['frasco_muestra'] as $muestra)
+                                    @if (isset($generalReport['data']['frasco_muestra']) && count($generalReport['data']['frasco_muestra']) > 0)
+                                        @foreach ($generalReport['data']['frasco_muestra'] as $muestra)
                                             <tr>
                                                 <td>{{ $muestra['nombre_muestra'] }}</td>
                                                 <td class="text-center">{{ $muestra['cantidad_de_muestra'] }}</td>
@@ -242,11 +245,11 @@
                                     <tr>
                                         <th><i class="fas fa-calculator"></i> TOTAL</th>
                                         <th class="text-center" id="tfoot-frasco-muestra-cantidad">
-                                            {{ $data['general_stats']['by_tipo_frasco']['Frasco Muestra']['quantity'] }}
+                                            {{ $generalReport['general_stats']['by_tipo_frasco']['Frasco Muestra']['quantity'] }}
                                         </th>
                                         <th></th>
                                         <th class="text-center" id="tfoot-frasco-muestra-amount">S/
-                                            {{ $data['general_stats']['by_tipo_frasco']['Frasco Muestra']['amount'] }}
+                                            {{ $generalReport['general_stats']['by_tipo_frasco']['Frasco Muestra']['amount'] }}
                                         </th>
                                         <th></th>
                                     </tr>
@@ -272,7 +275,7 @@
             locale: 'es',
             maxDate: "today"
         });
-        const data = @json($data);
+        const data = @json($generalReport);
 
         const resumeTableForiginalBody = $('#resume-frasco-original-tbody');
         const resumeTableFmuestraBody = $('#resume-frasco-muestra-tbody');
@@ -468,7 +471,7 @@
             const end_date = formData.find(i => i.name === 'end_date').value;
 
             $.ajax({
-                url: "{{ route('reports.muestras.api') }}",
+                url: "{{ route('reports.muestras.general') }}",
                 method: "GET",
                 data: {
                     start_date,
@@ -476,6 +479,12 @@
                 },
                 success: function(response) {
                     resumeUpdateGraphics(response);
+                    const startDate = new Date(response.filters.start_date).toLocaleDateString(
+                        'es-PE');
+                    const endDate = new Date(response.filters.end_date).toLocaleDateString(
+                        'es-PE');
+
+                    toast(`Mostrando reporte del ${startDate} al ${endDate}`, ToastIcon.SUCCESS);
                 },
                 error: function(xhr) {
                     $('#productos-filter button[type="submit"]').prop('disabled', false)

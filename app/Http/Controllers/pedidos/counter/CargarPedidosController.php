@@ -6,28 +6,27 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\counter\CargarPedidosUpdateRequest;
 use App\Imports\DetailPedidosImport;
 use App\Imports\DetailPedidosPreviewImport;
-use App\Imports\PedidosImport;
-use App\Imports\PedidosPreviewImport;
 use App\Imports\SimpleArrayImport;
 use App\Models\DetailPedidos;
+use App\Models\Distritos_zonas;
 use App\Models\Doctor;
 use App\Models\Pedidos;
-use App\Models\Zone;
-use App\Models\Distritos_zonas;
 use App\Models\User;
-use App\Services\PedidoImportService;
+use App\Models\Zone;
 use App\Services\DoctorSyncService;
+use App\Services\PedidoImportService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 
 class CargarPedidosController extends Controller
 {
     protected $pedidoImportService;
+
     protected $doctorSyncService;
 
     public function __construct(PedidoImportService $pedidoImportService, DoctorSyncService $doctorSyncService)
@@ -38,23 +37,25 @@ class CargarPedidosController extends Controller
 
     public function index(Request $request)
     {
-        if($request->query("fecha")){
+        if ($request->query('fecha')) {
             $request->validate(['fecha' => 'required|date']);
             $dia = Carbon::parse($request->fecha)->startOfDay();
         } else {
             $dia = now()->format('Y-m-d');
         }
-        $filtro = $request->filtro ?: "deliveryDate";
+        $filtro = $request->filtro ?: 'deliveryDate';
         $pedidos = Pedidos::whereDate($filtro, $dia);
         $turno = $request->query('turno');
         if ($turno !== null && $turno !== '') {
             $pedidos = $pedidos->where('turno', $turno);
         }
         $pedidos = $pedidos->orderBy('nroOrder')->get();
+
         return view('pedidos.counter.cargar_pedido.index', compact('pedidos'));
     }
 
-    public function create(){
+    public function create()
+    {
         return view('pedidos.counter.cargar_pedido.create');
     }
 
@@ -66,25 +67,29 @@ class CargarPedidosController extends Controller
     public function preview(Request $request)
     {
         $fileName = $request->get('filename');
+
         return $this->pedidoImportService->previewFile($fileName);
     }
 
     public function confirmChanges(Request $request)
     {
         $fileName = $request->get('filename');
+
         return $this->pedidoImportService->confirmChanges($fileName);
     }
 
     public function cancelChanges(Request $request)
     {
         $fileName = $request->get('filename');
+
         return $this->pedidoImportService->cancelChanges($fileName);
     }
 
     // Other methods can be moved to service similarly...
     // For brevity, keeping some here, but ideally move all logic to service.
 
-    public function show(Request $request, $pedido){
+    public function show(Request $request, $pedido)
+    {
         $pedido = Pedidos::with(['detailpedidos', 'zone', 'user'])->findOrFail($pedido);
 
         if ($request->ajax()) {
@@ -99,18 +104,21 @@ class CargarPedidosController extends Controller
         return view('pedidos.counter.cargar_pedido.show', compact('pedido'));
     }
 
-    public function edit($pedido){
+    public function edit($pedido)
+    {
         $pedido = Pedidos::find($pedido);
         $zonas = Zone::all();
         $doctores = Doctor::where('state', 1)->orderBy('name')->get();
-        return view('pedidos.counter.cargar_pedido.edit', compact('pedido','zonas','doctores'));
+
+        return view('pedidos.counter.cargar_pedido.edit', compact('pedido', 'zonas', 'doctores'));
     }
 
     public function update(CargarPedidosUpdateRequest $request, $id)
     {
         $fecha = $this->pedidoImportService->updatePedido($request, $id);
-        return redirect()->route('cargarpedidos.index',$fecha)
-                        ->with('success','Pedido modificado exitosamente');
+
+        return redirect()->route('cargarpedidos.index', $fecha)
+            ->with('success', 'Pedido modificado exitosamente');
     }
 
     // Other methods...
@@ -133,7 +141,7 @@ class CargarPedidosController extends Controller
             }
         } catch (\Exception $e) {
             // Log error but don't fail the request
-            logger('Error cleaning temp files: ' . $e->getMessage());
+            logger('Error cleaning temp files: '.$e->getMessage());
         }
     }
 
@@ -145,12 +153,12 @@ class CargarPedidosController extends Controller
             'stats' => [
                 'new_count' => 0,
                 'modified_count' => 0,
-                'total_count' => 0
-            ]
+                'total_count' => 0,
+            ],
         ];
 
         foreach ($data as $index => $row) {
-            if (!is_array($row) || count($row) < 5) {
+            if (! is_array($row) || count($row) < 5) {
                 continue;
             }
             // Normalize some cells to strings for checks
@@ -167,19 +175,19 @@ class CargarPedidosController extends Controller
             $orderIdRaw = isset($row[3]) ? trim((string) $row[3]) : '';
             $existingOrder = Pedidos::where('orderId', $orderIdRaw)->first();
 
-            if (!$existingOrder) {
+            if (! $existingOrder) {
                 // New order|
                 $changes['stats']['new_count']++;
             } else {
                 // Check for modifications
                 $modifications = $this->compareOrderData($existingOrder, $row);
-                if (!empty($modifications)) {
+                if (! empty($modifications)) {
                     $changes['modified'][] = [
                         'row_index' => $index + 1,
                         'existing' => $this->formatExistingOrderData($existingOrder),
                         'new' => $this->formatRowData($row),
                         'modifications' => $modifications,
-                        'type' => 'modified'
+                        'type' => 'modified',
                     ];
                     $changes['stats']['modified_count']++;
                 }
@@ -193,6 +201,7 @@ class CargarPedidosController extends Controller
     {
         $zoneId = Distritos_zonas::zonificar($row[16]);
         $zone = Zone::find($zoneId);
+
         return [
             'nroOrder' => '', // Will be auto-generated
             'orderId' => $row[3],
@@ -209,7 +218,7 @@ class CargarPedidosController extends Controller
             'created_at' => $row[20] ? Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[20]))->format('Y-m-d H:i:s') : '',
             'zone_name' => $zone ? $zone->name : 'Sin zona',
             'user_name' => $row[19] ? (User::where('name', $row[19])->first()->name ?? Auth::user()->name) : Auth::user()->name,
-            'last_data_update' => now()->format('Y-m-d H:i:s') // Nueva fecha de actualización
+            'last_data_update' => now()->format('Y-m-d H:i:s'), // Nueva fecha de actualización
         ];
     }
 
@@ -231,7 +240,7 @@ class CargarPedidosController extends Controller
             'created_at' => $order->created_at->format('Y-m-d H:i:s'),
             'zone_name' => $order->zone->name ?? 'Sin zona',
             'user_name' => $order->user->name ?? 'Sin usuario',
-            'last_data_update' => $order->last_data_update ? $order->last_data_update->format('Y-m-d H:i:s') : 'Nunca actualizado'
+            'last_data_update' => $order->last_data_update ? $order->last_data_update->format('Y-m-d H:i:s') : 'Nunca actualizado',
         ];
     }
 
@@ -250,7 +259,7 @@ class CargarPedidosController extends Controller
             'district' => 'Distrito',
             'prize' => 'Precio',
             'paymentMethod' => 'Método de Pago',
-            'deliveryDate' => 'Fecha de Entrega'
+            'deliveryDate' => 'Fecha de Entrega',
         ];
 
         foreach ($fieldsToCompare as $field => $label) {
@@ -263,7 +272,7 @@ class CargarPedidosController extends Controller
                         'field' => $field,
                         'label' => $label,
                         'old_value' => $existingDate,
-                        'new_value' => $newDate
+                        'new_value' => $newDate,
                     ];
                 }
             } else {
@@ -272,7 +281,7 @@ class CargarPedidosController extends Controller
                         'field' => $field,
                         'label' => $label,
                         'old_value' => $existingData[$field],
-                        'new_value' => $newData[$field]
+                        'new_value' => $newData[$field],
                     ];
                 }
             }
@@ -289,19 +298,20 @@ class CargarPedidosController extends Controller
 
         Log::info('fileName from request', ['fileName' => $fileName]);
 
-        if (!$fileName || !Storage::exists('temp/' . $fileName)) {
-            Log::error('File not found', ['fileName' => $fileName, 'exists' => Storage::exists('temp/' . $fileName)]);
+        if (! $fileName || ! Storage::exists('temp/'.$fileName)) {
+            Log::error('File not found', ['fileName' => $fileName, 'exists' => Storage::exists('temp/'.$fileName)]);
+
             return redirect()->route('cargarpedidos.create')
                 ->with('danger', 'Archivo no encontrado. Por favor, sube el archivo nuevamente.');
         }
 
         try {
             // Get full path to the file
-            $filePath = Storage::path('temp/' . $fileName);
+            $filePath = Storage::path('temp/'.$fileName);
             Log::info('File path', ['filePath' => $filePath]);
 
             // Use the DetailPedidosPreviewImport class instead of the old method
-            $previewImport = new DetailPedidosPreviewImport();
+            $previewImport = new DetailPedidosPreviewImport;
             Excel::import($previewImport, $filePath);
 
             $changes = $previewImport->data;
@@ -315,11 +325,12 @@ class CargarPedidosController extends Controller
         } catch (\Exception $e) {
             Log::error('Error in previewArticulos', ['error' => $e->getMessage()]);
             // Delete temporary file if there's an error
-            if (Storage::exists('temp/' . $fileName)) {
-                Storage::delete('temp/' . $fileName);
+            if (Storage::exists('temp/'.$fileName)) {
+                Storage::delete('temp/'.$fileName);
             }
+
             return redirect()->route('cargarpedidos.create')
-                ->with('danger', 'Error al procesar el archivo: ' . $e->getMessage());
+                ->with('danger', 'Error al procesar el archivo: '.$e->getMessage());
         }
     }
 
@@ -327,16 +338,15 @@ class CargarPedidosController extends Controller
     {
         try {
             $fileName = $request->input('filename');
-            if (!$fileName) {
+            if (! $fileName) {
                 return redirect()->route('cargarpedidos.create')->with('danger', 'Archivo no especificado');
             }
 
-            if (!Storage::exists('temp/' . $fileName)) {
+            if (! Storage::exists('temp/'.$fileName)) {
                 return redirect()->route('cargarpedidos.create')->with('danger', 'Archivo temporal no encontrado');
             }
 
-            $filePath = Storage::path('temp/' . $fileName);
-
+            $filePath = Storage::path('temp/'.$fileName);
 
             // Importar directamente; el import gestiona si hay cambios o no
 
@@ -345,15 +355,16 @@ class CargarPedidosController extends Controller
             Excel::import($detailImport, $filePath);
 
             // Clean up temp file
-            Storage::delete('temp/' . $fileName);
+            Storage::delete('temp/'.$fileName);
 
             return redirect()->route('cargarpedidos.create')->with($detailImport->key, $detailImport->data);
         } catch (\Exception $e) {
             // Clean up temp file
             if (isset($fileName)) {
-                Storage::delete('temp/' . $fileName);
+                Storage::delete('temp/'.$fileName);
             }
-            return redirect()->route('cargarpedidos.create')->with('danger', 'Error al importar artículos: ' . $e->getMessage());
+
+            return redirect()->route('cargarpedidos.create')->with('danger', 'Error al importar artículos: '.$e->getMessage());
         }
     }
 
@@ -362,8 +373,9 @@ class CargarPedidosController extends Controller
         try {
             $fileName = $request->input('filename');
             if ($fileName) {
-                Storage::delete('temp/' . $fileName);
+                Storage::delete('temp/'.$fileName);
             }
+
             return redirect()->route('cargarpedidos.create')->with('info', 'Importación de artículos cancelada');
         } catch (\Exception $e) {
             return redirect()->route('cargarpedidos.create')->with('warning', 'Importación cancelada');
@@ -379,14 +391,14 @@ class CargarPedidosController extends Controller
         // Column map with correct positions for your Excel format
         $colMap = [
             'numero' => 3,    // Columna D: Numero
-            'articulo' => 16, // Columna Q: Articulo  
+            'articulo' => 16, // Columna Q: Articulo
             'cantidad' => 17, // Columna R: Cantidad
             'precio' => 18,   // Columna S: PrecioUnitario
             'subtotal' => 19, // Columna T: SubTotal
         ];
 
         // Try to detect headers from row 1 (index 1, since row 2 has headers)
-        if (!empty($rows) && isset($rows[1])) {
+        if (! empty($rows) && isset($rows[1])) {
             $headerRow = $rows[1] ?? [];
             $headers = array_map(function ($v) {
                 return is_string($v) ? strtolower(trim($v)) : $v;
@@ -400,8 +412,9 @@ class CargarPedidosController extends Controller
             ];
             foreach ($nameToKey as $key => $aliases) {
                 foreach ($headers as $idx => $label) {
-                    if (!is_string($label))
+                    if (! is_string($label)) {
                         continue;
+                    }
                     if (in_array($label, $aliases, true)) {
                         $colMap[$key] = $idx;
                         break;
@@ -426,10 +439,12 @@ class CargarPedidosController extends Controller
 
         // Start from row 3 (index 2) since headers are in row 2 (index 1)
         foreach ($rows as $index => $row) {
-            if ($index < 2)
-                continue; // Skip rows 1 and 2 (headers)
-            if (!is_array($row) || count($row) === 0)
+            if ($index < 2) {
                 continue;
+            } // Skip rows 1 and 2 (headers)
+            if (! is_array($row) || count($row) === 0) {
+                continue;
+            }
 
             $numeroIdx = (int) $colMap['numero'];
             $artIdx = (int) $colMap['articulo'];
@@ -437,25 +452,30 @@ class CargarPedidosController extends Controller
             $precioIdx = (int) $colMap['precio'];
             $subIdx = (int) $colMap['subtotal'];
 
-            if (!isset($row[$numeroIdx]) || !isset($row[$artIdx]) || !isset($row[$cantIdx]))
+            if (! isset($row[$numeroIdx]) || ! isset($row[$artIdx]) || ! isset($row[$cantIdx])) {
                 continue;
+            }
             $numeroRaw = is_string($row[$numeroIdx]) ? strtolower(trim($row[$numeroIdx])) : $row[$numeroIdx];
-            if ($numeroRaw === 'numero' || $numeroRaw === 'número' || $numeroRaw === 'pedido')
+            if ($numeroRaw === 'numero' || $numeroRaw === 'número' || $numeroRaw === 'pedido') {
                 continue;
+            }
 
             $stats['total_count']++;
 
             $pedidoIdRaw = trim((string) $row[$numeroIdx]);
             $pedido = Pedidos::where('orderId', $pedidoIdRaw)->first();
-            if (!$pedido && is_numeric($pedidoIdRaw))
+            if (! $pedido && is_numeric($pedidoIdRaw)) {
                 $pedido = Pedidos::where('orderId', (int) $pedidoIdRaw)->first();
-            if (!$pedido) {
-                $pedido = Pedidos::where('nroOrder', $pedidoIdRaw)->first();
-                if (!$pedido && is_numeric($pedidoIdRaw))
-                    $pedido = Pedidos::where('nroOrder', (int) $pedidoIdRaw)->first();
             }
-            if (!$pedido)
+            if (! $pedido) {
+                $pedido = Pedidos::where('nroOrder', $pedidoIdRaw)->first();
+                if (! $pedido && is_numeric($pedidoIdRaw)) {
+                    $pedido = Pedidos::where('nroOrder', (int) $pedidoIdRaw)->first();
+                }
+            }
+            if (! $pedido) {
                 continue;
+            }
 
             // Validación del estado de producción
             // Si el pedido ya está preparado (productionStatus = 2), no permitir modificaciones
@@ -468,7 +488,7 @@ class CargarPedidosController extends Controller
             $unit = isset($row[$precioIdx]) ? round((float) $row[$precioIdx], 3) : 0.0;
             $sub = isset($row[$subIdx]) ? round((float) $row[$subIdx], 3) : round($cantidad * $unit, 3);
 
-            $excelKey = strtoupper(trim($pedido->orderId)) . '|' . strtoupper(trim($articulo)) . '|' . number_format($cantidad, 3, '.', '') . '|' . number_format($unit, 3, '.', '') . '|' . number_format($sub, 3, '.', '');
+            $excelKey = strtoupper(trim($pedido->orderId)).'|'.strtoupper(trim($articulo)).'|'.number_format($cantidad, 3, '.', '').'|'.number_format($unit, 3, '.', '').'|'.number_format($sub, 3, '.', '');
             if (isset($seenExcelRows[$excelKey])) {
                 $stats['duplicates_excel_count']++;
                 $duplicates[] = [
@@ -479,6 +499,7 @@ class CargarPedidosController extends Controller
                     'unit_prize' => number_format($unit, 3, '.', ''),
                     'sub_total' => number_format($sub, 3, '.', ''),
                 ];
+
                 continue;
             }
             $seenExcelRows[$excelKey] = true;
@@ -487,7 +508,7 @@ class CargarPedidosController extends Controller
                 ->whereRaw('UPPER(TRIM(articulo)) = UPPER(TRIM(?))', [$articulo])
                 ->first();
 
-            if (!$existingArticle) {
+            if (! $existingArticle) {
                 $newArticles[] = [
                     'row_index' => $index + 1,
                     'pedido_id' => $pedido->orderId,
@@ -497,13 +518,13 @@ class CargarPedidosController extends Controller
                         $articulo,
                         $cantidad,
                         $unit,
-                        $sub
-                    ], $pedido, $unit, $sub)
+                        $sub,
+                    ], $pedido, $unit, $sub),
                 ];
                 $stats['new_count']++;
             } else {
                 $modifications = $this->compareArticleData($existingArticle, [2 => $cantidad, 3 => $unit, 4 => $sub], $unit, $sub);
-                if (!empty($modifications)) {
+                if (! empty($modifications)) {
                     $modifiedArticles[] = [
                         'row_index' => $index + 1,
                         'pedido_id' => $pedido->orderId,
@@ -514,9 +535,9 @@ class CargarPedidosController extends Controller
                             $articulo,
                             $cantidad,
                             $unit,
-                            $sub
+                            $sub,
                         ], $pedido, $unit, $sub),
-                        'modifications' => $modifications
+                        'modifications' => $modifications,
                     ];
                     $stats['modified_count']++;
                 } else {
@@ -539,6 +560,7 @@ class CargarPedidosController extends Controller
             'unchanged' => $unchanged,
         ];
     }
+
     private function formatArticleRowData($row, $pedido, $precioUnitario = null, $subTotal = null)
     {
         // Handle both old structure (row[16], row[17], etc.) and new structure (row[0], row[1], etc.)
@@ -552,7 +574,7 @@ class CargarPedidosController extends Controller
                 'unit_prize' => number_format($precioUnitario, 3, '.', ''),
                 'sub_total' => number_format($subTotal, 3, '.', ''),
                 'created_at' => now()->format('Y-m-d H:i:s'),
-                'last_data_update' => now()->format('Y-m-d H:i:s')
+                'last_data_update' => now()->format('Y-m-d H:i:s'),
             ];
         } else {
             // Old structure for compatibility
@@ -564,10 +586,11 @@ class CargarPedidosController extends Controller
                 'unit_prize' => number_format(floatval($row[18]), 3, '.', ''),
                 'sub_total' => number_format(floatval($row[19]), 3, '.', ''),
                 'created_at' => $row[21] ? Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[21]))->format('Y-m-d H:i:s') : now()->format('Y-m-d H:i:s'),
-                'last_data_update' => now()->format('Y-m-d H:i:s')
+                'last_data_update' => now()->format('Y-m-d H:i:s'),
             ];
         }
     }
+
     private function formatExistingArticleData($article)
     {
         return [
@@ -578,9 +601,10 @@ class CargarPedidosController extends Controller
             'unit_prize' => $article->unit_prize,
             'sub_total' => $article->sub_total,
             'created_at' => $article->created_at->format('Y-m-d H:i:s'),
-            'last_data_update' => $article->pedido->last_data_update ? $article->pedido->last_data_update->format('Y-m-d H:i:s') : 'Nunca actualizado'
+            'last_data_update' => $article->pedido->last_data_update ? $article->pedido->last_data_update->format('Y-m-d H:i:s') : 'Nunca actualizado',
         ];
     }
+
     private function compareArticleData($existingArticle, $row, $precioUnitario = null, $subTotal = null)
     {
         $modifications = [];
@@ -605,7 +629,7 @@ class CargarPedidosController extends Controller
                 'field' => 'cantidad',
                 'label' => 'Cantidad',
                 'old_value' => $existingArticle->cantidad,
-                'new_value' => $newCantidad
+                'new_value' => $newCantidad,
             ];
         }
         // Compare Unit Prize - use epsilon for float comparison
@@ -614,8 +638,8 @@ class CargarPedidosController extends Controller
             $modifications[] = [
                 'field' => 'unit_prize',
                 'label' => 'Precio Unitario',
-                'old_value' => 'S/ ' . number_format($existingUnitPrize, 3, '.', ''),
-                'new_value' => 'S/ ' . number_format($newUnitPrize, 3, '.', '')
+                'old_value' => 'S/ '.number_format($existingUnitPrize, 3, '.', ''),
+                'new_value' => 'S/ '.number_format($newUnitPrize, 3, '.', ''),
             ];
         }
         // Compare Sub Total - use epsilon for float comparison
@@ -624,13 +648,14 @@ class CargarPedidosController extends Controller
             $modifications[] = [
                 'field' => 'sub_total',
                 'label' => 'Sub Total',
-                'old_value' => 'S/ ' . number_format($existingSubTotal, 3, '.', ''),
-                'new_value' => 'S/ ' . number_format($newSubTotal, 3, '.', '')
+                'old_value' => 'S/ '.number_format($existingSubTotal, 3, '.', ''),
+                'new_value' => 'S/ '.number_format($newSubTotal, 3, '.', ''),
             ];
         }
 
         return $modifications;
     }
+
     public function storeArticulos(Request $request)
     {
         Log::info('storeArticulos method called', ['request' => $request->all()]);
@@ -645,16 +670,17 @@ class CargarPedidosController extends Controller
             $file = $request->file('archivo');
 
             // Store file temporarily for preview using Storage facade
-            $fileName = 'temp_articulos_' . time() . '.' . $file->getClientOriginalExtension();
+            $fileName = 'temp_articulos_'.time().'.'.$file->getClientOriginalExtension();
             $storedPath = Storage::putFileAs('temp', $file, $fileName);
 
             Log::info('File stored', ['fileName' => $fileName, 'storedPath' => $storedPath]);
 
             if ($storedPath) {
                 // Verify file was stored correctly
-                if (Storage::exists('temp/' . $fileName)) {
+                if (Storage::exists('temp/'.$fileName)) {
                     // Redirect to preview
                     Log::info('Redirecting to preview', ['route' => 'cargarpedidos.preview-articulos', 'filename' => $fileName]);
+
                     return redirect()->route('cargarpedidos.preview-articulos', ['filename' => $fileName]);
                 } else {
                     return redirect()->back()->with('danger', 'Error: El archivo no se guardó correctamente.');
@@ -664,7 +690,8 @@ class CargarPedidosController extends Controller
             }
         } catch (\Exception $e) {
             Log::error('Error in storeArticulos', ['error' => $e->getMessage()]);
-            return redirect()->back()->with('danger', 'Error al procesar el archivo: ' . $e->getMessage());
+
+            return redirect()->back()->with('danger', 'Error al procesar el archivo: '.$e->getMessage());
         }
     }
 
@@ -679,7 +706,7 @@ class CargarPedidosController extends Controller
     private function normalizarYOrdenarPalabras(string $nombre): Collection
     {
         // Asegura que esté bien codificado a UTF-8
-        if (!mb_check_encoding($nombre, 'UTF-8')) {
+        if (! mb_check_encoding($nombre, 'UTF-8')) {
             $nombre = mb_convert_encoding($nombre, 'UTF-8', 'ISO-8859-1');
         }
 
@@ -700,6 +727,7 @@ class CargarPedidosController extends Controller
             ->sort()
             ->values();
     }
+
     public function sincronizarDoctoresPedidos()
     {
         try {
@@ -723,20 +751,21 @@ class CargarPedidosController extends Controller
                 $mensaje = 'No hay pedidos sin doctor asignado para sincronizar.';
                 $tipo = 'info';
             }
+
             return response()->json([
                 'success' => true,
                 'message' => $mensaje,
                 'type' => $tipo,
-                'data' => $resultados
+                'data' => $resultados,
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Error en sincronización de doctores: ' . $e->getMessage());
+            Log::error('Error en sincronización de doctores: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,
-                'message' => 'Error al sincronizar doctores: ' . $e->getMessage(),
-                'type' => 'error'
+                'message' => 'Error al sincronizar doctores: '.$e->getMessage(),
+                'type' => 'error',
             ], 500);
         }
     }
@@ -748,7 +777,7 @@ class CargarPedidosController extends Controller
         $doctores = Doctor::where('state', 1)
             ->when($search !== '', function ($q) use ($search) {
                 $q->where(function ($query) use ($search) {
-                    $like = '%' . $search . '%';
+                    $like = '%'.$search.'%';
                     $query->where('name_softlynn', 'LIKE', $like)
                         ->orWhere('name', 'LIKE', $like)
                         ->orWhere('first_lastname', 'LIKE', $like)
@@ -776,11 +805,11 @@ class CargarPedidosController extends Controller
             $pedidos = Pedidos::where('deliveryDate', $fecha)->where('turno', $turno)->orderBy('nroOrder', 'asc')->get();
         }
         $zonas = Zone::get();
-        $phpWord = new \PhpOffice\PhpWord\PhpWord();
+        $phpWord = new \PhpOffice\PhpWord\PhpWord;
         $section = $phpWord->addSection();
         foreach ($zonas as $zona) {
             $arrayWord = [];
-            $numero_ordenes = "";
+            $numero_ordenes = '';
             $manana = 0;
             $tarde = 0;
             array_push($arrayWord, $zona->name);
@@ -789,93 +818,151 @@ class CargarPedidosController extends Controller
                     if ($manana == 0 && $pedido->turno == 0) {
                         $manana = 1;
                         array_push($arrayWord, 'TURNO MAÑANA');
-                    } else if ($tarde == 0 && $pedido->turno == 1) {
+                    } elseif ($tarde == 0 && $pedido->turno == 1) {
                         array_push($arrayWord, 'TURNO TARDE');
                         $tarde = 1;
                     }
-                    $numero_ordenes = $numero_ordenes . $pedido->nroOrder . ", ";
-                    array_push($arrayWord, $pedido->nroOrder . " PED " . $pedido->orderId);
-                    array_push($arrayWord, $pedido->customerName . " - " . $pedido->customerNumber);
+                    $numero_ordenes = $numero_ordenes.$pedido->nroOrder.', ';
+                    array_push($arrayWord, $pedido->nroOrder.' PED '.$pedido->orderId);
+                    array_push($arrayWord, $pedido->customerName.' - '.$pedido->customerNumber);
                     foreach ($pedido->detailpedidos as $orden) {
-                        array_push($arrayWord, '• ' . $orden->articulo . ' - ' . $orden->cantidad . ' unid.');
+                        array_push($arrayWord, '• '.$orden->articulo.' - '.$orden->cantidad.' unid.');
                     }
                     array_push($arrayWord, $pedido->district);
                 }
             }
-            $arrayWord[0] = $arrayWord[0] . ": " . $numero_ordenes;
-            $text = $section->addText('FECHA DE ENTREGA: ' . $fecha_format, array('name' => 'Arial', 'size' => 18, 'bold' => true));
+            $arrayWord[0] = $arrayWord[0].': '.$numero_ordenes;
+            $text = $section->addText('FECHA DE ENTREGA: '.$fecha_format, ['name' => 'Arial', 'size' => 18, 'bold' => true]);
             foreach ($arrayWord as $id => $text) {
                 if ($id == 0) {
-                    $text = $section->addText($text, array('name' => 'Arial', 'size' => 11, 'bold' => true));
+                    $text = $section->addText($text, ['name' => 'Arial', 'size' => 11, 'bold' => true]);
                 } elseif (strpos($text, ' PED ')) {
-                    $text = $section->addText($text, array('name' => 'Arial', 'size' => 11, 'bold' => true));
+                    $text = $section->addText($text, ['name' => 'Arial', 'size' => 11, 'bold' => true]);
                 } else {
                     $text = $section->addText(
                         $text,
-                        array('bold' => false),
-                        array(
-                            'space' => array('before' => 0, 'after' => 0)
-                        )
+                        ['bold' => false],
+                        [
+                            'space' => ['before' => 0, 'after' => 0],
+                        ]
                     );
                 }
             }
             $section->addPageBreak();
         }
 
-
-
         $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007');
-        if (file_exists('docs\pedidos-' . $fecha . '.docx')) {
-            unlink('docs\pedidos-' . $fecha . '.docx');
-            $objWriter->save('docs\pedidos-' . $fecha . '.docx');
+        if (file_exists('docs\pedidos-'.$fecha.'.docx')) {
+            unlink('docs\pedidos-'.$fecha.'.docx');
+            $objWriter->save('docs\pedidos-'.$fecha.'.docx');
 
         } else {
-            $objWriter->save('docs\pedidos-' . $fecha . '.docx');
+            $objWriter->save('docs\pedidos-'.$fecha.'.docx');
         }
+
         return response()->download(public_path('docs\pedidos-'.$fecha.'.docx'));
     }
+
     public function actualizarTurno(Request $request, $id)
     {
         $this->pedidoImportService->actualizarTurno($request, $id);
+
         return back()->with('success', 'Turno modificado exitosamente');
     }
+
     public function uploadfile(Pedidos $pedido)
     {
-        $images = explode(",", $pedido->voucher);
-        $nro_operaciones = explode(",", $pedido->operationNumber);
-        $recetas = explode(",", $pedido->receta);
+        $images = explode(',', $pedido->voucher);
+        $nro_operaciones = explode(',', $pedido->operationNumber);
+        $recetas = explode(',', $pedido->receta);
         $array_voucher = [];
         foreach ($images as $key => $voucher) {
             array_push($array_voucher, ['nro_operacion' => $nro_operaciones[$key], 'voucher' => $voucher]);
         }
-        return view('pedidos.counter.cargar_pedido.uploadfile', compact('pedido','array_voucher','recetas'));
+
+        return view('pedidos.counter.cargar_pedido.uploadfile', compact('pedido', 'array_voucher', 'recetas'));
     }
-    public function actualizarPago(Request $request, $id){
+
+    public function actualizarPago(Request $request, $id)
+    {
         $this->pedidoImportService->actualizarPago($request, $id);
-        return back()->with('success','Pedido modificado exitosamente');
+
+        return back()->with('success', 'Pedido modificado exitosamente');
     }
+
     public function cargarImagen(Request $request, $id)
     {
 
+        // Support multiple voucher files with corresponding operation numbers.
         $request->validate([
+            'voucher' => 'required',
+            'voucher.*' => 'image|mimes:jpeg,png,jpg,gif|max:3048',
             'operationNumber' => 'required',
-            'voucher' => 'required|image|mimes:jpeg,png,jpg,gif|max:3048',
         ]);
-        // dd(request()->all());
-        $pedidos = Pedidos::find($id);
-        $imageName = $pedidos->orderId . '_' . time() . '.' . $request->voucher->extension();
-        $request->voucher->move(public_path('images/voucher_pedidos'), $imageName);
 
-        if ($pedidos->voucher) {
-            $pedidos->voucher = $pedidos->voucher . ',images/voucher_pedidos/' . $imageName;
-            $pedidos->operationNumber = $pedidos->operationNumber . ',' . $request->operationNumber;
-        } else {
-            $pedidos->voucher = 'images/voucher_pedidos/' . $imageName;
-            $pedidos->operationNumber = $request->operationNumber;
+        $pedidos = Pedidos::find($id);
+        if (! $pedidos) {
+            return back()->with('danger', 'Pedido no encontrado');
         }
+
+        $files = $request->file('voucher');
+        $operationNumbers = $request->input('operationNumber');
+
+        // Normalize to arrays
+        if (! is_array($files)) {
+            $files = [$files];
+        }
+        if (! is_array($operationNumbers)) {
+            $operationNumbers = [$operationNumbers];
+        }
+
+        $newPaths = [];
+        $newOpNums = [];
+
+        foreach ($files as $idx => $file) {
+            if (! $file) {
+                continue;
+            }
+            try {
+                $ext = $file->extension();
+            } catch (\Exception $e) {
+                $ext = $file->getClientOriginalExtension() ?? 'jpg';
+            }
+            $imageName = $pedidos->orderId.'_'.time().'_'.$idx.'.'.$ext;
+            $file->move(public_path('images/voucher_pedidos'), $imageName);
+            $newPaths[] = 'images/voucher_pedidos/'.$imageName;
+
+            // Get corresponding operation number if exists
+            $op = $operationNumbers[$idx] ?? ($operationNumbers[0] ?? '');
+            $newOpNums[] = $op;
+        }
+
+        // Merge with existing values, respecting empty existing values
+        if ($pedidos->voucher) {
+            $existing = array_filter(explode(',', $pedidos->voucher), function ($v) {
+                return trim($v) !== '';
+            });
+            $merged = array_merge($existing, $newPaths);
+            $pedidos->voucher = implode(',', $merged);
+        } else {
+            $pedidos->voucher = implode(',', $newPaths);
+        }
+
+        if ($pedidos->operationNumber) {
+            $existingOps = array_filter(explode(',', $pedidos->operationNumber), function ($v) {
+                return trim($v) !== '';
+            });
+            $mergedOps = array_merge($existingOps, $newOpNums);
+            $pedidos->operationNumber = implode(',', $mergedOps);
+        } else {
+            $pedidos->operationNumber = implode(',', $newOpNums);
+        }
+
         $pedidos->save();
-        return back()->with('success', 'Imagen cargada exitosamente');
+
+        return back()->with('success', 'Imagen(es) cargada(s) exitosamente');
     }
+
     public function cargarImagenReceta(Request $request, $id)
     {
         $request->validate([
@@ -887,34 +974,84 @@ class CargarPedidosController extends Controller
             'receta.*.mimes' => 'Solo se permiten imágenes con formato jpeg, png, jpg, gif o webp.',
             'receta.*.max' => 'Cada imagen no puede superar los 2 MB.',
         ]);
+
         $pedidos = Pedidos::find($id);
+        if (! $pedidos) {
+            return back()->with('danger', 'Pedido no encontrado');
+        }
+
+        $existing = [];
+        if ($pedidos->receta) {
+            $existing = array_filter(explode(',', $pedidos->receta), function ($v) {
+                return trim($v) !== '';
+            });
+        }
+
+        $newPaths = [];
+        $contador = 1;
         if ($request->hasFile('receta')) {
-            $urls = '';
-            $contador = 1;
             foreach ($request->file('receta') as $imagen) {
-                $imageNameReceta = $pedidos->orderId . '_' . $contador . '_' . time() . '.' . $imagen->extension();
-                ++$contador;
-                $imagen->move(public_path('images/receta_pedidos'), $imageNameReceta);
-                if ($urls) {
-                    $urls = $urls . ',' . 'images/receta_pedidos/' . $imageNameReceta;
-                } else {
-                    $urls = 'images/receta_pedidos/' . $imageNameReceta;
+                $ext = '';
+                try {
+                    $ext = $imagen->extension();
+                } catch (\Exception $e) {
+                    $ext = $imagen->getClientOriginalExtension() ?? 'jpg';
                 }
+                $imageNameReceta = $pedidos->orderId.'_'.$contador.'_'.time().'.'.$ext;
+                $contador++;
+                $imagen->move(public_path('images/receta_pedidos'), $imageNameReceta);
+                $newPaths[] = 'images/receta_pedidos/'.$imageNameReceta;
             }
         }
-        $pedidos->receta = $urls;
+
+        $merged = array_merge($existing, $newPaths);
+        $pedidos->receta = implode(',', $merged);
         $pedidos->save();
-        return back()->with('success', 'Receta cargada exitosamente');
+
+        return back()->with('success', 'Receta(s) cargada(s) exitosamente');
     }
+
+    public function eliminarFotoReceta(Request $request, $id)
+    {
+        $pedido = Pedidos::find($id);
+        if (! $pedido) {
+            return back()->with('danger', 'Pedido no encontrado');
+        }
+
+        $array_recetas = explode(',', $pedido->receta ?: '');
+        $urls = '';
+        $text_recetas = [];
+
+        // Remove the requested receta
+        foreach ($array_recetas as $key => $receta) {
+            if ($receta == $request->receta) {
+                if (file_exists($receta)) {
+                    @unlink($receta);
+                }
+                unset($array_recetas[$key]);
+            }
+        }
+
+        // Rebuild cadena
+        $filtered = array_values(array_filter($array_recetas, function ($v) {
+            return trim($v) !== '';
+        }));
+        $pedido->receta = implode(',', $filtered);
+        $pedido->save();
+
+        return back()->with('success', 'Imagen de receta eliminada exitosamente');
+    }
+
     public function destroy(string $id)
     {
         //
     }
+
     public function eliminarFotoVoucher(Request $request, $id)
     {
         $pedido = Pedidos::find($id);
         $array_voucher = explode(',', $pedido->voucher);
-        $nro_operaciones = explode(",", $pedido->operationNumber);
+        $nro_operaciones = explode(',', $pedido->operationNumber);
         $urls = '';
         $text_nro_operacion = '';
         foreach ($array_voucher as $key => $voucher) {
@@ -929,8 +1066,8 @@ class CargarPedidosController extends Controller
         foreach ($array_voucher as $key => $voucher) {
             if (count($array_voucher) > 1) {
                 if ($urls) {
-                    $urls = $urls . ',' . $voucher;
-                    $text_nro_operacion = $text_nro_operacion . ',' . $nro_operaciones[$key];
+                    $urls = $urls.','.$voucher;
+                    $text_nro_operacion = $text_nro_operacion.','.$nro_operaciones[$key];
                 } else {
                     $urls = $voucher;
                     $text_nro_operacion = $nro_operaciones[$key];

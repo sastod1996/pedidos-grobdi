@@ -17,10 +17,7 @@ use LogicException;
 
 class MetasService
 {
-
-    public function __construct(protected readonly PedidosService $pedidosService)
-    {
-    }
+    public function __construct(protected readonly PedidosService $pedidosService) {}
 
     public function create(array $data)
     {
@@ -55,7 +52,7 @@ class MetasService
 
             if ($visitadorasIds->isEmpty()) {
                 throw ValidationException::withMessages([
-                    'general_goal' => 'No hay visitadoras para asignar las metas.'
+                    'general_goal' => 'No hay visitadoras para asignar las metas.',
                 ]);
             }
 
@@ -84,10 +81,36 @@ class MetasService
         });
     }
 
-    public function getListOfMetas(int $resultsPerPage = 15)
+    /**
+     * Get paginated list of metas with optional filters.
+     *
+     * @param  array  $filters  ['month' => 'YYYY-MM'|'', 'tipo_medico' => 'prescriptor'|...]
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function getListOfMetas(array $filters = [], int $resultsPerPage = 15)
     {
-        $paginator = MonthlyVisitorGoal::orderBy('start_date', 'desc')
-            ->paginate($resultsPerPage);
+        $query = MonthlyVisitorGoal::query();
+
+        // Filter by tipo_medico if provided
+        if (! empty($filters['tipo_medico'])) {
+            $query->where('tipo_medico', $filters['tipo_medico']);
+        }
+
+        // Filter by month (input from <input type="month"> returns YYYY-MM)
+        if (! empty($filters['month'])) {
+            try {
+                $parts = explode('-', $filters['month']);
+                if (count($parts) >= 2) {
+                    $year = (int) $parts[0];
+                    $month = (int) $parts[1];
+                    $query->whereYear('start_date', $year)->whereMonth('start_date', $month);
+                }
+            } catch (\Throwable $e) {
+                // Ignore invalid month format and return unfiltered results
+            }
+        }
+
+        $paginator = $query->orderBy('start_date', 'desc')->paginate($resultsPerPage)->appends(array_filter($filters, fn ($v) => $v !== null && $v !== ''));
 
         $items = $paginator->getCollection()->map(function ($meta) {
             return [
@@ -107,7 +130,7 @@ class MetasService
         $monthlyGoal = MonthlyVisitorGoal::with([
             'visitorGoals' => function ($query) {
                 $query->with('visitadora:id');
-            }
+            },
         ])->findOrFail($metaId);
 
         $results = [];
@@ -123,7 +146,7 @@ class MetasService
     {
         $visitorGoal = VisitorGoal::with([
             'monthlyVisitorGoal:id,start_date,end_date,goal_not_reached_config_id',
-            'visitadora:id,name'
+            'visitadora:id,name',
         ])->findOrFail($visitorGoalId);
 
         $commonMetrics = $this->calculateCommonGoalMetrics($visitorGoal);
@@ -142,7 +165,20 @@ class MetasService
             $visitorGoal->monthlyVisitorGoal->goal_not_reached_config_id
         );
 
-        $commissionAmount = $totalAmountWithoutIGV->multipliedBy($commissionRate);
+        $commissionAmount = $totalAmountWithoutIGV->multipliedBy($commissionRate, \Brick\Math\RoundingMode::HALF_UP);
+
+        // Format debited_amount (Money) and debited_datetime (Carbon) to readable strings
+        $formattedDebitedAmount = $visitorGoal->debited_amount instanceof Money ? $visitorGoal->debited_amount->getAmount()->__toString() : ($visitorGoal->debited_amount ?? 'Sin monto debitado');
+        $formattedDebitedDatetime = null;
+        if ($visitorGoal->debited_datetime) {
+            try {
+                $formattedDebitedDatetime = $visitorGoal->debited_datetime instanceof \DateTime ? Carbon::parse($visitorGoal->debited_datetime)->toDateTimeString() : (string) $visitorGoal->debited_datetime;
+            } catch (\Throwable $e) {
+                $formattedDebitedDatetime = (string) $visitorGoal->debited_datetime;
+            }
+        } else {
+            $formattedDebitedDatetime = 'No se ha debitado aún';
+        }
 
         return [
             'id' => $visitorGoal->id,
@@ -156,8 +192,8 @@ class MetasService
             'comision_actual' => $commissionRate * 100,
             'total_sub_total_sin_igv' => $totalAmountWithoutIGV->getAmount()->__toString(),
             'monto_comisionado' => $commissionAmount->getAmount()->__toString(),
-            'debited_amount' => $visitorGoal->debited_amount ?? 'Sin monto debitado',
-            'debited_datetime' => $visitorGoal->debited_datetime ?? 'No se ha debitado aún'
+            'debited_amount' => $formattedDebitedAmount,
+            'debited_datetime' => $formattedDebitedDatetime,
         ];
     }
 
@@ -168,11 +204,11 @@ class MetasService
         $goalAmountMoney = $goalAmount instanceof Money ? $goalAmount : Money::of($goalAmount, 'PEN');
 
         $rawPercentage = 0.0;
-        if (!$goalAmountMoney->isZero()) {
+        if (! $goalAmountMoney->isZero()) {
             $goalDecimal = $goalAmountMoney->getAmount();
             $totalDecimal = $totalSubTotalMoney->getAmount();
 
-            $ratio = $totalDecimal->dividedBy($goalDecimal);
+            $ratio = $totalDecimal->dividedBy($goalDecimal, 6, \Brick\Math\RoundingMode::HALF_UP);
             $rawPercentage = $ratio->toFloat();
         }
 
@@ -194,6 +230,8 @@ class MetasService
 
         $currentPercentage = round($rawPercentage * 100, 2);
         $debited_amount = $visitorGoal->debited_amount;
+        // Format debited_amount for API output
+        $formattedDebitedAmount = $debited_amount instanceof Money ? $debited_amount->getAmount()->__toString() : ($debited_amount ?? null);
 
         // Calcular el faltante (Asegurar que goalAmount y totalAmountWithoutIGV son objetos Money)
         $faltante = $goalAmount->minus($totalAmountWithoutIGV);
@@ -204,7 +242,7 @@ class MetasService
             'total_amount_without_igv' => $totalAmountWithoutIGV->getAmount()->__toString(),
             'faltante_para_meta' => $faltanteParaMeta->getAmount()->__toString(),
             'avance_meta_general' => $currentPercentage,
-            'commissioned_amount' => $debited_amount
+            'commissioned_amount' => $formattedDebitedAmount,
         ];
     }
 
@@ -213,18 +251,32 @@ class MetasService
         $visitadoraId = $visitorGoal->user_id ?? $visitorGoal->visitadora->id; // Ajustar según qué relación uses
         $startDate = $visitorGoal->monthlyVisitorGoal->start_date;
         $endDate = $visitorGoal->monthlyVisitorGoal->end_date;
-        $goalAmount = Money::of($visitorGoal->goal_amount, 'PEN'); // Asegurar que es un objeto Money si goal_amount no lo es
+        // Asegurar que es un objeto Money si goal_amount no lo es
+        $goalAmount = $visitorGoal->goal_amount instanceof Money ? $visitorGoal->goal_amount : Money::of($visitorGoal->goal_amount, 'PEN');
 
         // 1. Calcular el subtotal total
-        $totalSubTotalRaw = $this->pedidosService->calculateTotalSubTotal(function ($query) use ($visitadoraId, $startDate, $endDate) {
+        // When calculating totals for a visitor goal, only include pedidos whose doctor's tipo_medico
+        // matches the monthly goal's tipo_medico. This ensures 'prescriptor' and 'comprador' months
+        // use their respective doctors/orders.
+        $tipoMedicoFilter = $visitorGoal->monthlyVisitorGoal->tipo_medico ?? null;
+
+        $totalSubTotalRaw = $this->pedidosService->calculateTotalSubTotal(function ($query) use ($visitadoraId, $startDate, $endDate, $tipoMedicoFilter) {
+            // The base query in calculateTotalSubTotal already joins `pedidos`, so filter by visitadora and date
             $query->where('pedidos.visitadora_id', $visitadoraId)
                 ->whereBetween('pedidos.created_at', [Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay()]);
+
+            // Add a join to doctor and filter by tipo_medico when provided
+            if (!empty($tipoMedicoFilter)) {
+                // ensure we join the doctor table to filter by tipo_medico
+                $query->join('doctor as dr', 'pedidos.id_doctor', '=', 'dr.id')
+                    ->where('dr.tipo_medico', $tipoMedicoFilter);
+            }
         });
 
         $totalSubTotalMoney = Money::of($totalSubTotalRaw, 'PEN');
 
         // 2. Calcular el total sin IGV (82% del subtotal total)
-        $totalAmountWithoutIGV = $totalSubTotalMoney->multipliedBy(0.82);
+        $totalAmountWithoutIGV = $totalSubTotalMoney->multipliedBy('0.82', \Brick\Math\RoundingMode::HALF_UP);
 
         // 3. Calcular el porcentaje de avance (usando el subtotal)
         // Nota: El método getVisitorGoalMetrics usa $totalSubTotalMoney vs $goalAmount.
@@ -274,5 +326,4 @@ class MetasService
             return $this->pedidosService->getPedidosDetailsByTipoMedico($monthlyVisitorGoal->tipo_medico, startDate: $range['start_date'], endDate: $range['end_date']);
         }
     }
-
 }

@@ -20,10 +20,34 @@ class MetasController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(\Illuminate\Http\Request $request)
     {
-        $listOfMetas = $this->service->getListOfMetas();
-        return view('visitadoras.metas.index', compact('listOfMetas'));
+        // Collect allowed filters from query string
+        $filters = [
+            'month' => $request->query('month'),
+            'tipo_medico' => $request->query('tipo_medico')
+        ];
+
+    $listOfMetas = $this->service->getListOfMetas($filters);
+
+    // Also fetch visitadoras so the create modal can render the list
+    $visitadoras = User::visitadoras()->get();
+    // Fetch doctors grouped by tipo_medico to allow frontend to show doctors by type when creating a month
+    $doctors = \App\Models\Doctor::select('id', 'name', 'first_lastname', 'second_lastname', 'tipo_medico')
+        ->get()
+        ->groupBy('tipo_medico')
+        ->map(function ($group) {
+            return $group->map(function ($d) {
+                $parts = array_filter([$d->name ?? '', $d->first_lastname ?? '', $d->second_lastname ?? ''], fn($p) => !empty(trim($p)));
+                return [
+                    'id' => $d->id,
+                    'name' => implode(' ', $parts),
+                ];
+            })->values();
+        })->toArray();
+
+    // Mostrar la lista de metas en la vista del módulo de bonificaciones
+    return view('bonificaciones.index', compact('listOfMetas', 'visitadoras', 'doctors'));
     }
 
     /**
@@ -43,21 +67,35 @@ class MetasController extends Controller
     public function store(StoreOrUpdateMetasRequest $request)
     {
         $validated = $request->validated();
-
         try {
             $this->service->create($validated);
-            return response()->json(['success' => true, 'message' => 'Metas creadas exitosamente.']);
+
+            // If the request expects JSON (AJAX), return JSON as before.
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => true, 'message' => 'Metas creadas exitosamente.']);
+            }
+
+            // For normal form submissions, redirect to the bonificaciones index
+            return redirect()->route('bonificaciones.index')->with('success', 'Metas creadas exitosamente.');
         } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'errors' => $e->errors(),
-                'message' => 'Error de validación'
-            ], 422);
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => $e->errors(),
+                    'message' => 'Error de validación'
+                ], 422);
+            }
+
+            return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ], 500);
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 
@@ -67,7 +105,8 @@ class MetasController extends Controller
     public function show(int $id)
     {
         $data = $this->service->getListOfVisitorGoalByMetaId($id);
-        return view('colocar-view', compact('data'));
+        // Renderiza las bonificaciones. vista con todos los objetivos de las visitadoras
+        return view('bonificaciones.view', compact('data'));
     }
 
     public function getDataForChartByVisitorGoal(int $visitorGoalId)
@@ -80,11 +119,17 @@ class MetasController extends Controller
                 ->select('id', 'user_id', 'goal_amount', 'debited_amount', 'monthly_visitor_goal_id')
                 ->findOrFail($visitorGoalId);
 
+            $chartData = $this->service->getDataForChart($visitorGoal);
+            $doctorsData = $this->service->getPedidosDoctorStatsByMonthlyVisitorGoal($visitorGoal->monthlyVisitorGoal->id);
+
+            // Ensure doctors data is returned as array (json serializable)
+            $doctorsData = is_array($doctorsData) ? $doctorsData : $doctorsData->values()->all();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Datos para chart obtenidos.',
-                'chart-data' => $this->service->getDataForChart($visitorGoal),
-                'doctors-data' => $this->service->getPedidosDoctorStatsByMonthlyVisitorGoal($visitorGoal->monthlyVisitorGoal->id)
+                'chart-data' => $chartData,
+                'doctors-data' => $doctorsData
             ]);
         } catch (\Throwable $th) {
             // Manejo de error apropiado (log, respuesta de error, etc.)

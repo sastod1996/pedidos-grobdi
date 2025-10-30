@@ -11,8 +11,9 @@ class GoalNotReachedConfigService
     public function create(array $data)
     {
         return DB::transaction(function () use ($data) {
-            $name = $data['name'];
-            $notReachedDetails = $data['details'];
+            // name is optional; if not provided generate a default name
+            $name = $data['name'] ?? ('config_autogen_' . now()->format('Ymd_His'));
+            $notReachedDetails = $data['details'] ?? [];
 
             GoalNotReachedConfig::query()->update(['state' => false]);
 

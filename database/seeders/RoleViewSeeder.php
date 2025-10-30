@@ -219,5 +219,105 @@ INSERT INTO `roles_views` (`id`, `role_id`, `view_id`, `created_at`, `updated_at
 (204,1,83,NULL,NULL),
 (205,1,76,NULL,NULL);
 SQL);
+
+        // Ensure the bonificaciones view exists; if not, create module + view then grant permissions.
+        $bonView = DB::table('views')->where('url', 'bonificaciones.index')->first();
+        if (! $bonView) {
+            // Try to find or create the module 'Bonificaciones'
+            $module = DB::table('modules')->where('name', 'Bonificaciones')->first();
+            if (! $module) {
+                $moduleId = DB::table('modules')->insertGetId([
+                    'name' => 'Bonificaciones',
+                    'description' => 'Módulo de bonificaciones y metas de visitadoras',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            } else {
+                $moduleId = $module->id;
+            }
+
+            $viewId = DB::table('views')->insertGetId([
+                'url' => 'bonificaciones.index',
+                'is_menu' => 1,
+                'description' => 'Bonificaciones',
+                'icon' => 'fas fa-coins',
+                'state' => 1,
+                'module_id' => $moduleId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            $bonView = DB::table('views')->where('id', $viewId)->first();
+        }
+
+        if ($bonView) {
+            $existsAdmin = DB::table('roles_views')->where('role_id', 1)->where('view_id', $bonView->id)->first();
+            if (! $existsAdmin) {
+                DB::table('roles_views')->insert([
+                    'role_id' => 1,
+                    'view_id' => $bonView->id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            $existsVisitador = DB::table('roles_views')->where('role_id', 6)->where('view_id', $bonView->id)->first();
+            if (! $existsVisitador) {
+                DB::table('roles_views')->insert([
+                    'role_id' => 6,
+                    'view_id' => $bonView->id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+
+        // Ensure all bonificaciones/visitadoras related views exist and are granted to roles
+        $neededViews = [
+            'bonificaciones.index',
+            'visitadoras.metas',
+            'visitadoras.metas.form',
+            'visitadoras.metas.store',
+            'visitadoras.metas.details',
+            'visitadoras.metas.not-reached-config.index',
+            'visitadoras.metas.not-reached-config.store',
+            'visitadoras.metas.not-reached-config.active',
+            'visitadoras.metas.update.debited-amount',
+            'visitadoras.metas.show',
+        ];
+
+        foreach ($neededViews as $viewUrl) {
+            $view = DB::table('views')->where('url', $viewUrl)->first();
+            if (! $view) {
+                // create minimal view record; attach to Bonificaciones module if exists
+                $module = DB::table('modules')->where('name', 'Bonificaciones')->first();
+                $moduleId = $module ? $module->id : null;
+                $viewId = DB::table('views')->insertGetId([
+                    'url' => $viewUrl,
+                    'is_menu' => 0,
+                    'description' => ucfirst(str_replace(['.', '-'], ' ', $viewUrl)),
+                    'icon' => null,
+                    'state' => 1,
+                    'module_id' => $moduleId,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                $view = DB::table('views')->where('id', $viewId)->first();
+            }
+
+            if ($view) {
+                foreach ([1, 6] as $roleId) {
+                    $exists = DB::table('roles_views')->where('role_id', $roleId)->where('view_id', $view->id)->first();
+                    if (! $exists) {
+                        DB::table('roles_views')->insert([
+                            'role_id' => $roleId,
+                            'view_id' => $view->id,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
+                }
+            }
+        }
     }
 }
