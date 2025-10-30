@@ -32,13 +32,9 @@
             </div>
             <div class="ofrenda-container text-center">
                 <h2>¡El sistema fue raptado!</h2>
-                <p>Por los Malditos del SysGrob</p>
+                <p>Por los Sanguinarios del SysGrob</p>
                 <img src="/images/halloween_theme/skull.png" class="skull">
             </div>
-
-            <img src="/images/halloween_theme/veins_1.webp" class="vena">
-            <img src="/images/halloween_theme/veins_2.webp" class="vena">
-            <img src="/images/halloween_theme/veins_3.webp" class="vena">
 
             <img src="/images/halloween_theme/monstruo_rojo.png" class="red-monster">
 
@@ -74,13 +70,6 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Creepster&family=Montserrat:wght@400;600&display=swap');
 
-        /* .red-monster {
-                                                position: absolute;
-                                                max-width: 120px;
-                                                height: auto;
-                                                transform: translate(-50%, -50%);
-                                                bottom: -10px;
-                                            } */
 
         @keyframes scaredMonster {
 
@@ -323,78 +312,6 @@
             animation: reptileLook 20s infinite;
         }
 
-        .vena {
-            position: absolute;
-            z-index: 19;
-            transform: translate(-50%, -50%);
-            width: auto;
-            height: 105px;
-        }
-
-        @keyframes pulseVena2 {
-
-            0%,
-            100% {
-                transform: rotate(-120deg) scale(1);
-            }
-
-            50% {
-                transform: rotate(-120deg) scale(1.05);
-            }
-        }
-
-        @keyframes pulseVena3 {
-
-            0%,
-            100% {
-                transform: rotate(120deg) scale(1);
-            }
-
-            50% {
-                transform: rotate(120deg) scale(1.05);
-            }
-        }
-
-        /* Si hay cuarta */
-        @keyframes pulseVena4 {
-
-            0%,
-            100% {
-                transform: rotate(180deg) scale(1);
-            }
-
-            50% {
-                transform: rotate(180deg) scale(1.05);
-            }
-        }
-
-        /* Segundo .vena */
-        .vena:nth-of-type(2) {
-            top: 35%;
-            right: 40.5%;
-            transform: rotate(-120deg);
-            transform-origin: center;
-            animation: pulseVena2 4s infinite;
-        }
-
-        /* Tercero */
-        .vena:nth-of-type(3) {
-            top: 35%;
-            left: 38%;
-            transform: rotate(120deg);
-            transform-origin: center;
-            animation: pulseVena3 4s infinite;
-        }
-
-        /* Cuarto */
-        .vena:nth-of-type(4) {
-            top: 30.5%;
-            left: 48%;
-            transform: rotate(180deg);
-            transform-origin: center;
-            animation: pulseVena4 4s infinite;
-        }
-
         @keyframes pumpkinPulse {
 
             0%,
@@ -533,10 +450,6 @@
 
 
         @media (max-width: 1200px) {
-            .vena {
-                height: 100px;
-            }
-
             .calabaza-1 .body {
                 max-width: 120px;
             }
@@ -598,9 +511,6 @@
 
         /* Ajuste para pantallas pequeñas */
         @media (max-width: 768px) {
-            .vena {
-                height: 60px;
-            }
 
             .calabaza-2 {
                 display: none;

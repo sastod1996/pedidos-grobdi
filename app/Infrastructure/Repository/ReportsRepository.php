@@ -11,6 +11,7 @@ use App\Models\Pedidos;
 use App\Models\Provincia;
 use App\Models\VisitaDoctor;
 use App\Traits\Query\ExcludeWordsFromQuery;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -100,23 +101,41 @@ class ReportsRepository implements ReportsRepositoryInterface
     }
 
     /* -------- Doctores -------- */
-    public function getAmountSpentAnuallyByDoctor(int $year, int $doctorId): array
+    public function getAmountSpentAnuallyByDoctor(Carbon $startDate, Carbon $endDate, int $doctorId): array
     {
-        $rawData = Pedidos::selectRaw('MONTH(created_at) as month, SUM(prize) as total_amount')
+        $years = range($startDate->year, $endDate->year);
+
+        $res = [];
+        foreach ($years as $year) {
+            $res[$year] = array_fill(1, 12, 0.0);
+        }
+
+        $rawData = Pedidos::selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, SUM(prize) as total_amount')
             ->where('status', true)
-            ->whereYear('created_at', $year)->where('id_doctor', $doctorId)
-            ->groupBy('month')->pluck('total_amount', 'month')
-            ->all();
-        return array_replace(array_fill(1, 12, 0), $rawData);
+            ->where('id_doctor', $doctorId)
+            ->whereBetween('pedidos.created_at', [$startDate, $endDate])
+            ->groupBy('year', 'month')
+            ->get();
+
+        foreach ($rawData as $row) {
+            $year = (int) $row->year;
+            $month = (int) $row->month;
+            $amount = (float) $row->total_amount;
+
+            if (isset($res[$year])) {
+                $res[$year][$month] = $amount;
+            }
+        }
+        return $res;
     }
-    public function getMostConsumedProductsMonthlyByDoctor(int $year, int $month, int $doctorId): Collection
+    public function getMostConsumedProductsMonthlyByDoctor(string $startDate, string $endDate, int $doctorId): Collection
     {
         $excludedWords = ['%delivery%', 'bolsa%'];
         $cols = ['dp.articulo', 'dp.cantidad', 'dp.sub_total'];
 
         $query = DB::table('detail_pedidos as dp')
             ->join('pedidos as p', 'dp.pedidos_id', '=', 'p.id')->select($cols)
-            ->whereYear('p.created_at', $year)->whereMonth('p.created_at', $month)
+            ->whereBetween('p.created_at', [$startDate, $endDate])
             ->where('p.id_doctor', $doctorId)
             ->where('p.status', true);
 
@@ -153,7 +172,7 @@ class ReportsRepository implements ReportsRepositoryInterface
 
         return $grouped->values();
     }
-    public function getAmountSpentMonthlyGroupedByTipo(int $year, int $month, int $doctorId): Collection
+    public function getAmountSpentMonthlyGroupedByTipo(string $startDate, string $endDate, int $doctorId): Collection
     {
         $excludedWords = ['%delivery%', 'bolsa%'];
 
@@ -164,8 +183,7 @@ class ReportsRepository implements ReportsRepositoryInterface
                 SUM(dp.sub_total) as total_sub_total
             ')
             ->where('p.status', true)
-            ->whereYear('p.created_at', $year)
-            ->whereMonth('p.created_at', $month)
+            ->whereBetween('p.created_at', [$startDate, $endDate])
             ->when($doctorId, fn($q) => $q->where('p.id_doctor', $doctorId))
             ->groupBy('tipo')
             ->orderByDesc('total_sub_total');
@@ -180,17 +198,49 @@ class ReportsRepository implements ReportsRepositoryInterface
                 ];
             });
     }
-    public function getTopDoctorByAmountInfo(int $year): mixed
+    public function getTopDoctorByAmountInfo(string $startDate, string $endDate): mixed
     {
         $topDoctor = Pedidos::selectRaw(
             'doctor.id as doctor_id,
-            doctor.name,
-            doctor.tipo_medico,
-            SUM(pedidos.prize) as total_amount'
+         doctor.name,
+         doctor.tipo_medico,
+         SUM(pedidos.prize) as total_amount'
         )
             ->join('doctor', 'pedidos.id_doctor', '=', 'doctor.id')
-            ->whereYear('pedidos.created_at', $year)
+            ->whereBetween('pedidos.created_at', [$startDate, $endDate])
             ->groupBy('doctor.id', 'doctor.name', 'doctor.tipo_medico')
+            ->orderByDesc('total_amount')
+            ->first();
+
+        // Si no hay resultados, devolvemos una estructura coherente
+        if (!$topDoctor) {
+            return [
+                'id' => null,
+                'name' => null,
+                'tipo_medico' => null,
+                'is_top_doctor' => false,
+            ];
+        }
+
+        return [
+            'id' => $topDoctor->doctor_id,
+            'name' => $topDoctor->name,
+            'tipo_medico' => $topDoctor->tipo_medico,
+            'is_top_doctor' => true,
+        ];
+    }
+
+    public function muestrasGetTopDoctorByAmountInfo(int $year): mixed
+    {
+        $topDoctor = Muestras::selectRaw(
+            'dr.id as doctor_id,
+            dr.name,
+            dr.tipo_medico,
+            SUM(muestras.precio) as total_amount'
+        )
+            ->join('doctor as dr', 'muestras.id_doctor', '=', 'dr.id')
+            ->whereYear('muestras.created_at', $year)
+            ->groupBy('dr.id', 'dr.name', 'dr.tipo_medico')
             ->orderByDesc('total_amount')
             ->first();
 
@@ -201,6 +251,7 @@ class ReportsRepository implements ReportsRepositoryInterface
             'is_top_doctor' => true,
         ];
     }
+
     public function getDoctorInfo(int $doctorId): mixed
     {
         $doctor = Doctor::select('id', 'name', 'tipo_medico')->where('id', $doctorId)->first();
@@ -326,6 +377,32 @@ class ReportsRepository implements ReportsRepositoryInterface
                     'created_at'
                 ])->whereBetween('created_at', [$startDate, $endDate])
             ->where('state', true)
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
+    public function getMuestrasByDoctorRawData(int $year, int $idDoctor): Collection
+    {
+        return Muestras::with([
+            /* 'clasificacion:id,nombre_clasificacion,unidad_de_medida_id',
+            'clasificacion.unidadMedida:id,nombre_unidad_de_medida',
+            'clasificacionPresentacion:id,quantity',
+            'tipoMuestra:id,name', */
+            'doctor:id,name,tipo_medico,name,first_lastname,second_lastname'
+        ])->select([
+                    'id',
+                    'nombre_muestra',
+                    'cantidad_de_muestra',
+                    'precio',
+                    'tipo_frasco',
+                    'id_doctor',
+                    /* 'id_tipo_muestra',
+                    'clasificacion_id',
+                    'clasificacion_presentacion_id', */
+                    'created_at'
+                ])->whereYear('created_at', $year)
+            ->where('state', true)
+            ->where('id_doctor', $idDoctor)
             ->orderBy('created_at', 'desc')
             ->get();
     }

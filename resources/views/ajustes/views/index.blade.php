@@ -73,7 +73,7 @@
                         </td>
                     </tr>
                 @empty
-                    @include('empty-table', ['dataLength' => 0, 'colspan' => 6])
+                    @include('empty-table', ['colspan' => 6, 'dataLength' => 0])
                 @endforelse
             </tbody>
         </table>

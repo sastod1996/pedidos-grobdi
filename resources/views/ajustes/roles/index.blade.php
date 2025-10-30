@@ -91,10 +91,7 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr>
-                                <td colspan="4" class="text-center text-muted py-4">No se encontraron roles para el
-                                    filtro seleccionado.</td>
-                            </tr>
+                            @include('empty-table', ['colspan' => 4, 'dataLength' => 0])
                         @endforelse
                     </tbody>
                 </table>
