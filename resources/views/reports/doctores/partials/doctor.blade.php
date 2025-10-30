@@ -14,13 +14,28 @@
                     value="{{ $doctorReport['filters']['id_doctor'] }}" />
             </div>
             <div class="form-group">
-                <label for="doctor-month-year-picker">Mes y Año</label>
-                <div class="input-group date" id="doctor-month-year-picker">
-                    <input type="text" id="doctor-month-year" name="doctor-month-year"
-                        class="form-control datetimepicker-input" value="{{ now()->format('m/Y') }}" required />
-                    <div class="input-group-append" data-target="#doctor-month-year-picker"
-                        data-toggle="datetimepicker">
-                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                <div class="form-group">
+                    <label for="visitadoras-start-date-input">
+                        Fecha Inicio</label>
+                    <div class="input-group date" data-target-input="nearest">
+                        <input class="form-control datetimepicker-input" type="date" name="fecha"
+                            id="visitadoras-start-date-input" value="{{ now()->startOfMonth()->format('Y-m-d') }}"
+                            required>
+                        <div class="input-group-append" data-target="#visitadoras-start-date-input">
+                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="visitadoras-end-date-input">
+                        Fecha Fin</label>
+                    <div class="input-group date" data-target-input="nearest">
+                        <input class="form-control datetimepicker-input" type="date"
+                            name="visitadoras-end-date-input" id="visitadoras-end-date-input"
+                            value="{{ now()->format('Y-m-d') }}" required>
+                        <div class="input-group-append" data-target="#visitadoras-end-date-input">
+                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -198,12 +213,23 @@
             listSelector: '#doctor-suggestions-list',
             hiddenIdSelector: doctorIdInput,
         });
-        $('#doctor-month-year-picker').datepicker({
-            format: 'mm/yyyy',
-            startView: 'months',
-            minViewMode: 'months',
-            autoclose: true,
-            endDate: '12/31/' + new Date().getFullYear()
+
+        const visitadorasStartDateInput = $('#visitadoras-start-date-input')
+        const visitadorasEndDateInput = $('#visitadoras-end-date-input')
+
+        flatpickr('#visitadoras-start-date-input', {
+            altInput: true,
+            dateFormat: "Y-m-d",
+            altFormat: "d/m/Y",
+            locale: 'es',
+            maxDate: "today"
+        });
+        flatpickr('#visitadoras-end-date-input', {
+            altInput: true,
+            dateFormat: "Y-m-d",
+            altFormat: "d/m/Y",
+            locale: 'es',
+            maxDate: "today"
         });
 
         const monthLabels = [
@@ -211,10 +237,20 @@
             'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
         ];
 
+        const yearlyData = initialDoctorReport.data.amount_spent_anually;
+        const firstYearObject = Object.values(yearlyData)[0];
+        const firstYearValues = Array.from({
+            length: 12
+        }, (_, i) => {
+            const month = i + 1;
+            return Number(firstYearObject[month] ?? 0);
+        });
+
+
         let doctorAmountSpentAnuallyChart = createChart('#doctor-amount-spent-anually-chart', monthLabels,
             [{
                 label: 'Monto de Inversión del Doctor',
-                data: Object.values(initialDoctorReport.data.amount_spent_anually).map(Number),
+                data: firstYearValues.map(Number),
                 backgroundColor: 'rgba(212, 12, 13, 0.5)',
                 borderColor: 'rgba(212, 12, 13, 1)',
                 borderWidth: 2,
@@ -306,16 +342,16 @@
 
         function doctorFetchReportData() {
             const id = doctorIdInput.val().trim();
-            const monthYear = monthYearInput.val().trim();
-            const [month, year] = monthYear.split('/');
+            const start_date = visitadorasStartDateInput.val();
+            const end_date = visitadorasEndDateInput.val();
 
             $.ajax({
                 url: "{{ route('reports.doctores.doctores') }}",
                 method: 'GET',
                 data: {
                     id_doctor: id,
-                    month: month,
-                    year: year
+                    start_date: start_date,
+                    end_date: end_date
                 },
                 success: function(response) {
                     toast(`Mostrando datos del doctor: ${response.doctor_info.doctor} - Periodo: ${response.filters.month}-${response.filters.year}`,
@@ -356,7 +392,33 @@
         }
 
         function doctorUpdateAmountSpentAnuallyChart(amountSpentAnuallyData) {
-            doctorAmountSpentAnuallyChart.data.datasets[0].data = Object.values(amountSpentAnuallyData);
+            const years = Object.keys(amountSpentAnuallyData);
+            const colors = generateHslColors(years); // colores para cada año
+
+            const datasets = Object.entries(amountSpentAnuallyData).map(([year, monthsObj], index) => {
+                const data = Array.from({
+                    length: 12
+                }, (_, i) => {
+                    const month = i + 1;
+                    return Number(monthsObj[month] ?? 0);
+                });
+
+                const borderColor = colors[index];
+                const backgroundColor = colors[index].replace(/\/\s*1\s*\)/, '/ 0.2)'); // ajusta alpha a 0.2
+
+                return {
+                    label: `Año ${year}`,
+                    data,
+                    backgroundColor: backgroundColor,
+                    borderColor: borderColor,
+                    borderWidth: 2,
+                    pointRadius: 6,
+                    fill: false,
+                    tension: 0.1
+                };
+            });
+
+            doctorAmountSpentAnuallyChart.data.datasets = datasets;
             doctorAmountSpentAnuallyChart.update();
         }
 

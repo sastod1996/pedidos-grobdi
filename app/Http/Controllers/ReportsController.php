@@ -117,8 +117,8 @@ class ReportsController extends Controller
     {
         $filters = [
             'id_doctor' => $request->input('id_doctor'),
-            'month' => $request->input('month'),
-            'year' => $request->input('year'),
+            'start_date' => $request->input('start_date'),
+            'end_date' => $request->input('end_date'),
         ];
         return response()->json($this->reportsService->doctors()->getDoctorReport($filters)->toArray(), 200);
     }
@@ -150,12 +150,14 @@ class ReportsController extends Controller
         ];
         return response()->json($this->reportsService->muestras()->getGeneralReport($filters)->toArray(), 200);
     }
-    /* public function getMuestrasDoctorReport(Request $request)
+    public function getMuestrasDoctorReport(Request $request)
     {
         $filters = [
+            'id_doctor' => $request->input('id_doctor'),
             'start_date' => $request->input('start_date'),
             'end_date' => $request->input('end_date'),
         ];
-        return response()->json($this->reportsService->muestras()->getDoctorReport($filters), 200);
-    } */
+
+        return response()->json($this->reportsService->muestras()->getDoctorReport($filters)->toArray(), 200);
+    }
 }
