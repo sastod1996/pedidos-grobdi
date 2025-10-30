@@ -17,6 +17,9 @@
 @section('content')
     @if ($showDiaDeMuertos)
         <div class="scary-banner position-relative">
+            <div
+                style="position: absolute; z-index: 1; inset: 0; background: radial-gradient(circle at 50% 50%, rgba(225, 225, 225, 0), rgba(0, 0, 0, 0.3) 100%); width: 100%; height: 100%">
+            </div>
             <img src="/images/halloween_theme/contexto.png" alt="" width="100%" height="100%" class="bg-image">
             <div class='vector'>
                 <svg viewBox='0 0 600 250' preserveAspectRatio='none'>
@@ -27,36 +30,40 @@
                     <path d='M 1,240 a 22,25 45 1,1 113,-78 a 23,26 0 1,1 46,-72 a 35,30 -45 1,1 90,-110' />
                 </svg>
             </div>
-            {{-- <div class="ofrenda-container text-center">
-                <h2>¡El sistema fue raptado! <span class="ms-2 scary-span" style="text-shadow: none">👹</span></h2>
-                <p>Por los Malditos del SysGrob <span class="ms-2 scary-span text-xl" style="text-shadow: none">😈</span>
-                </p>
-            </div> --}}
+            <div class="ofrenda-container text-center">
+                <h2>¡El sistema fue raptado!</h2>
+                <p>Por los Malditos del SysGrob</p>
+                <img src="/images/halloween_theme/skull.png" class="skull">
+            </div>
+
+            <img src="/images/halloween_theme/veins_1.webp" class="vena">
+            <img src="/images/halloween_theme/veins_2.webp" class="vena">
+            <img src="/images/halloween_theme/veins_3.webp" class="vena">
+
+            <img src="/images/halloween_theme/monstruo_rojo.png" class="red-monster">
+
+            <div class="iris"></div>
+
+            <img src="/images/halloween_theme/fantasma.png" alt="" class="ghost">
 
             <div class="calabaza-1">
-                <img src="/images/halloween_theme/cara_01.png" class="face" width="85">
-                <img src="/images/halloween_theme/calabaza_01.png" width="150">
+                <img src="/images/halloween_theme/cara_01.png" class="face">
+                <img src="/images/halloween_theme/calabaza_01.png" class="body">
             </div>
             <div class="calabaza-2">
-                <img src="/images/halloween_theme/cara_02.png" class="face" width="85">
-                <img src="/images/halloween_theme/calabaza_02.png" width="150">
+                <img src="/images/halloween_theme/cara_02.png" class="face">
+                <img src="/images/halloween_theme/calabaza_02.png" class="body">
             </div>
             <div class="calabaza-3">
-                <img src="/images/halloween_theme/cara_03.png" class="face" width="85">
-                <img src="/images/halloween_theme/calabaza_03.png" width="150">
+                <img src="/images/halloween_theme/cara_03.png" class="face">
+                <img src="/images/halloween_theme/calabaza_03.png" class="body">
             </div>
             <div class="calabaza-4">
-                <img src="/images/halloween_theme/cara_04.png" class="face" width="85">
-                <img src="/images/halloween_theme/calabaza_04.png" width="180">
+                <img src="/images/halloween_theme/cara_04.png" class="face">
+                <img src="/images/halloween_theme/calabaza_04.png" class="body">
             </div>
 
-            {{-- <span class="scary-span" style="top: 10%; left: 5%; filter: drop-shadow(0 0 10px #ffffffff);">🎃</span>
-            <span class="scary-span" style="top: 20%; right: 8%;">🕸️</span>
-            <span class="scary-span" style="top: 40%; left: 10%;">💀</span>
-            <span class="scary-span" style="top: 45%; right: 12%;">🩻</span>
-            <span class="scary-span" style="bottom: 20%; right: 15%;">💀</span>
-            <span class="scary-span" style="top: 65%; left: 15%;">🕸️</span>
-            <span class="scary-span" style="bottom: 10%; left: 50%;">🎃</span> --}}
+            <img src="/images/halloween_theme/arbusto.png" alt="" class="bush">
         </div>
     @else
         <p>Bienvenidos</p>
@@ -66,6 +73,49 @@
 @section('css')
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Creepster&family=Montserrat:wght@400;600&display=swap');
+
+        /* .red-monster {
+                                                position: absolute;
+                                                max-width: 120px;
+                                                height: auto;
+                                                transform: translate(-50%, -50%);
+                                                bottom: -10px;
+                                            } */
+
+        @keyframes scaredMonster {
+
+            0%,
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                filter: brightness(1);
+            }
+
+            25% {
+                transform: translate(-50%, -55%) scale(0.98, 1.02);
+                /* se encoge y estira verticalmente (ojos abiertos) */
+                filter: brightness(1.1);
+            }
+
+            50% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            75% {
+                transform: translate(-50%, -52%) scale(0.99, 1.01);
+                filter: brightness(1.05);
+            }
+        }
+
+        .red-monster {
+            position: absolute;
+            max-width: 120px;
+            height: auto;
+            bottom: -10px;
+            z-index: 4;
+            transform: translate(-50%, -50%);
+            animation: scaredMonster 4s infinite ease-in-out;
+            filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
+        }
 
         .scary-banner {
             position: relative;
@@ -78,7 +128,6 @@
             overflow: hidden;
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
             background: #1067A4;
-            /* background: radial-gradient(circle at 30% 30%, #320052, #000000 80%); background: linear-gradient(180deg, #1a1a1a 20%, #4a1c6b 80%, #d95700 120%); */
         }
 
         .scary-banner .bg-image {
@@ -91,125 +140,14 @@
             z-index: 0;
         }
 
-        .calabaza-1 {
+        .skull {
+            filter: drop-shadow(0 0 10px #fff);
             position: absolute;
-            bottom: 13%;
-            left: 20%;
-            z-index: 2;
-        }
-
-        .calabaza-1 .face {
-            position: absolute;
-            bottom: 13%;
-            left: 22%;
-            z-index: 3;
-            filter: drop-shadow(2px 2px 5px #E07032);
-        }
-
-        .calabaza-2 {
-            position: absolute;
-            bottom: 13%;
-            left: 20%;
-            z-index: 2;
-        }
-
-        .calabaza-2 .face {
-            position: absolute;
-            bottom: 13%;
-            left: 22%;
-            z-index: 3;
-            filter: drop-shadow(2px 2px 5px #E07032);
-        }
-
-        .calabaza-3 {
-            position: absolute;
-            bottom: 13%;
-            left: 20%;
-            z-index: 2;
-        }
-
-        .calabaza-3 .face {
-            position: absolute;
-            bottom: 13%;
-            left: 22%;
-            z-index: 3;
-            filter: drop-shadow(2px 2px 5px #E07032);
-        }
-
-        .calabaza-4 {
-            position: absolute;
-            bottom: 13%;
-            right: 10%;
-            z-index: 2;
-            /* filter: drop-shadow(5px -12px 30px); */
-        }
-
-        .calabaza-4 .face {
-            position: absolute;
-            bottom: 13%;
-            left: 22%;
-            z-index: 3;
-            filter: drop-shadow(2px 2px 5px #E07032);
-        }
-
-        .ofrenda-container {
-            position: relative;
-            font-family: 'Creepster', cursive;
-            text-shadow: 2px 10px 5px rgba(0, 0, 0, 0.6);
-            display: flex;
-            flex-direction: column;
-            flex justify-items: center;
-            justify-content: center;
-            gap: 5px;
-            z-index: 10;
-        }
-
-        .ofrenda-container h2 {
-            font-size: 2.4rem;
-            word-spacing: 10px;
-            margin: 0;
-        }
-
-        .ofrenda-container p {
-            font-size: 1.5rem;
-            word-spacing: 5px;
-        }
-
-        .scary-span {
-            position: absolute;
-            font-size: 2.8rem;
-            filter: drop-shadow(0 0 10px #ffae00);
-            animation: float 4s ease-in-out infinite;
             z-index: 0;
-        }
-
-        /* Diferentes retrasos para que floten de forma orgánica */
-        .scary-span:nth-of-type(1) {
-            animation-delay: 0s;
-        }
-
-        .scary-span:nth-of-type(2) {
-            animation-delay: 1.2s;
-        }
-
-        .scary-span:nth-of-type(3) {
-            animation-delay: 2.1s;
-        }
-
-        .scary-span:nth-of-type(4) {
-            animation-delay: 0.7s;
-        }
-
-        .scary-span:nth-of-type(5) {
-            animation-delay: 1.8s;
-        }
-
-        .scary-span:nth-of-type(6) {
-            animation-delay: 0.3s;
-        }
-
-        .scary-span:nth-of-type(7) {
-            animation-delay: 2.5s;
+            height: auto;
+            width: 7%;
+            left: 20%;
+            animation: float 3s ease-in-out infinite;
         }
 
         @keyframes float {
@@ -224,6 +162,352 @@
             }
         }
 
+        @keyframes windSway {
+
+            0%,
+            100% {
+                transform: skewX(0deg);
+            }
+
+            20% {
+                transform: skewX(10deg);
+            }
+
+            50% {
+                transform: skewX(5deg);
+            }
+
+            80% {
+                transform: skewX(-10deg);
+            }
+        }
+
+        .bush {
+            position: absolute;
+            bottom: -50px;
+            right: -20px;
+            max-width: 350px;
+            height: auto;
+            z-index: 5;
+            transform-origin: bottom;
+            animation: windSway 5s infinite ease-in-out;
+            filter: drop-shadow(10px 5px 20px #15365D);
+        }
+
+        @keyframes floatGhost {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .ghost {
+            position: absolute;
+            top: 10%;
+            right: 20%;
+            max-width: 100px;
+            height: auto;
+            z-index: 5;
+            animation: floatGhost 6s infinite ease-in-out;
+            filter: drop-shadow(5px 1px 5px #fff);
+        }
+
+        @keyframes reptileLook {
+
+            /* === 1. Centro (reposo inicial) === */
+            0%,
+            3% {
+                transform: translateX(0) translateY(0);
+            }
+
+            /* === 2. Mira arriba (posición 2 del centro) === */
+            6%,
+            9% {
+                transform: translateX(0) translateY(-20px);
+            }
+
+            /* === 3. Vuelve al centro === */
+            12%,
+            15% {
+                transform: translateX(0) translateY(0);
+            }
+
+            /* === 4. Va al centro izquierdo === */
+            18%,
+            21% {
+                transform: translateX(-50px) translateY(0);
+            }
+
+            /* === 5. Arriba del centro izquierdo (posición 2) === */
+            24%,
+            27% {
+                transform: translateX(-50px) translateY(-20px);
+            }
+
+            /* === 6. Abajo-izquierda del centro izquierdo (posición 7) === */
+            30%,
+            33% {
+                transform: translateX(-58px) translateY(20px);
+            }
+
+            /* === 7. Vuelve al centro izquierdo === */
+            36%,
+            39% {
+                transform: translateX(-50px) translateY(0);
+            }
+
+            /* === 8. Regresa al centro === */
+            42%,
+            45% {
+                transform: translateX(0) translateY(0);
+            }
+
+            /* === 9. Va al centro derecho === */
+            48%,
+            51% {
+                transform: translateX(50px) translateY(0);
+            }
+
+            /* === 10. Arriba-derecha del centro derecho (posición 3) === */
+            54%,
+            57% {
+                transform: translateX(58px) translateY(-20px);
+            }
+
+            /* === 11. Abajo del centro derecho (posición 8) === */
+            60%,
+            63% {
+                transform: translateX(50px) translateY(20px);
+            }
+
+            /* === 12. Vuelve al centro derecho === */
+            66%,
+            69% {
+                transform: translateX(50px) translateY(0);
+            }
+
+            /* === 13. Regresa al centro === */
+            72%,
+            75% {
+                transform: translateX(0) translateY(0);
+            }
+
+            /* === 14. Mira abajo (posición 8 del centro) — momento raro === */
+            78%,
+            81% {
+                transform: translateX(0) translateY(20px);
+            }
+
+            /* === 15. Vuelve al centro y termina suavemente === */
+            84%,
+            100% {
+                transform: translateX(0) translateY(0);
+            }
+        }
+
+        .iris {
+            background: #000;
+            width: 10px;
+            height: 80px;
+            border-radius: 100%;
+            position: absolute;
+            z-index: 20;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: reptileLook 20s infinite;
+        }
+
+        .vena {
+            position: absolute;
+            z-index: 19;
+            transform: translate(-50%, -50%);
+            width: auto;
+            height: 105px;
+        }
+
+        @keyframes pulseVena2 {
+
+            0%,
+            100% {
+                transform: rotate(-120deg) scale(1);
+            }
+
+            50% {
+                transform: rotate(-120deg) scale(1.05);
+            }
+        }
+
+        @keyframes pulseVena3 {
+
+            0%,
+            100% {
+                transform: rotate(120deg) scale(1);
+            }
+
+            50% {
+                transform: rotate(120deg) scale(1.05);
+            }
+        }
+
+        /* Si hay cuarta */
+        @keyframes pulseVena4 {
+
+            0%,
+            100% {
+                transform: rotate(180deg) scale(1);
+            }
+
+            50% {
+                transform: rotate(180deg) scale(1.05);
+            }
+        }
+
+        /* Segundo .vena */
+        .vena:nth-of-type(2) {
+            top: 35%;
+            right: 40.5%;
+            transform: rotate(-120deg);
+            transform-origin: center;
+            animation: pulseVena2 4s infinite;
+        }
+
+        /* Tercero */
+        .vena:nth-of-type(3) {
+            top: 35%;
+            left: 38%;
+            transform: rotate(120deg);
+            transform-origin: center;
+            animation: pulseVena3 4s infinite;
+        }
+
+        /* Cuarto */
+        .vena:nth-of-type(4) {
+            top: 30.5%;
+            left: 48%;
+            transform: rotate(180deg);
+            transform-origin: center;
+            animation: pulseVena4 4s infinite;
+        }
+
+        @keyframes pumpkinPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.03);
+            }
+        }
+
+        .face {
+            position: absolute;
+            filter: drop-shadow(2px 2px 5px #E07032);
+            z-index: 2;
+            transform-origin: center;
+            animation: pumpkinPulse 3.5s infinite;
+        }
+
+        .calabaza-1 {
+            position: absolute;
+            bottom: 2%;
+            left: 5%;
+            z-index: 2;
+        }
+
+        .calabaza-1 .face {
+            max-width: 60px;
+            bottom: 15%;
+            left: 22%;
+        }
+
+        .calabaza-1 .body {
+            max-width: 100px;
+        }
+
+        .calabaza-2 {
+            position: absolute;
+            bottom: 13%;
+            left: 25%;
+            z-index: 2;
+        }
+
+        .calabaza-2 .face {
+            max-width: 60px;
+            bottom: 13%;
+            left: 28%;
+        }
+
+        .calabaza-2 .body {
+            max-width: 110px;
+        }
+
+        .calabaza-3 {
+            position: absolute;
+            bottom: 9%;
+            right: 30%;
+            z-index: 2;
+        }
+
+        .calabaza-3 .face {
+            max-width: 60px;
+            bottom: 13%;
+            left: 23%;
+        }
+
+        .calabaza-3 .body {
+            max-width: 100px;
+        }
+
+        .calabaza-4 {
+            position: absolute;
+            bottom: 8%;
+            right: 8%;
+            z-index: 2;
+        }
+
+        .calabaza-4 .face {
+            max-width: 60px;
+            bottom: 15%;
+            left: 22%;
+        }
+
+        .calabaza-4 .body {
+            max-width: 120px;
+        }
+
+        .ofrenda-container {
+            position: relative;
+            font-family: 'Creepster', cursive;
+            text-shadow: 2px 8px 2px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            flex justify-items: center;
+            justify-content: center;
+            gap: 5px;
+            z-index: 10;
+            animation: pumpkinPulse 6s ease-in-out infinite;
+        }
+
+        .ofrenda-container h2 {
+            font-size: 2.4rem;
+            word-spacing: 10px;
+            margin: 0;
+        }
+
+        .ofrenda-container p {
+            font-size: 1.5rem;
+            word-spacing: 5px;
+
+        }
+
         div.vector {
             top: 0;
             left: 0;
@@ -231,7 +515,7 @@
             width: 600px;
             overflow: hidden;
             position: absolute;
-            z-index: 0;
+            z-index: 2;
         }
 
         svg {
@@ -241,10 +525,127 @@
 
         line,
         path {
-            stroke: #c98f11ff;
+            stroke: #E2E4E3;
             stroke-width: 2px;
-            filter: drop-shadow(0 0 4px #fff);
+            filter: drop-shadow(0 0 4px #E2E4E3);
             fill: none;
+        }
+
+
+        @media (max-width: 1200px) {
+            .vena {
+                height: 100px;
+            }
+
+            .calabaza-1 .body {
+                max-width: 120px;
+            }
+
+            .calabaza-1 .face {
+                max-width: 65px;
+            }
+
+            .calabaza-2 .body {
+                max-width: 130px;
+            }
+
+            .calabaza-2 .face {
+                max-width: 68px;
+            }
+
+            .calabaza-3 .body {
+                max-width: 105px;
+            }
+
+            .calabaza-3 .face {
+                max-width: 65px;
+            }
+
+            .calabaza-4 .body {
+                max-width: 150px;
+            }
+
+            .calabaza-4 .face {
+                max-width: 80px;
+            }
+
+            .calabaza-1 {
+                left: 10%;
+                bottom: 5%
+            }
+
+            .calabaza-2 {
+                left: 21%;
+                bottom: 5%;
+            }
+
+            .calabaza-3 {
+                right: 20%;
+                bottom: 9%;
+            }
+
+            .calabaza-4 {
+                right: 3%;
+                bottom: 5%
+            }
+
+            .bush {
+                bottom: -20px;
+                right: -30px;
+                max-width: 200px;
+            }
+        }
+
+        /* Ajuste para pantallas pequeñas */
+        @media (max-width: 768px) {
+            .vena {
+                height: 60px;
+            }
+
+            .calabaza-2 {
+                display: none;
+            }
+
+            .calabaza-3 {
+                display: none;
+            }
+
+            .skull {
+                display: none;
+            }
+
+            .calabaza-1 .body {
+                max-width: 95px;
+            }
+
+            .calabaza-1 .face {
+                max-width: 50px;
+            }
+
+            .calabaza-4 .body {
+                max-width: 115px;
+            }
+
+            .calabaza-4 .face {
+                max-width: 60px;
+            }
+
+            .calabaza-1 {
+                left: 10%;
+            }
+
+            .calabaza-4 {
+                right: 3%;
+                bottom: 5%
+            }
+
+            .vector {
+                display: none;
+            }
+
+            .bush {
+                display: none;
+            }
         }
     </style>
 @stop
