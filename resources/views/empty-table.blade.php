@@ -3,7 +3,7 @@
         <div class="text-muted">
             <i class="fas fa-inbox fa-3x mb-3"></i>
             <h5>No hay datos disponibles</h5>
-            <p>Ajusta los filtros para mostrar información</p>
+            <p>{{ $personalizedMessage ?? 'Ajusta los filtros para mostrar información' }}</p>
         </div>
     </td>
 </tr>
