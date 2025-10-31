@@ -1,39 +1,44 @@
-<div class="modal fade border-1" id="debitarModal" tabindex="-1" aria-labelledby="debitarModalLabel" aria-hidden="true">
+<div class="modal fade modal-grobdi" id="debitarModal" tabindex="-1" aria-labelledby="debitarModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered modal-md">
-		<div class="modal-content border-0 debitar-modal">
-			<div class="modal-header border-0 pb-0 p-4" style="background-color: #f8efef">
+		<div class="modal-content">
+			<div class="modal-header">
 				<div>
-					<h5 class="modal-title fw-bold text-dark" id="debitarModalLabel">Registrar débito</h5>
-					<p class="text-muted small mb-0">Registra el monto debitado y agrega una observación para el seguimiento.</p>
+					<h5 class="modal-title" id="debitarModalLabel">Registrar débito</h5>
+					<p class="modal-subtitle">Registra el monto debitado y agrega una observación para el seguimiento.</p>
 				</div>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
 			</div>
 
-			<div class="modal-body py-4">
+			<div class="modal-body">
 				<div id="debitarModalBody" data-update-url-template="{{ url('bonificaciones/metas/update-debited-amount/__ID__') }}">
 					<form class="debitar-form" id="formDebitar" action="" method="POST">
 						@csrf
 						@method('PUT')
 						<input type="hidden" name="debited_datetime" id="debitedDatetime" value="" />
-					<div class="row g-4">
-						<div class="col-12">
-							<label for="debitarMonto" class="form-label fw-semibold text-dark">Monto debitado</label>
-                            <div class="input-group debitar-input-group">
-                                <span class="input-group-text text-muted">S/</span>
-								<input type="number" min="0" step="0.01" class="form-control w-full" id="debitarMonto" name="debited_amount" placeholder="0.00" />
-                            </div>
+						<div class="row g-4">
+							<div class="col-12">
+								<div class="form-group">
+									<label for="debitarMonto" class="form-label">Monto debitado</label>
+									<div class="input-group">
+										<span class="input-group-text">S/</span>
+										<input type="number" min="0" step="0.01" class="form-control" id="debitarMonto" name="debited_amount" placeholder="0.00" />
+									</div>
+								</div>
+							</div>
+							<div class="col-12">
+								<div class="form-group">
+									<label for="debitarObservacion" class="form-label">Observación</label>
+									<textarea class="form-control" id="debitarObservacion" name="debit_comment" rows="4" placeholder="Agrega los detalles del débito..."></textarea>
+								</div>
+							</div>
 						</div>
-						<div class="col-12">
-							<label for="debitarObservacion" class="form-label fw-semibold text-dark">Observación</label>
-							<textarea class="form-control debitar-textarea" id="debitarObservacion" name="debit_comment" rows="4" placeholder="Agrega los detalles del débito..." ></textarea>
-						</div>
-					</div>
-				</form>
+					</form>
+				</div>
 			</div>
-			<div class="modal-footer border-0 pt-0 d-flex justify-content-between">
-				<button type="button" class="btn btn-secondary text-white" data-bs-dismiss="modal">Cancelar</button>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-outline" data-bs-dismiss="modal">Cancelar</button>
 				{{-- Submit button targets the form via form attribute to avoid moving it inside the form markup --}}
-				<button type="submit" form="formDebitar" class="btn btn-primary fw-bold">Guardar</button>
+				<button type="submit" form="formDebitar" class="btn btn-primary">Guardar</button>
 			</div>
 		</div>
 	</div>
@@ -270,6 +275,3 @@
 		}
 	});
 </script>
-		</div>
-	</div>
-</div>

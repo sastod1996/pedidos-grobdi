@@ -1,5 +1,5 @@
 <!-- Modal partial: crear mes de bonificaciones -->
-<div class="modal fade" id="createBonificacionModal" tabindex="-1" aria-labelledby="createBonificacionModalLabel" aria-hidden="true">
+<div class="modal fade modal-grobdi" id="createBonificacionModal" tabindex="-1" aria-labelledby="createBonificacionModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -8,95 +8,107 @@
             </div>
 
             <div class="modal-body">
-                <div class="bonificaciones-wrapper">
-                    <div class="card bonificaciones-hero-card shadow-none border-0 mb-3">
-                        <div class="card-body p-2">
-                            <p class="text-muted mb-0">Registra un nuevo periodo mensual y personaliza las bonificaciones para las visitadoras.</p>
+                <div class="alert alert-info">
+                    <p class="mb-0">Registra un nuevo periodo mensual y personaliza las bonificaciones para las visitadoras.</p>
+                </div>
+
+                <form id="formCrearBonificacion" action="{{ route('visitadoras.metas.store') }}" method="POST">
+                    @csrf
+
+                    <div class="modal-grid">
+                        <div class="form-group">
+                            <label for="bonificacionMes">Mes <span class="required">*</span></label>
+                            <input type="month" id="bonificacionMes" name="month" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="bonificacionTipoMedico">Tipo de médico <span class="required">*</span></label>
+                            <select id="bonificacionTipoMedico" name="tipo_medico" class="form-control" required>
+                                <option value="" selected>Selecciona un tipo</option>
+                                <option value="prescriptor">Prescriptor</option>
+                                <option value="comprador">Comprador</option>
+                            </select>
                         </div>
                     </div>
 
-                    <form id="formCrearBonificacion" action="{{ route('visitadoras.metas.store') }}" method="POST">
-                        @csrf
-                        <div class="row g-3">
-                            <div class="col-12 col-md-6">
-                                <label for="bonificacionMes" class="form-label text-muted text-uppercase small mb-1">Mes</label>
-                                <input type="month" id="bonificacionMes" name="month" class="form-control form-control-lg">
+                    <div class="form-group">
+                        <div id="doctorsForTipo">
+                            <div class="info-section">
+                                <div class="info-content">Selecciona un tipo de médico para ver los doctores disponibles.</div>
                             </div>
-                            <div class="col-12 col-md-6">
-                                <label for="bonificacionTipoMedico" class="form-label text-muted text-uppercase small mb-1">Tipo de médico</label>
-                                <select id="bonificacionTipoMedico" name="tipo_medico" class="form-select form-select-lg">
-                                    <option value="" selected>Selecciona un tipo</option>
-                                    <option value="prescriptor">Prescriptor</option>
-                                    <option value="comprador">Comprador</option>
-                                </select>
-                            </div>
-                            <div class="col-12">
-                                <div id="doctorsForTipo" class="mt-3">
-                                    <!-- Doctors list for selected tipo will be rendered here -->
-                                    <div class="small text-muted">Selecciona un tipo de médico para ver los doctores disponibles.</div>
-                                </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="form-group">
+                        <div class="grobdi-switch">
+                            <input type="checkbox" id="aplicarGeneral" data-trigger="generales" checked>
+                            <span class="switch-slider"></span>
+                            <span class="switch-label">¿Aplicar porcentaje y monto de la meta para todas las visitadoras?</span>
+                            <input type="hidden" name="is_general_goal" id="isGeneralGoalInput" value="1">
+                        </div>
+                    </div>
+
+                    <div class="modal-grid d-none" data-target="generales">
+                        <div class="form-group">
+                            <label for="porcentajeGeneral">Porcentaje comisión</label>
+                            <div class="input-group">
+                                <input type="number" min="0" max="100" step="0.01" id="porcentajeGeneral" name="commission_percentage" class="form-control" placeholder="Ej. 3.5">
+                                <span class="input-group-text">%</span>
                             </div>
                         </div>
 
-                        <div class="mt-4">
-                            <div class="d-flex align-items-center">
-                                <label class="fw-semibold mb-0" for="aplicarGeneral">¿Aplicar porcentaje y monto de la meta para todas las visitadoras?</label>
-                                    <div class="form-check form-switch ms-3 flex-shrink-0" style="padding-left: 2.5em;">
-                                        <input class="form-check-input" type="checkbox" role="switch" id="aplicarGeneral" data-trigger="generales" checked>
-                                        <input type="hidden" name="is_general_goal" id="isGeneralGoalInput" value="1">
-                                </div>
-                            </div>
-
-                            <div class="row g-3 mt-3 bonificaciones-extra-fields d-none" data-target="generales">
-                                    <div class="col-12 col-md-6 col-xl-4">
-                                        <label for="porcentajeGeneral" class="form-label text-muted text-uppercase small mb-1">Porcentaje comisión</label>
-                                        <div class="input-group">
-                                            <input type="number" min="0" max="100" step="0.01" id="porcentajeGeneral" name="commission_percentage" class="form-control form-control-lg" placeholder="Ej. 3.5">
-                                            <span class="input-group-text">%</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-md-6 col-xl-4">
-                                        <label for="montoGeneral" class="form-label text-muted text-uppercase small mb-1">Monto meta</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text">S/</span>
-                                            <input type="number" min="0" step="0.01" id="montoGeneral" name="goal_amount" class="form-control form-control-lg" placeholder="Ej. 15000.00">
-                                        </div>
-                                    </div>
+                        <div class="form-group">
+                            <label for="montoGeneral">Monto meta</label>
+                            <div class="input-group">
+                                <span class="input-group-text">S/</span>
+                                <input type="number" min="0" step="0.01" id="montoGeneral" name="goal_amount" class="form-control" placeholder="Ej. 15000.00">
                             </div>
                         </div>
+                    </div>
 
-                        <div data-target="visitadoras" class="visitadoras-container">
-                            @if(isset($visitadoras) && $visitadoras->isNotEmpty())
-                                @foreach($visitadoras as $index => $v)
-                                    <div class="row mt-3 align-items-center">
-                                        <div class="col-4 text-start">
-                                            <label class="mb-0">{{ $v->name }}</label>
-                                            <input type="hidden" name="visitor_goals[{{ $index }}][user_id]" value="{{ $v->id }}">
-                                        </div>
-                                        <div class="col-4">
-                                            <input type="number" step="0.01" min="0" name="visitor_goals[{{ $index }}][commission_percentage]" class="form-control" placeholder="% Comisión (Ej. 3.50)">
-                                        </div>
-                                        <div class="col">
-                                            <input type="number" step="0.01" min="0" name="visitor_goals[{{ $index }}][goal_amount]" class="form-control" placeholder="Monto meta (Ej. 15000)">
-                                        </div>
-                                    </div>
-                                @endforeach
-                            @else
-                                <div class="alert alert-warning">No se encontraron visitadoras para asignar metas.</div>
-                            @endif
-                        </div>
-                    </form>
-                </div>
+                    <div data-target="visitadoras" class="visitadoras-container">
+                        @if(isset($visitadoras) && $visitadoras->isNotEmpty())
+                            <table class="table-modal">
+                                <thead>
+                                    <tr>
+                                        <th>Visitadora</th>
+                                        <th>% Comisión</th>
+                                        <th>Monto Meta</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($visitadoras as $index => $v)
+                                        <tr>
+                                            <td>
+                                                {{ $v->name }}
+                                                <input type="hidden" name="visitor_goals[{{ $index }}][user_id]" value="{{ $v->id }}">
+                                            </td>
+                                            <td>
+                                                <input type="number" step="0.01" min="0" name="visitor_goals[{{ $index }}][commission_percentage]" class="form-control" placeholder="3.50">
+                                            </td>
+                                            <td>
+                                                <input type="number" step="0.01" min="0" name="visitor_goals[{{ $index }}][goal_amount]" class="form-control" placeholder="15000">
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        @else
+                            <div class="alert alert-warning">No se encontraron visitadoras para asignar metas.</div>
+                        @endif
+                    </div>
+                </form>
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-outline" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" class="btn btn-primary" id="guardarBonificacionBtn">Guardar mes</button>
             </div>
         </div>
     </div>
 </div>
-
 
 @section('css')
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
