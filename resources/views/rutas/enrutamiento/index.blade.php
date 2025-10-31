@@ -4,19 +4,6 @@
 
 @section('content')
 @can('enrutamiento.index')
-<div class=" grobdi-header">
-    <div class="grobdi-title">
-        <div>
-            <h2>📋 Enrutamiento</h2>
-            <p>Listado de meses y zonas para enrutamiento</p>
-        </div>
-        @can('enrutamiento.store')
-            <button class="btn" data-bs-toggle="modal" data-bs-target="#itemModal">
-                <i class="fa fa-plus"></i> Registrar Nuevo Mes
-            </button>
-        @endcan
-    </div>
-</div>
 <div class="card mt-2">
     <div class="card-header">
         <div class="d-grid gap-2 d-md-flex justify-content-md-medium">
