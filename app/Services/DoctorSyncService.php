@@ -15,7 +15,14 @@ class DoctorSyncService
      *
      * @return array Resultados de la sincronización
      */
-    public function sincronizarDoctoresPedidos(): array
+    /**
+     * Sincroniza doctores con pedidos basándose en comparación de palabras
+     *
+     * @param string|null $start Fecha inicio en formato YYYY-MM-DD o similar
+     * @param string|null $end Fecha fin en formato YYYY-MM-DD o similar
+     * @return array Resultados de la sincronización
+     */
+    public function sincronizarDoctoresPedidos($start = null, $end = null): array
     {
         $resultados = [
             'procesados' => 0,
@@ -26,10 +33,23 @@ class DoctorSyncService
         ];
 
         try {
-            $fechaFin = Carbon::now(); // Hoy
-            $fechaInicio = Carbon::now()->subDays(30); // 30 días antes
+            // Determinar rango de fechas: si se pasan $start/$end los usamos, si no, por defecto últimos 30 días
+            if ($start && $end) {
+                try {
+                    $fechaInicio = Carbon::parse($start)->startOfDay();
+                    $fechaFin = Carbon::parse($end)->endOfDay();
+                } catch (\Exception $e) {
+                    // Si parse falla, fallback a últimos 30 días
+                    Log::warning('Fechas de sincronización inválidas, usando rango por defecto: '.$e->getMessage());
+                    $fechaFin = Carbon::now();
+                    $fechaInicio = Carbon::now()->subDays(30);
+                }
+            } else {
+                $fechaFin = Carbon::now(); // Hoy
+                $fechaInicio = Carbon::now()->subDays(30); // 30 días antes
+            }
 
-            // Obtener pedidos sin doctor asignado
+            // Obtener pedidos sin doctor asignado dentro del rango
             $pedidosSinDoctor = Pedidos::whereNull('id_doctor')
                 ->whereNotNull('doctorName')
                 ->whereBetween('created_at', [
