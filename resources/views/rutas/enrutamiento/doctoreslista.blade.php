@@ -132,13 +132,13 @@
                                                 <td>
                                                     <button type="submit" class="btn btn-primary btn-sm"><i
                                                             class="fa fa-pencil-square"></i> Actualizar</button>
-                                                    <form action="{{ route('enrutamientolista.doctoresdestroy', $doctor->id) }}" method="POST" style="display:inline;">
+                                                    {{-- <form action="{{ route('enrutamientolista.doctoresdestroy', $doctor->id) }}" method="POST" style="display:inline;">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de eliminar esta visita?')">
                                                             <i class="fa fa-trash"></i> Eliminar
                                                         </button>
-                                                    </form>
+                                                    </form> --}}
                                                 </td>
 
                                             </form>
