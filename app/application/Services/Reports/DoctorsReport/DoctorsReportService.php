@@ -7,6 +7,7 @@ use App\Application\DTOs\Reports\Doctores\ReportTipoDoctorDto;
 use App\Application\Services\Reports\ReportBaseService;
 use App\Infrastructure\Repository\ReportsRepository;
 use App\Shared\Helpers\GetPercentageHelper;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 class DoctorsReportService extends ReportBaseService
@@ -28,17 +29,17 @@ class DoctorsReportService extends ReportBaseService
     public function getDoctorReport(array $filters = []): ReportDoctorsDto
     {
         $id_doctor = $filters['id_doctor'] ?? null;
-        $month = $filters['month'] ?? now()->month;
-        $year = $filters['year'] ?? now()->year;
+        $start_date = Carbon::parse($filters['start_date'] ?? now()->startOfMonth())->startOfDay();
+        $end_date = Carbon::parse($filters['end_date'] ?? now())->endOfDay();
 
-        $doctorData = $id_doctor ? $this->repo->getDoctorInfo($id_doctor) : $this->repo->getTopDoctorByAmountInfo($year);
+        $doctorData = $id_doctor ? $this->repo->getDoctorInfo($id_doctor) : $this->repo->getTopDoctorByAmountInfo($start_date, $end_date);
 
         $id_doctor = $doctorData['id'];
 
         $data = [
-            'amount_spent_anually' => $this->repo->getAmountSpentAnuallyByDoctor($year, $id_doctor),
-            'amount_spent_monthly_grouped_by_tipo' => $this->repo->getAmountSpentMonthlyGroupedByTipo($year, $month, $id_doctor),
-            'most_consumed_products_monthly' => $this->repo->getMostConsumedProductsMonthlyByDoctor($year, $month, $id_doctor),
+            'amount_spent_anually' => $this->repo->getAmountSpentAnuallyByDoctor($start_date, $end_date, $id_doctor),
+            'amount_spent_monthly_grouped_by_tipo' => $this->repo->getAmountSpentMonthlyGroupedByTipo($start_date, $end_date, $id_doctor),
+            'most_consumed_products_monthly' => $this->repo->getMostConsumedProductsMonthlyByDoctor($start_date, $end_date, $id_doctor),
         ];
 
         return new ReportDoctorsDto(
@@ -46,7 +47,7 @@ class DoctorsReportService extends ReportBaseService
             $doctorData['name'],
             $doctorData['tipo_medico'],
             $data,
-            compact('id_doctor', 'month', 'year')
+            compact('id_doctor', 'start_date', 'end_date')
         );
     }
 

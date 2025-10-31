@@ -71,9 +71,7 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr>
-                                <td colspan="7" class="text-center text-muted py-4">No hay información que mostrar.</td>
-                            </tr>
+                            @include('empty-table', ['colspan' => 7, 'dataLength' => 0])
                         @endforelse
                     </tbody>
                 </table>

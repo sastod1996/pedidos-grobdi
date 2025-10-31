@@ -209,6 +209,7 @@ Route::middleware(['check.permission'])->group(function () {
     Route::post('/rutasvisitadora/doctores', [DoctorController::class, 'guardarDoctorVisitador'])->name('rutasvisitadora.guardardoctor');
     Route::get('centrosaludbuscar', CentroSaludController::class . '@buscar')->name('centrosalud.buscar');
 
+    Route::post('/enrutamientolista/add-visita', [EnrutamientoController::class, 'addSpontaneousVisitaDoctor'])->name('visita.doctor.add.spontaneous');
     Route::get('ruta-mapa', [VisitaDoctorController::class, 'mapa'])->name('ruta.mapa');
 
     Route::get('/distritoslimacallao', UbigeoController::class . '@ObtenerDistritosLimayCallao')
