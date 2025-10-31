@@ -40,7 +40,17 @@
 @enderror
 
 <div class="row mt-4">
-    @foreach($zonas as $zona)
+    @php
+        // Mostrar únicamente las zonas cuyo id esté entre 1 y 5 (inclusive).
+        // Conservamos $zonas original para los selects (todas las zonas).
+        $zonesCollection = $zonas instanceof \Illuminate\Support\Collection ? $zonas : collect($zonas);
+        $displayZonas = $zonesCollection->filter(function($z){
+            $id = data_get($z, 'id');
+            return is_numeric($id) && $id >= 1 && $id <= 5;
+        })->values();
+    @endphp
+
+    @foreach($displayZonas as $zona)
         <div class="col-md-6 mb-4">
             <label class="fw-bold mb-2">{{ $zona->name }}</label>
 

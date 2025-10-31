@@ -12,11 +12,11 @@
 <div class="card mt-5">
   <h2 class="card-header">Actualizar Pedido</h2>
   <div class="card-body">
-  
+
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
         <a class="btn btn-primary btn-sm" href="{{ url()->previous() }}"><i class="fa fa-arrow-left"></i> Atrás</a>
     </div>
-  
+
     <form action="{{ route('cargarpedidos.update',$pedido->id) }}" method="POST">
         @csrf
         @method('PUT')
@@ -29,17 +29,17 @@
             $deliveryStatusOptions = ['pendiente' => 'Pendiente', 'entregado' => 'Entregado'];
             $isDeliveryLocked = $normalizedDeliveryStatus === 'entregado';
         @endphp
-  
+
         <div class="row">
 
             <div class="col-xs-4 col-sm-4 col-md-4">
                 <label for="inputName" class="form-label"><strong>Cliente:</strong></label>
-                <input 
-                    type="text" 
-                    name="customerName" 
+                <input
+                    type="text"
+                    name="customerName"
                     value="{{ $pedido->customerName }}"
-                    class="form-control @error('customerName') is-invalid @enderror" 
-                    id="inputName" 
+                    class="form-control @error('customerName') is-invalid @enderror"
+                    id="inputName"
                     placeholder="Name"
                     disabled>
                 @error('customerName')
@@ -48,11 +48,11 @@
             </div>
             <div class="col-xs-2 col-sm-2 col-md-2">
                 <label for="customerNumber" class="form-label"><strong>Telefono:</strong></label>
-                <input 
-                    type="text" 
-                    name="customerNumber" 
+                <input
+                    type="text"
+                    name="customerNumber"
                     value="{{ old('customerNumber', $pedido->customerNumber) }}"
-                    class="form-control @error('customerNumber') is-invalid @enderror" 
+                    class="form-control @error('customerNumber') is-invalid @enderror"
                     id="customerNumber"
                     placeholder="Número de teléfono">
                 @error('customerNumber')
@@ -63,12 +63,12 @@
                 <label for="doctorName" class="form-label"><strong>Doctor:</strong></label>
                 <div class="doctor-search-container position-relative">
                     <div class="input-group">
-                        <input 
-                            type="text" 
-                            name="doctorName" 
+                        <input
+                            type="text"
+                            name="doctorName"
                             value="{{ old('doctorName', $pedido->doctorName) }}"
-                            class="form-control @error('doctorName') is-invalid @enderror" 
-                            id="doctorName" 
+                            class="form-control @error('doctorName') is-invalid @enderror"
+                            id="doctorName"
                             placeholder="Nombre del doctor"
                             autocomplete="off">
                         <div class="input-group-append">
@@ -86,12 +86,12 @@
             </div>
             <div class="col-xs-2 col-sm-2 col-md-2">
                 <label for="deliveryDate" class="form-label"><strong>Fecha de entrega:</strong></label>
-                <input 
-                    type="date" 
-                    name="deliveryDate" 
+                <input
+                    type="date"
+                    name="deliveryDate"
                     value="{{ old('deliveryDate', $pedido->deliveryDate ? \Carbon\Carbon::parse($pedido->deliveryDate)->format('Y-m-d') : '') }}"
-                    class="form-control @error('deliveryDate') is-invalid @enderror" 
-                    id="deliveryDate" 
+                    class="form-control @error('deliveryDate') is-invalid @enderror"
+                    id="deliveryDate"
                     min="{{ date('Y-m-d') }}"
                     placeholder="ingresar fecha">
                 @error('deliveryDate')
@@ -100,11 +100,11 @@
             </div>
             <div class="col-xs-4 col-sm-4 col-md-4">
                 <label for="address" class="form-label"><strong>Dirección:</strong></label>
-                <input 
-                    type="text" 
-                    name="address" 
+                <input
+                    type="text"
+                    name="address"
                     value="{{ old('address', $pedido->address) }}"
-                    class="form-control @error('address') is-invalid @enderror" 
+                    class="form-control @error('address') is-invalid @enderror"
                     id="address"
                     placeholder="Dirección">
                 @error('address')
@@ -113,23 +113,31 @@
             </div>
             <div class="col-xs-3 col-sm-3 col-md-3">
                 <label for="district" class="form-label"><strong>Distrito:</strong></label>
-                <input 
-                    type="text" 
-                    name="district" 
+                <input
+                    type="text"
+                    name="district"
                     value="{{ old('district', $pedido->district) }}"
-                    class="form-control @error('district') is-invalid @enderror" 
+                    class="form-control @error('district') is-invalid @enderror"
                     id="district"
                     placeholder="distrito">
                 @error('district')
                     <div class="form-text text-danger">{{ $message }}</div>
                 @enderror
             </div>
-            
+
             <div class="col-xs-2 col-sm-2 col-md-2">
                 <label for="zone_id" class="form-label"><strong>Zonas:</strong></label>
+                @php
+                    // Mostrar solo las zonas con id entre 1 y 5 (inclusive) en este select
+                    $zonesCollection = $zonas instanceof \Illuminate\Support\Collection ? $zonas : collect($zonas);
+                    $displayZonasForSelect = $zonesCollection->filter(function($z){
+                        $id = data_get($z, 'id');
+                        return is_numeric($id) && $id >= 1 && $id <= 5;
+                    })->values();
+                @endphp
                 <select class="form-control @error('zone_id') is-invalid @enderror" name="zone_id" id="zone_id">
                     <option value="" disabled>Selecciona una zona</option>
-                    @foreach ($zonas as $zona)
+                    @foreach ($displayZonasForSelect as $zona)
                         <option value="{{ $zona->id }}" {{ (old('zone_id', $pedido->zone_id) == $zona->id) ? 'selected' : '' }}>
                             {{ $zona->name }}
                         </option>
@@ -164,7 +172,7 @@
         <br>
         <button type="submit" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> Actualizar</button>
     </form>
-  
+
   </div>
 </div>
 
@@ -185,15 +193,15 @@
             background: white;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        
+
         .doctor-item:hover {
             background-color: #f8f9fa;
         }
-        
+
         .position-relative {
             position: relative;
         }
-        
+
         .doctor-search-container {
             position: relative;
         }
@@ -227,8 +235,8 @@
                             .replace(/\s+/g, ' ')
                             .trim();
                     const item = $(`
-                        <a href="#" class="list-group-item list-group-item-action doctor-item" 
-                           data-id="${doctor.id}" 
+                        <a href="#" class="list-group-item list-group-item-action doctor-item"
+                           data-id="${doctor.id}"
                            data-name="${displayName}">
                             ${displayName}
                         </a>
@@ -255,10 +263,10 @@
             // Buscar al escribir en el input (con debounce)
             $('#doctorName').on('input', function() {
                 const searchTerm = $(this).val().trim();
-                
+
                 // Limpiar timeout anterior
                 clearTimeout(searchTimeout);
-                
+
                 if (searchTerm.length < 2) {
                     $('#doctorSuggestions').hide();
                     $('#id_doctor').val('');
@@ -274,7 +282,7 @@
             // Buscar con el botón
             $('#searchDoctorBtn').on('click', function() {
                 const searchTerm = $('#doctorName').val().trim();
-                
+
                 if (searchTerm.length === 0) {
                     searchDoctors(''); // Buscar todos
                 } else {
@@ -287,7 +295,7 @@
                 e.preventDefault();
                 const doctorId = $(this).data('id');
                 const doctorName = $(this).data('name');
-                
+
                 $('#doctorName').val(doctorName);
                 $('#id_doctor').val(doctorId);
                 $('#doctorSuggestions').hide();
@@ -304,7 +312,7 @@
             $('form').on('submit', function(e) {
                 const doctorName = $('#doctorName').val().trim();
                 const doctorId = $('#id_doctor').val();
-                
+
                 if (doctorName && !doctorId) {
                     e.preventDefault();
                     alert('Por favor, seleccione un doctor válido de la lista.');
