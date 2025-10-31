@@ -2,12 +2,16 @@
 
 @section('title', 'Rutas Visitadora')
 
-@section('content_header')
-    <h1>Rutas de las visitadoras</h1>
-@stop
-
 @section('content')
     @can('rutasvisitadora.ListarMisRutas')
+        <div class="grobdi-header">
+            <div class="grobdi-title">
+                <div>
+                    <h2>📍 Rutas de las visitadoras</h2>
+                    <p>Rutas asignadas a las visitadoras</p>
+                </div>
+            </div>
+        </div>
         @php
             \Carbon\Carbon::setLocale('es');
             $mes = \Carbon\Carbon::now()->translatedFormat('F');

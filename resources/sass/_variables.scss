@@ -6,11 +6,56 @@ $font-family-sans-serif: 'Nunito', sans-serif;
 $font-size-base: 0.9rem;
 $line-height-base: 1.6;
 
+// Grobdi Color Palette
 $grobdi-navy-900: #1f2937;
 $grobdi-navy-700: #273449;
 $grobdi-slate-100: #f8fafc;
 $grobdi-slate-150: #eef2f7;
 $grobdi-slate-200: #e2e8f0;
 $grobdi-slate-300: #cbd5e1;
+$grobdi-slate-400: #94a3b8;
+$grobdi-slate-600: #475569;
+$grobdi-slate-700: #334155;
 $grobdi-text-base: #0f172a;
 $grobdi-text-strong: #111827;
+$grobdi-text-muted: #64748b;
+
+// Brand Colors
+$grobdi-blue-400: #60a5fa;
+$grobdi-blue-500: #3b82f6;
+$grobdi-blue-600: #2563eb;
+$grobdi-blue-700: #1d4ed8;
+
+// Backgrounds
+$grobdi-bg-white: #ffffff;
+$grobdi-bg-light: #fafbfc;
+
+// ====== NUEVAS VARIABLES PARA MODALES ======
+// Success Colors
+$grobdi-success-50: #d1fae5;
+$grobdi-success-200: #6ee7b7;
+$grobdi-success-500: #10b981;
+$grobdi-success-700: #059669;
+$grobdi-success-900: #065f46;
+
+// Danger/Error Colors
+$grobdi-danger-50: #fee2e2;
+$grobdi-danger-200: #fca5a5;
+$grobdi-danger-500: #ef4444;
+$grobdi-danger-700: #dc2626;
+$grobdi-danger-900: #991b1b;
+
+// Warning Colors
+$grobdi-warning-50: #fef3c7;
+$grobdi-warning-200: #fcd34d;
+$grobdi-warning-500: #f59e0b;
+$grobdi-warning-900: #92400e;
+
+// Info Colors
+$grobdi-info-50: #dbeafe;
+$grobdi-info-200: #93c5fd;
+$grobdi-info-700: #1e40af;
+
+// Modal Overlay
+$grobdi-modal-backdrop: rgba(255, 255, 255, 0.85);
+$grobdi-modal-backdrop-blur: 4px;

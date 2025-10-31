@@ -66,19 +66,48 @@
 									<td>
 										@php
 											$debited = $vg['debited_amount'] ?? null;
+											$debitedAmountValue = null;
+											// numeric directly
+											if (is_numeric($debited)) {
+												$debitedAmountValue = (float) $debited;
+											} elseif (is_string($debited)) {
+												// try to extract numeric from string
+												$clean = preg_replace('/[^0-9\.,\-]/', '', $debited);
+												$clean = str_replace(',', '', $clean);
+												if ($clean !== '') {
+													$debitedAmountValue = (float) $clean;
+												}
+											} elseif (is_array($debited) || is_object($debited)) {
+												// try common keys/properties
+												$keys = ['amount', 'monto', 'valor', 'value', 'debited_amount', 'total'];
+												foreach ($keys as $k) {
+													if (is_array($debited) && isset($debited[$k])) { $debitedAmountValue = (float) $debited[$k]; break; }
+													if (is_object($debited) && isset($debited->{$k})) { $debitedAmountValue = (float) $debited->{$k}; break; }
+												}
+											}
 										@endphp
-										@if(is_numeric($debited))
-											S/ {{ number_format((float)$debited, 2, '.', ',') }}
-										@elseif(!empty($debited))
+										@if($debitedAmountValue !== null)
+											S/ {{ number_format($debitedAmountValue, 2, '.', ',') }}
+										@elseif(is_string($debited) && trim($debited) !== '')
 											{{ $debited }}
 										@else
 											-
 										@endif
 									</td>
 									<td>
-										@php $debitedAt = $vg['debited_datetime'] ?? null; @endphp
-										@if($debitedAt && $debitedAt !== 'No se ha debitado aún')
-											{{ $debitedAt }}
+										@php
+											$debitedAt = $vg['debited_datetime'] ?? null;
+											$debitedAtFormatted = null;
+											if (!empty($debitedAt) && $debitedAt !== 'No se ha debitado aún') {
+												try {
+													$debitedAtFormatted = \Carbon\Carbon::parse($debitedAt)->format('d/m/Y H:i');
+												} catch (\Throwable $e) {
+													$debitedAtFormatted = $debitedAt;
+												}
+											}
+										@endphp
+										@if($debitedAtFormatted)
+											{{ $debitedAtFormatted }}
 										@else
 											{{ $debitedAt ?? '-' }}
 										@endif

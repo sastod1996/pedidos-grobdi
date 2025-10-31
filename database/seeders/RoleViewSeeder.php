@@ -13,7 +13,7 @@ class RoleViewSeeder extends Seeder
         DB::table('roles_views')->truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-    DB::statement(<<<'SQL'
+        DB::statement(<<<'SQL'
 INSERT INTO `roles_views` (`id`, `role_id`, `view_id`, `created_at`, `updated_at`) VALUES
 (1,1,1,NULL,NULL),
 (2,1,2,NULL,NULL),
@@ -170,7 +170,7 @@ INSERT INTO `roles_views` (`id`, `role_id`, `view_id`, `created_at`, `updated_at
 (152,1,129,NULL,NULL),
 (153,1,130,NULL,NULL),
 (154,1,50,NULL,NULL),
-    (199,1,141,NULL,NULL),
+(199,1,141,NULL,NULL),
 (155,1,131,NULL,NULL),
 (156,1,89,NULL,NULL),
 (157,1,90,NULL,NULL),
@@ -215,9 +215,13 @@ INSERT INTO `roles_views` (`id`, `role_id`, `view_id`, `created_at`, `updated_at
 (201,1,80,NULL,NULL),
 (202,1,81,NULL,NULL),
 (203,1,82,NULL,NULL),
+<<<<<<< HEAD
 -- Permiso eliminar visita doctor para admin
 (204,1,83,NULL,NULL),
 (205,1,76,NULL,NULL);
+=======
+(204,1,83,NULL,NULL);
+>>>>>>> 1c3381026b4e6445f32c65f3c8f328012868af7a
 SQL);
 
         // Ensure the bonificaciones view exists; if not, create module + view then grant permissions.

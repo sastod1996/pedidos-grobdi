@@ -728,10 +728,14 @@ class CargarPedidosController extends Controller
             ->values();
     }
 
-    public function sincronizarDoctoresPedidos()
+    public function sincronizarDoctoresPedidos(Request $request)
     {
         try {
-            $resultados = $this->doctorSyncService->sincronizarDoctoresPedidos();
+            $start = $request->get('start');
+            $end = $request->get('end');
+
+            // Pasar las fechas tal cual al servicio; el servicio las parseará/validará
+            $resultados = $this->doctorSyncService->sincronizarDoctoresPedidos($start, $end);
 
             $mensaje = "Sincronización completada: {$resultados['sincronizados']} pedidos sincronizados de {$resultados['procesados']} procesados.";
 

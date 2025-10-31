@@ -2,12 +2,21 @@
 
 @section('title', 'Enrutamiento')
 
-@section('content_header')
-    <h1>rutas</h1>
-@stop
-
 @section('content')
 @can('enrutamiento.index')
+<div class=" grobdi-header">
+    <div class="grobdi-title">
+        <div>
+            <h2>📋 Enrutamiento</h2>
+            <p>Listado de meses y zonas para enrutamiento</p>
+        </div>
+        @can('enrutamiento.store')
+            <button class="btn" data-bs-toggle="modal" data-bs-target="#itemModal">
+                <i class="fa fa-plus"></i> Registrar Nuevo Mes
+            </button>
+        @endcan
+    </div>
+</div>
 <div class="card mt-2">
     <div class="card-header">
         <div class="d-grid gap-2 d-md-flex justify-content-md-medium">
@@ -23,7 +32,7 @@
     @session('danger')
         <div class="alert alert-danger" role="alert"> {{ $value }} </div>
     @endsession
-        <table class="table table-bordered table-striped mt-4">
+        <table class="table table-bordered table-striped table-grobdi">
             <thead>
                 <tr>
                     <th>Fecha - Mes</th>
@@ -31,7 +40,7 @@
                     <th>Acciones</th>
                 </tr>
             </thead>
-  
+
             <tbody>
             @forelse ($rutas as $ruta)
                 <tr>
@@ -49,7 +58,7 @@
                 </tr>
             @endforelse
             </tbody>
-  
+
         </table>
     </div>
 </div>

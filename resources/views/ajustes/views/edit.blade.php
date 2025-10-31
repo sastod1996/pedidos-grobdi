@@ -20,7 +20,11 @@
         @csrf @method('PUT')
         <div class="form-group">
             <label>Nombre</label>
-            <input type="text" name="description" value="{{ $view->description }}" class="form-control" required>
+            <input type="text" name="name" value="{{ $view->name }}" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label>Descripción (opcional)</label>
+            <textarea name="description" class="form-control" rows="3">{{ $view->description ?? '' }}</textarea>
         </div>
         <div class="form-group">
             <label>Ruta</label>

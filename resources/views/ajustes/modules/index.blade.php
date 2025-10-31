@@ -7,8 +7,16 @@
 @stop
 
 @section('content')
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
-        <a href="{{ route('modules.create') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Nuevo Módulo</a>
+    <div class="grobdi-header">
+        <div class="grobdi-title">
+            <div>
+                <h2>Gestión de Roles</h2>
+                <p>Administra los roles del sistema</p>
+            </div>
+            <a href="{{ route('roles.create') }}" class="btn">
+                <i class="fas fa-plus"></i> Nuevo Rol
+            </a>
+        </div>
     </div>
 
     <div class="card shadow-sm">

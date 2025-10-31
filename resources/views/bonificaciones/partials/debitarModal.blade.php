@@ -1,15 +1,15 @@
-<div class="modal fade border-1" id="debitarModal" tabindex="-1" aria-labelledby="debitarModalLabel" aria-hidden="true">
+<div class="modal fade modal-grobdi" id="debitarModal" tabindex="-1" aria-labelledby="debitarModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered modal-md">
-		<div class="modal-content border-0 debitar-modal">
-			<div class="modal-header border-0 pb-0 p-4" style="background-color: #f8efef">
+		<div class="modal-content">
+			<div class="modal-header">
 				<div>
-					<h5 class="modal-title fw-bold text-dark" id="debitarModalLabel">Registrar débito</h5>
-					<p class="text-muted small mb-0">Registra el monto debitado y agrega una observación para el seguimiento.</p>
+					<h5 class="modal-title" id="debitarModalLabel">Registrar débito</h5>
+					<p class="modal-subtitle">Registra el monto debitado y agrega una observación para el seguimiento.</p>
 				</div>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
 			</div>
 
-			<div class="modal-body py-4">
+			<div class="modal-body">
 				<div id="debitarModalBody" data-update-url-template="{{ url('bonificaciones/metas/update-debited-amount/__ID__') }}">
 					<form class="debitar-form" id="formDebitar" action="" method="POST">
 						@csrf
@@ -270,6 +270,9 @@
 		}
 	});
 </script>
+<<<<<<< HEAD
 		</div>
 	</div>
 </div>
+=======
+>>>>>>> 1c3381026b4e6445f32c65f3c8f328012868af7a
