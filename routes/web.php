@@ -124,52 +124,52 @@ Route::middleware(['check.permission'])->group(function () {
 
     // Route::resource('cargarpedidos', PedidosController::class);
     Route::resource('cargarpedidos', CargarPedidosController::class);
-    Route::post('/cargarpedidosdetail', CargarPedidosController::class.'@cargarExcelArticulos')->name('cargarpedidos.excelarticulos');
-    Route::post('/cargarpedidos/articulos/store', CargarPedidosController::class.'@storeArticulos')->name('cargarpedidos.articulos.store');
+    Route::post('/cargarpedidosdetail', CargarPedidosController::class . '@cargarExcelArticulos')->name('cargarpedidos.excelarticulos');
+    Route::post('/cargarpedidos/articulos/store', CargarPedidosController::class . '@storeArticulos')->name('cargarpedidos.articulos.store');
     Route::get('/cargarpedidos/{pedido}/uploadfile', [CargarPedidosController::class, 'uploadfile'])->name('cargarpedidos.uploadfile');
-    Route::put('/cargarpedidos/cargarImagen/{id}', CargarPedidosController::class.'@cargarImagen')->name('cargarpedidos.cargarImagen');
-    Route::put('/cargarpedidos/actualizarPago/{id}', CargarPedidosController::class.'@actualizarPago')->name('cargarpedidos.actualizarPago');
-    Route::put('/cargarpedidos/cargarImagenReceta/{id}', CargarPedidosController::class.'@cargarImagenReceta')->name('cargarpedidos.cargarImagenReceta');
-    Route::delete('cargarpedidos/eliminarFotoVoucher/{id}', CargarPedidosController::class.'@eliminarFotoVoucher')->name('cargarpedidos.eliminarFotoVoucher');
-    Route::delete('cargarpedidos/eliminarFotoReceta/{id}', CargarPedidosController::class.'@eliminarFotoReceta')->name('cargarpedidos.eliminarFotoReceta');
-    Route::put('/cargarpedidos/actualizarTurno/{id}', CargarPedidosController::class.'@actualizarTurno')->name('cargarpedidos.actualizarTurno');
+    Route::put('/cargarpedidos/cargarImagen/{id}', CargarPedidosController::class . '@cargarImagen')->name('cargarpedidos.cargarImagen');
+    Route::put('/cargarpedidos/actualizarPago/{id}', CargarPedidosController::class . '@actualizarPago')->name('cargarpedidos.actualizarPago');
+    Route::put('/cargarpedidos/cargarImagenReceta/{id}', CargarPedidosController::class . '@cargarImagenReceta')->name('cargarpedidos.cargarImagenReceta');
+    Route::delete('cargarpedidos/eliminarFotoVoucher/{id}', CargarPedidosController::class . '@eliminarFotoVoucher')->name('cargarpedidos.eliminarFotoVoucher');
+    Route::delete('cargarpedidos/eliminarFotoReceta/{id}', CargarPedidosController::class . '@eliminarFotoReceta')->name('cargarpedidos.eliminarFotoReceta');
+    Route::put('/cargarpedidos/actualizarTurno/{id}', CargarPedidosController::class . '@actualizarTurno')->name('cargarpedidos.actualizarTurno');
 
     // New routes for preview functionality
-    Route::get('/cargarpedidos/preview/changes', CargarPedidosController::class.'@preview')->name('cargarpedidos.preview');
-    Route::post('/cargarpedidos/confirm/changes', CargarPedidosController::class.'@confirmChanges')->name('cargarpedidos.confirm');
-    Route::post('/cargarpedidos/cancel/changes', CargarPedidosController::class.'@cancelChanges')->name('cargarpedidos.cancel');
+    Route::get('/cargarpedidos/preview/changes', CargarPedidosController::class . '@preview')->name('cargarpedidos.preview');
+    Route::post('/cargarpedidos/confirm/changes', CargarPedidosController::class . '@confirmChanges')->name('cargarpedidos.confirm');
+    Route::post('/cargarpedidos/cancel/changes', CargarPedidosController::class . '@cancelChanges')->name('cargarpedidos.cancel');
 
     // New routes for articles preview functionality
-    Route::get('/cargarpedidos/preview/articulos', CargarPedidosController::class.'@previewArticulos')->name('cargarpedidos.preview-articulos');
-    Route::post('/cargarpedidos/confirm/articulos', CargarPedidosController::class.'@confirmArticulos')->name('cargarpedidos.confirm-articulos');
-    Route::post('/cargarpedidos/cancel/articulos', CargarPedidosController::class.'@cancelArticulos')->name('cargarpedidos.cancel-articulos');
+    Route::get('/cargarpedidos/preview/articulos', CargarPedidosController::class . '@previewArticulos')->name('cargarpedidos.preview-articulos');
+    Route::post('/cargarpedidos/confirm/articulos', CargarPedidosController::class . '@confirmArticulos')->name('cargarpedidos.confirm-articulos');
+    Route::post('/cargarpedidos/cancel/articulos', CargarPedidosController::class . '@cancelArticulos')->name('cargarpedidos.cancel-articulos');
 
-    Route::get('/pedidos/sincronizar', CargarPedidosController::class.'@sincronizarDoctoresPedidos')->name('pedidos.sincronizar');
-    Route::get('/api/doctores/search', CargarPedidosController::class.'@searchDoctores')->name('api.doctores.search');
+    Route::get('/pedidos/sincronizar', CargarPedidosController::class . '@sincronizarDoctoresPedidos')->name('pedidos.sincronizar');
+    Route::get('/api/doctores/search', CargarPedidosController::class . '@searchDoctores')->name('api.doctores.search');
 
     Route::resource('asignarpedidos', AsignarPedidoController::class);
-    Route::post('/cargarpedidos/downloadWord', CargarPedidosController::class.'@downloadWord')->name('cargarpedidos.downloadWord');
+    Route::post('/cargarpedidos/downloadWord', CargarPedidosController::class . '@downloadWord')->name('cargarpedidos.downloadWord');
     // counter - jefe de operaciones -laboratorio
-    Route::get('historialpedidos', HistorialPedidosController::class.'@index')->name('historialpedidos.index');
-    Route::get('historialpedidos/{historialpedido}', HistorialPedidosController::class.'@show')->name('historialpedidos.show');
+    Route::get('historialpedidos', HistorialPedidosController::class . '@index')->name('historialpedidos.index');
+    Route::get('historialpedidos/{historialpedido}', HistorialPedidosController::class . '@show')->name('historialpedidos.show');
     // Jefe de operaciones
-    Route::delete('historialpedidos/{historialpedido}', HistorialPedidosController::class.'@destroy')->name('historialpedidos.destroy');
-    Route::put('historial/{historialpedido}/actualizar', HistorialPedidosController::class.'@update')->name('historialpedidos.update');
+    Route::delete('historialpedidos/{historialpedido}', HistorialPedidosController::class . '@destroy')->name('historialpedidos.destroy');
+    Route::put('historial/{historialpedido}/actualizar', HistorialPedidosController::class . '@update')->name('historialpedidos.update');
     Route::resource('usuarios', UsuariosController::class);
-    Route::put('/usuarios/changepass/{fecha}', UsuariosController::class.'@changepass')->name('usuarios.changepass');
+    Route::put('/usuarios/changepass/{fecha}', UsuariosController::class . '@changepass')->name('usuarios.changepass');
     Route::resource('roles', RolesController::class);
     Route::get('roles/{role}/permissions', [RolesController::class, 'permissions'])->name('roles.permissions');
     Route::put('roles/{role}/permissions', [RolesController::class, 'updatePermissions'])->name('roles.updatePermissions');
     Route::resource('modules', ModuleController::class);
     Route::resource('views', ViewController::class);
     Route::resource('pedidoscontabilidad', PedidosContaController::class);
-    Route::get('/pedidoscontabilidad/downloadExcel/{fechainicio}/{fechafin}', PedidosContaController::class.'@downloadExcel')->name('pedidoscontabilidad.downloadExcel');
+    Route::get('/pedidoscontabilidad/downloadExcel/{fechainicio}/{fechafin}', PedidosContaController::class . '@downloadExcel')->name('pedidoscontabilidad.downloadExcel');
 
     // ADMINISTRACION
     Route::get('hoja-ruta-motorizado', [PedidosController::class, 'exportHojaDeRutaByMotorizadoForm'])->name('motorizado.viewFormHojaDeRuta');
     Route::post('export-hoja-ruta-motorizado', [PedidosController::class, 'exportHojaDeRutaByMotorizadoExcel'])->name('motorizado.exportHojaDeRuta');
 
-    Route::post('excelhojaruta', FormatosController::class.'@excelhojaruta')->name('formatos.excelhojaruta');
+    Route::post('excelhojaruta', FormatosController::class . '@excelhojaruta')->name('formatos.excelhojaruta');
 
     // MOTORIZADO
     Route::resource('pedidosmotorizado', PedidosMotoController::class);
@@ -193,7 +193,6 @@ Route::middleware(['check.permission'])->group(function () {
     Route::post('/enrutamientolista/add-visita', [EnrutamientoController::class, 'addSpontaneousVisitaDoctor'])->name('visita.doctor.add.spontaneous');
     Route::put('/enrutamientolista/doctor/{id}', [EnrutamientoController::class, 'DoctoresListaUpdate'])->name('enrutamientolista.doctoresupdate');
     Route::delete('/enrutamientolista/doctor/{id}', [EnrutamientoController::class, 'destroyVisitaDoctor'])->name('enrutamientolista.doctoresdestroy');
-    Route::post('/enrutamientolista/add-visita', [EnrutamientoController::class, 'addSpontaneousVisitaDoctor'])->name('visita.doctor.add.spontaneous');
     Route::post('/visitadoctornuevo/{id}/aprobar', [VisitaDoctorController::class, 'aprobar'])->name('doctor.aprobarVisita');
     Route::post('/visitadoctornuevo/{id}/rechazar', [VisitaDoctorController::class, 'rechazar'])->name('doctor.rechazarVisita');
     Route::resource('categoriadoctor', CategoriaDoctorController::class);
@@ -208,16 +207,11 @@ Route::middleware(['check.permission'])->group(function () {
     Route::post('/rutasvisitadora/asignar', [RutasVisitadoraController::class, 'asignar'])->name('rutasvisitadora.asignar');
     Route::get('/rutasvisitadora/buscardoctor/{cmp}', [DoctorController::class, 'buscarCMP'])->name('rutasvisitadora.buscarcmpdoctor');
     Route::post('/rutasvisitadora/doctores', [DoctorController::class, 'guardarDoctorVisitador'])->name('rutasvisitadora.guardardoctor');
-<<<<<<< HEAD
     Route::get('centrosaludbuscar', CentroSaludController::class . '@buscar')->name('centrosalud.buscar');
-    Route::post('/enrutamientolista/add-visita', [EnrutamientoController::class, 'addSpontaneousVisitaDoctor'])->name('visita.doctor.add.spontaneous');
-=======
-    Route::get('centrosaludbuscar', CentroSaludController::class.'@buscar')->name('centrosalud.buscar');
 
->>>>>>> 2316f5840e32ccdc2bf315551064d201ddaba33d
     Route::get('ruta-mapa', [VisitaDoctorController::class, 'mapa'])->name('ruta.mapa');
 
-    Route::get('/distritoslimacallao', UbigeoController::class.'@ObtenerDistritosLimayCallao')
+    Route::get('/distritoslimacallao', UbigeoController::class . '@ObtenerDistritosLimayCallao')
         ->name('distritoslimacallao');
 
     // laboratorio
@@ -225,7 +219,7 @@ Route::middleware(['check.permission'])->group(function () {
 
     Route::get('/get-unidades/{clasificacionId}', [MuestrasController::class, 'getUnidadesPorClasificacion']);
 
-    Route::get('/pedidoslaboratorio/{fecha}/downloadWord/{turno}', PedidoslabController::class.'@downloadWord')
+    Route::get('/pedidoslaboratorio/{fecha}/downloadWord/{turno}', PedidoslabController::class . '@downloadWord')
         ->name('pedidoslaboratorio.downloadWord');
     Route::post('/pedidoslaboratorio/cambio-masivo', [PedidoslabController::class, 'cambioMasivo'])->name('pedidoslaboratorio.cambioMasivo');
     Route::get('/pedidoslaboratoriodetalles', [PedidoslabController::class, 'pedidosDetalles'])->name('pedidosLaboratorio.detalles');
@@ -240,7 +234,7 @@ Route::middleware(['check.permission'])->group(function () {
     Route::post('excipientes', [PresentacionFarmaceuticaController::class, 'guardarexcipientes'])->name('excipientes.store');
     Route::delete('excipientes/{id}', [PresentacionFarmaceuticaController::class, 'eliminarexcipientes'])->name('excipientes.delete');
     // ROL DE TECNICA DE PRODUCCION
-    Route::get('pedidosproduccion', OrdenesController::class.'@index')->name('produccion.index');
+    Route::get('pedidosproduccion', OrdenesController::class . '@index')->name('produccion.index');
     Route::post('pedidosproduccion/{detalleId}/actualizarestado', [OrdenesController::class, 'actualizarEstado'])->name('pedidosproduccion.actualizarEstado');
 
     Route::prefix('reports')->group(function () {
