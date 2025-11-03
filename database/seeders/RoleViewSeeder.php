@@ -279,13 +279,11 @@ SQL);
         // Ensure all bonificaciones/visitadoras related views exist and are granted to roles
         $neededViews = [
             'bonificaciones.index',
-            'visitadoras.metas',
             'visitadoras.metas.form',
             'visitadoras.metas.store',
             'visitadoras.metas.details',
             'visitadoras.metas.not-reached-config.index',
             'visitadoras.metas.not-reached-config.store',
-            'visitadoras.metas.not-reached-config.active',
             'visitadoras.metas.update.debited-amount',
             'visitadoras.metas.show',
         ];

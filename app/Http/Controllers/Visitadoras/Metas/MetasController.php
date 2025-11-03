@@ -104,23 +104,36 @@ class MetasController extends Controller
      */
     public function show(int $id)
     {
-        $data = $this->service->getListOfVisitorGoalByMetaId($id);
+        $payload = $this->service->getListOfVisitorGoalByMetaId($id);
+
+        $meta = $payload['meta'] ?? [];
+        $visitorGoals = $payload['visitor_goals'] ?? [];
+
+        $periodLabel = $meta['period_label'] ?? null;
+        $tipoMedicoLabel = $meta['tipo_medico_label'] ?? ($meta['tipo_medico'] ?? null);
+        $tipoMedicoSlug = $meta['tipo_medico_slug'] ?? ($meta['tipo_medico'] ?? null);
+
         // Renderiza las bonificaciones. vista con todos los objetivos de las visitadoras
-        return view('bonificaciones.view', compact('data'));
+        return view('bonificaciones.view', compact('meta', 'visitorGoals', 'periodLabel', 'tipoMedicoLabel', 'tipoMedicoSlug'));
     }
 
     public function getDataForChartByVisitorGoal(int $visitorGoalId)
     {
         try {
             $visitorGoal = VisitorGoal::with([
-                'visitadora:id',
-                'monthlyVisitorGoal:id,start_date,end_date'
+                'visitadora:id,name',
+                'monthlyVisitorGoal:id,start_date,end_date,tipo_medico'
             ])
                 ->select('id', 'user_id', 'goal_amount', 'debited_amount', 'monthly_visitor_goal_id')
                 ->findOrFail($visitorGoalId);
 
             $chartData = $this->service->getDataForChart($visitorGoal);
-            $doctorsData = $this->service->getPedidosDoctorStatsByMonthlyVisitorGoal($visitorGoal->monthlyVisitorGoal->id);
+            $visitadoraId = $visitorGoal->visitadora->id ?? $visitorGoal->user_id;
+            $doctorsData = $this->service->getPedidosDoctorStatsByMonthlyVisitorGoal(
+                $visitorGoal->monthlyVisitorGoal->id,
+                $visitadoraId
+            );
+            $metaSummary = $this->service->mapMonthlyGoalToSummary($visitorGoal->monthlyVisitorGoal);
 
             // Ensure doctors data is returned as array (json serializable)
             $doctorsData = is_array($doctorsData) ? $doctorsData : $doctorsData->values()->all();
@@ -129,7 +142,8 @@ class MetasController extends Controller
                 'success' => true,
                 'message' => 'Datos para chart obtenidos.',
                 'chart-data' => $chartData,
-                'doctors-data' => $doctorsData
+                'doctors-data' => $doctorsData,
+                'meta' => $metaSummary,
             ]);
         } catch (\Throwable $th) {
             // Manejo de error apropiado (log, respuesta de error, etc.)

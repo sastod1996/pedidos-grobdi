@@ -42,12 +42,22 @@
                     <hr>
 
                     <div class="form-group">
-                        <div class="grobdi-switch">
-                            <input type="checkbox" id="aplicarGeneral" data-trigger="generales" checked>
-                            <span class="switch-slider"></span>
-                            <span class="switch-label">¿Aplicar porcentaje y monto de la meta para todas las visitadoras?</span>
-                            <input type="hidden" name="is_general_goal" id="isGeneralGoalInput" value="1">
+                        <div class="row align-items-center">
+                            <div class="col-8">
+                                <label class="mb-0" for="aplicarGeneral" style="color: #1f2937; font-size: 0.95rem; font-weight: 500; cursor: pointer;">
+                                    ¿Aplicar porcentaje y monto de la meta para todas las visitadoras?
+                                </label>
+                            </div>
+                            <div class="col-4 text-end">
+                                <div class="grobdi-switch-wrapper">
+                                    <input type="checkbox" id="aplicarGeneral" data-trigger="generales" class="grobdi-switch-input" checked>
+                                    <label for="aplicarGeneral" class="grobdi-switch-label">
+                                        <span class="grobdi-switch-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
+                        <input type="hidden" name="is_general_goal" id="isGeneralGoalInput" value="1">
                     </div>
 
                     <div class="modal-grid d-none" data-target="generales">
@@ -116,6 +126,74 @@
         .bonificaciones-wrapper { background-color: #f7f7fb; border-radius: 12px; padding: 1rem; }
         .bonificaciones-hero-card { background-color: #f8efef; border-radius: 12px; }
         .bonificaciones-extra-fields { background-color: #fff8f3; border-radius: 10px; border: 1px dashed #f0c7a8; padding: .75rem; }
+        .switch-label { color: #1f2937; font-size: .95rem; font-weight: 500; }
+
+        /* Switch personalizado para modal */
+        .grobdi-switch-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 56px;
+            height: 28px;
+        }
+
+        .grobdi-switch-input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            position: absolute;
+        }
+
+        .grobdi-switch-label {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 28px;
+            margin: 0;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .grobdi-switch-slider {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 50%;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+        }
+
+        .grobdi-switch-input:checked + .grobdi-switch-label {
+            background-color: #3b82f6;
+            box-shadow: inset 0 1px 3px rgba(59, 130, 246, 0.3);
+        }
+
+        .grobdi-switch-input:checked + .grobdi-switch-label .grobdi-switch-slider {
+            transform: translateX(28px);
+        }
+
+        .grobdi-switch-input:focus + .grobdi-switch-label {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .grobdi-switch-label:hover {
+            background-color: #94a3b8;
+        }
+
+        .grobdi-switch-input:checked + .grobdi-switch-label:hover {
+            background-color: #2563eb;
+        }
+
+        .grobdi-switch-input:active + .grobdi-switch-label .grobdi-switch-slider {
+            width: 26px;
+        }
     </style>
 @stop
 
@@ -137,6 +215,12 @@
                     // en caso contrario mostrarlas
                     $('[data-target="visitadoras"]').toggleClass('d-none', shouldShow);
                 });
+
+                // Alinear el estado inicial según el valor actual del switch
+                const generalToggle = $('[data-trigger="generales"]');
+                if (generalToggle.length) {
+                    generalToggle.trigger('change');
+                }
 
                 // Ejemplo: enviar formulario desde el modal (ajustar acción AJAX o submit real según necesidad)
                 $('#guardarBonificacionBtn').on('click', function(){
@@ -216,17 +300,19 @@
             // Toggle handler for the generales switch (in case jQuery isn't loaded)
             const trigger = document.querySelector('[data-trigger="generales"]');
             const isGeneralInput = document.getElementById('isGeneralGoalInput');
-            if (trigger) {
-                // Ensure the hidden input matches initial checked state
-                if (isGeneralInput) isGeneralInput.value = trigger.checked ? '1' : '0';
+            const generales = document.querySelector('[data-target="generales"]');
+            const visitadoras = document.querySelector('[data-target="visitadoras"]');
 
+            function syncGoalSections(isGeneral) {
+                if (generales) generales.classList.toggle('d-none', !isGeneral);
+                if (visitadoras) visitadoras.classList.toggle('d-none', isGeneral);
+                if (isGeneralInput) isGeneralInput.value = isGeneral ? '1' : '0';
+            }
+
+            if (trigger) {
+                syncGoalSections(trigger.checked);
                 trigger.addEventListener('change', function () {
-                    const shouldShow = this.checked;
-                    const generales = document.querySelector('[data-target="generales"]');
-                    const visitadoras = document.querySelector('[data-target="visitadoras"]');
-                    if (generales) generales.classList.toggle('d-none', !shouldShow);
-                    if (visitadoras) visitadoras.classList.toggle('d-none', shouldShow);
-                    if (isGeneralInput) isGeneralInput.value = shouldShow ? '1' : '0';
+                    syncGoalSections(this.checked);
                 });
             }
 

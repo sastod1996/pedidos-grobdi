@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="avanceModalLabel">Visitadora 1 - Octubre, 2025, Médico Prescriptor</h5>
+                <h5 class="modal-title" id="avanceModalLabel">Detalle de avance de la visitadora</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
@@ -48,17 +48,11 @@
                         </div>
                     </div>
                     <div class="col-12 col-lg-7">
-<<<<<<< HEAD
                         <div class="avance-chart-container">
                             <div class="d-flex flex-column w-100">
                                 <div style="height:260px;">
                                     <canvas id="avanceChart"></canvas>
                                 </div>
-=======
-                        <div class="d-flex flex-column w-100">
-                            <div style="height:260px;">
-                                <canvas id="avanceChart"></canvas>
->>>>>>> 1c3381026b4e6445f32c65f3c8f328012868af7a
                             </div>
                         </div>
                     </div>

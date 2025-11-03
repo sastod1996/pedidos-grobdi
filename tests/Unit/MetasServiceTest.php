@@ -198,9 +198,10 @@ it('obtiene información relevante a la Meta Mensual', function () {
     $result = $this->service->getPedidosDoctorStatsByMonthlyVisitorGoal($monthlyVisitorGoal->id);
 
     expect($result)->toBeInstanceOf(\Illuminate\Support\Collection::class);
-    expect($result)->toHaveCount(2);
 
-    foreach ($result as $item) {
+    foreach ($prescriptorDoctors as $doctor) {
+        $item = $result->firstWhere('id', $doctor->id);
+        expect($item)->not->toBeNull();
         expect($item)->toHaveKeys(['id', 'name', 'total_sub_total', 'monto_sin_igv']);
         expect($item->total_sub_total)->toBeNumeric();
         expect($item->total_sub_total)->toBe($expectedTotal);
@@ -293,8 +294,10 @@ it('returns a list of visitor goal metrics for a given meta id', function () {
 
     $result = $this->service->getListOfVisitorGoalByMetaId($monthlyGoal->id);
 
-    expect($result)->toHaveCount(1);
-    expect($result[0])->toMatchArray([
+    expect($result)->toBeArray();
+    expect($result)->toHaveKeys(['meta', 'visitor_goals']);
+    expect($result['visitor_goals'])->toHaveCount(1);
+    expect($result['visitor_goals'][0])->toMatchArray([
         'id' => $visitorGoal->id,
         'visitadora' => [
             'id' => $visitadora->id,
@@ -308,6 +311,11 @@ it('returns a list of visitor goal metrics for a given meta id', function () {
         'debited_amount' => 'Sin monto debitado',
         'debited_datetime' => 'No se ha debitado aún'
     ]);
+
+    expect($result['meta'])->toMatchArray([
+        'id' => $monthlyGoal->id,
+        'tipo_medico' => $monthlyGoal->tipo_medico,
+    ]);
 });
 
 it('returns empty list when monthly goal has no visitor goals', function () {
@@ -315,7 +323,9 @@ it('returns empty list when monthly goal has no visitor goals', function () {
 
     $result = $this->service->getListOfVisitorGoalByMetaId($monthlyGoal->id);
 
-    expect($result)->toBeEmpty();
+    expect($result)->toHaveKeys(['meta', 'visitor_goals']);
+    expect($result['visitor_goals'])->toBeEmpty();
+    expect($result['meta']['id'])->toBe($monthlyGoal->id);
 });
 
 it('throws ModelNotFoundException when meta id does not exist', function () {

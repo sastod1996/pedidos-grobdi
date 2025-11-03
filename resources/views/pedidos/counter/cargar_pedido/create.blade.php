@@ -11,6 +11,51 @@
 <div class="card mt-2">
     <h2 class="card-header">Cargar Pedido</h2>
     <div class="card-body">
+        @if($summary = session('processed_summary'))
+            @php
+                $generatedAt = session('processed_summary_generated_at');
+            @endphp
+            <div class="card border-info shadow-sm mb-4" id="processed-summary-card">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-list-check mr-2"></i> Resumen de cambios</h5>
+                    @if($generatedAt)
+                        <small class="text-white-50">Procesado: {{ $generatedAt }}</small>
+                    @endif
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 col-md-2 mb-3 mb-md-0">
+                            <div class="h5 mb-0">{{ $summary['total'] ?? 0 }}</div>
+                            <small class="text-muted text-uppercase">Filas leídas</small>
+                        </div>
+                        <div class="col-6 col-md-2 mb-3 mb-md-0">
+                            <div class="h5 text-success mb-0">{{ $summary['new'] ?? 0 }}</div>
+                            <small class="text-muted text-uppercase">Nuevos pedidos</small>
+                        </div>
+                        <div class="col-6 col-md-2 mb-3 mb-md-0">
+                            <div class="h5 text-warning mb-0">{{ $summary['modified'] ?? 0 }}</div>
+                            <small class="text-muted text-uppercase">Pedidos actualizados</small>
+                        </div>
+                        <div class="col-6 col-md-2 mb-3 mb-md-0">
+                            <div class="h5 text-secondary mb-0">{{ $summary['unchanged'] ?? 0 }}</div>
+                            <small class="text-muted text-uppercase">Sin cambios</small>
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <div class="h5 text-muted mb-0">{{ $summary['inactive'] ?? 0 }}</div>
+                            <small class="text-muted text-uppercase">Inactivos</small>
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <div class="h5 text-primary mb-0">{{ $summary['status_changes'] ?? 0 }}</div>
+                            <small class="text-muted text-uppercase">Estados cambiados</small>
+                        </div>
+                    </div>
+                    <p class="text-muted text-center mt-3 mb-0">
+                        Si necesitas revisar detalles, vuelve a cargar el archivo en modo vista previa.
+                    </p>
+                </div>
+            </div>
+        @endif
+
         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
             <a class="btn btn-primary btn-sm" href="{{ url()->previous() }}"><i class="fa fa-arrow-left"></i> Atrás</a>
         </div>
@@ -377,6 +422,11 @@
                     $('#loadingArticulosModal').modal('hide');
                 }
             @endif
+            if ($('#processed-summary-card').length) {
+                $('html, body').animate({
+                    scrollTop: $('#processed-summary-card').offset().top - 80
+                }, 600);
+            }
 
             // Ensure modal is attached to body to avoid z-index/stacking-context issues
             try {
