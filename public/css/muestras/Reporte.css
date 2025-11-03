@@ -10,7 +10,7 @@
         --box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         --transition: all 0.3s ease;
     }
-   
+
     /* Contenido principal sin afectar sidebar */
     .content-wrapper {
         background-color: var(--bg-light);
@@ -32,13 +32,13 @@
         color: var(--primary);
     }
     /* Encabezados */
-    .content-container h1, 
+    .content-container h1,
     .content-container h3 {
         color: var(--primary);
         text-align: center;
         word-wrap: break-word;
         margin-bottom: 15px;
-        font-weight: bold; 
+        font-weight: bold;
     }
 
     .content-container h1 {
@@ -146,15 +146,15 @@
         .content-container {
             padding: 15px;
         }
-        
+
         .form-graf {
             flex-direction: column;
         }
-        
+
         .form-graf input[type="month"] {
             max-width: 100%;
         }
-        
+
         .form-graf button {
             width: 100%;
             max-width: 280px;
@@ -165,19 +165,18 @@
         .content-wrapper {
             padding: 10px;
         }
-        
+
         .content-container h1 {
             font-size: 1.5rem;
         }
-        
+
         .content-container h3 {
             font-size: 1.2rem;
         }
-        
+
         .form-graf button {
             width: 100%;
             padding: 10px 15px;
         }
     }
 
-    
