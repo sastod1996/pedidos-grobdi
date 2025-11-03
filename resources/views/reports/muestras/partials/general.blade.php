@@ -16,8 +16,8 @@
                             <i class="fas fa-calendar-alt"></i>
                             <span class="d-none d-md-inline">Data de: </span>
                             <i
-                                id="resumen-start-date-indicator">{{ ucfirst(now()->startOfMonth()->format('d/m/Y')) }}</i>
-                            - <i id="resumen-end-date-indicator">{{ ucfirst(now()->format('d/m/Y')) }}</i>
+                                id="generaln-start-date-indicator">{{ ucfirst(now()->startOfMonth()->format('d/m/Y')) }}</i>
+                            - <i id="generaln-end-date-indicator">{{ ucfirst(now()->format('d/m/Y')) }}</i>
                         </small>
                     </div>
                 </div>
@@ -25,7 +25,7 @@
             <div class="card-body py-1">
                 <div class="row">
                     <div class="col-12 col-md-9">
-                        <form id="resume-filter">
+                        <form id="general-filter">
                             <div class="row">
                                 <div class="col-12 col-sm-6 col-md-4">
                                     <div class="form-group">
@@ -54,7 +54,7 @@
                         </form>
                     </div>
                     <div class="col-12 col-md-3 mt-3 mt-md-0 align-content-md-end mb-md-3">
-                        <button class="btn btn-outline-light w-100" id="resume-clean-filter">
+                        <button class="btn btn-outline-light w-100" id="general-clean-filter">
                             <i class="fas fa-eraser"></i> Limpiar
                         </button>
                     </div>
@@ -73,13 +73,13 @@
                             <i class="fas fa-chart-pie"></i> Comparativa por Tipos de Muestras
                         </h5>
                         <small>
-                            <i>Mostrando: <span id="resume-tipo-muestra-dataset-indicator">Cantidad de
+                            <i>Mostrando: <span id="general-tipo-muestra-dataset-indicator">Cantidad de
                                     muestras</span></i>
                         </small>
                     </div>
                     <div class="col-auto">
                         <select class="badge bg-light border-0" style="padding-top: .35rem; padding-bottom: .35rem;"
-                            id="resume-tipo-muestra-dataset-selector">
+                            id="general-tipo-muestra-dataset-selector">
                             <option value="0">Cantidad de muestras</option>
                             <option value="1">Inversión en muestras</option>
                         </select>
@@ -89,7 +89,7 @@
 
             <div class="card-body">
                 <div class="position-relative">
-                    <canvas id="resume-tipo-muestras-chart" height="300px">
+                    <canvas id="general-tipo-muestras-chart" height="300px">
                     </canvas>
                     @include('empty-chart', [
                         'dataLength' => array_sum(
@@ -108,13 +108,13 @@
                             <i class="far fa-chart-bar"></i> Comparativa por Tipos de Frasco
                         </h5>
                         <small>
-                            <i>Mostrando: <span id="resume-tipo-frasco-dataset-indicator">Cantidad de
+                            <i>Mostrando: <span id="general-tipo-frasco-dataset-indicator">Cantidad de
                                     muestras</span></i>
                         </small>
                     </div>
                     <div class="col-auto">
                         <select class="badge bg-light border-0" style="padding-top: .35rem; padding-bottom: .35rem;"
-                            id="resume-tipo-frasco-dataset-selector">
+                            id="general-tipo-frasco-dataset-selector">
                             <option value="0">Cantidad de muestras</option>
                             <option value="1">Inversión en muestras</option>
                         </select>
@@ -124,7 +124,7 @@
 
             <div class="card-body">
                 <div class="position-relative">
-                    <canvas id="resume-tipo-frasco-chart" height="300px">
+                    <canvas id="general-tipo-frasco-chart" height="300px">
                     </canvas>
                     @include('empty-chart', [
                         'dataLength' => $generalReport['general_stats']['total_muestras'],
@@ -138,26 +138,26 @@
     <div class="col-12">
         <div class="card card-danger card-tabs">
             <div class="card-header p-0 pt-1">
-                <ul class="nav nav-tabs" id="resume-detail-table-tabs" role="tablist">
+                <ul class="nav nav-tabs" id="general-detail-table-tabs" role="tablist">
                     <li class="pt-2 px-3">
                         <i class="fas fa-pump-soap"></i> Tabla detallada
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" id="resume-table-frasco-original-tab" data-toggle="pill"
-                            href="#resume-table-frasco-original" role="tab"
-                            aria-controls="resume-table-frasco-original" aria-selected="true">Frasco Original</a>
+                        <a class="nav-link active" id="general-table-frasco-original-tab" data-toggle="pill"
+                            href="#general-table-frasco-original" role="tab"
+                            aria-controls="general-table-frasco-original" aria-selected="true">Frasco Original</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="resume-table-frasco-muestra-tab" data-toggle="pill"
-                            href="#resume-table-frasco-muestra" role="tab"
-                            aria-controls="resume-table-frasco-muestra" aria-selected="false">Frasco Muestra</a>
+                        <a class="nav-link" id="general-table-frasco-muestra-tab" data-toggle="pill"
+                            href="#general-table-frasco-muestra" role="tab"
+                            aria-controls="general-table-frasco-muestra" aria-selected="false">Frasco Muestra</a>
                     </li>
                 </ul>
             </div>
             <div class="card-body p-0">
-                <div class="tab-content" id="resume-detail-table-tabContent">
-                    <div class="tab-pane fade show active" id="resume-table-frasco-original" role="tabpanel"
-                        aria-labelledby="resume-table-frasco-original-tab">
+                <div class="tab-content" id="general-detail-table-tabContent">
+                    <div class="tab-pane fade show active" id="general-table-frasco-original" role="tabpanel"
+                        aria-labelledby="general-table-frasco-original-tab">
                         <div class="table-responsive" style="max-height: 60dvh;">
                             <table class="table table-dark table-head-fixed text-nowrap m-0">
                                 <thead>
@@ -166,10 +166,11 @@
                                         <th class="text-center">Cantidad</th>
                                         <th class="text-center">Precio Unitario</th>
                                         <th class="text-center">Precio Total</th>
-                                        <th class="text-right">Presentación</th>
+                                        <th class="text-center">Presentación</th>
+                                        <th class="text-right">Doctor</th>
                                     </tr>
                                 </thead>
-                                <tbody id="resume-frasco-original-tbody">
+                                <tbody id="general-frasco-original-tbody">
                                     @include('empty-table', [
                                         'dataLength' => count($generalReport['data']['frasco_original']),
                                         'colspan' => 5,
@@ -183,10 +184,13 @@
                                                 <td class="text-center">S/
                                                     {{ number_format(($muestra['precio'] ?? 0) * $muestra['cantidad_de_muestra'], 2) }}
                                                 </td>
-                                                <td class="text-right">
+                                                <td class="text-center">
                                                     {{ $muestra->clasificacion->nombre_clasificacion }} -
                                                     {{ $muestra->clasificacionPresentacion->quantity }}
                                                     {{ $muestra->clasificacion->unidadMedida->nombre_unidad_de_medida }}
+                                                </td>
+                                                <td class="text-right">
+                                                    {{ $muestra->doctor->name }}
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -203,13 +207,14 @@
                                             {{ $generalReport['general_stats']['by_tipo_frasco']['Frasco Original']['amount'] }}
                                         </th>
                                         <th></th>
+                                        <th></th>
                                     </tr>
                                 </tfoot>
                             </table>
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="resume-table-frasco-muestra" role="tabpanel"
-                        aria-labelledby="resume-table-frasco-muestra-tab">
+                    <div class="tab-pane fade" id="general-table-frasco-muestra" role="tabpanel"
+                        aria-labelledby="general-table-frasco-muestra-tab">
                         <div class="table-responsive" style="max-height: 60dvh;">
                             <table class="table table-dark table-head-fixed text-nowrap m-0">
                                 <thead>
@@ -218,10 +223,11 @@
                                         <th class="text-center">Cantidad</th>
                                         <th class="text-center">Precio Unitario</th>
                                         <th class="text-center">Precio Total</th>
-                                        <th class="text-right">Clasificacion</th>
+                                        <th class="text-center">Clasificacion</th>
+                                        <th class="text-right">Doctor</th>
                                     </tr>
                                 </thead>
-                                <tbody id="resume-frasco-muestra-tbody">
+                                <tbody id="general-frasco-muestra-tbody">
                                     @include('empty-table', [
                                         'dataLength' => count($generalReport['data']['frasco_muestra']),
                                         'colspan' => 5,
@@ -235,8 +241,10 @@
                                                 <td class="text-center">S/
                                                     {{ number_format(($muestra['precio'] ?? 0.0) * $muestra['cantidad_de_muestra'], 2) }}
                                                 </td>
-                                                <td class="text-right">
+                                                <td class="text-center">
                                                     {{ $muestra->clasificacion->nombre_clasificacion }}</td>
+                                                <td class="text-right">
+                                                    {{ $muestra->doctor->name }}</td>
                                             </tr>
                                         @endforeach
                                     @endif
@@ -252,6 +260,7 @@
                                             {{ $generalReport['general_stats']['by_tipo_frasco']['Frasco Muestra']['amount'] }}
                                         </th>
                                         <th></th>
+                                        <th></th>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -265,39 +274,39 @@
 
 @push('partial-js')
     <script>
-        flatpickr('#resume-filter input[name="start_date"]', {
+        flatpickr('#general-filter input[name="start_date"]', {
             dateFormat: 'Y-m-d',
             locale: 'es',
             maxDate: "today"
         });
-        flatpickr('#resume-filter input[name="end_date"]', {
+        flatpickr('#general-filter input[name="end_date"]', {
             dateFormat: 'Y-m-d',
             locale: 'es',
             maxDate: "today"
         });
         const data = @json($generalReport);
 
-        const resumeTableForiginalBody = $('#resume-frasco-original-tbody');
-        const resumeTableFmuestraBody = $('#resume-frasco-muestra-tbody');
+        const generalTableForiginalBody = $('#general-frasco-original-tbody');
+        const generalTableFmuestraBody = $('#general-frasco-muestra-tbody');
 
-        const resumeGeneralTipoMuestra = data.general_stats.by_tipo_muestra;
-        const resumeGeneralTipoFrasco = data.general_stats.by_tipo_frasco;
-        const resumeTipoMuestraLabels = Object.keys(resumeGeneralTipoMuestra);
-        const resumeTipoFrascoLabels = Object.keys(resumeGeneralTipoFrasco);
-        const resumeTipoMuestraChartDataset = [{
+        const generalGeneralTipoMuestra = data.general_stats.by_tipo_muestra;
+        const generalGeneralTipoFrasco = data.general_stats.by_tipo_frasco;
+        const generalTipoMuestraLabels = Object.keys(generalGeneralTipoMuestra);
+        const generalTipoFrascoLabels = Object.keys(generalGeneralTipoFrasco);
+        const generalTipoMuestraChartDataset = [{
             label: 'Cantidad de muestras',
-            data: Object.values(resumeGeneralTipoMuestra).map(i => i.count),
-            backgroundColor: generateHslColors(resumeTipoMuestraLabels, 0.5),
+            data: Object.values(generalGeneralTipoMuestra).map(i => i.count),
+            backgroundColor: generateHslColors(generalTipoMuestraLabels, 0.5),
             hoverOffset: 4,
             hidden: false
         }, {
             label: 'Inversión en muestras',
-            data: Object.values(resumeGeneralTipoMuestra).map(i => i.amount),
-            backgroundColor: generateHslColors(resumeTipoMuestraLabels, 0.5),
+            data: Object.values(generalGeneralTipoMuestra).map(i => i.amount),
+            backgroundColor: generateHslColors(generalTipoMuestraLabels, 0.5),
             hoverOffset: 4,
             hidden: true
         }];
-        resumeTipoFrascoChartOptions = {
+        generalTipoFrascoChartOptions = {
             scales: {
                 'y': {
                     type: 'linear',
@@ -337,7 +346,7 @@
                 }
             }
         };
-        resumeTipoMuestraChartOptions = {
+        generalTipoMuestraChartOptions = {
             plugins: {
                 tooltip: {
                     displayColors: false,
@@ -351,40 +360,40 @@
                 }
             }
         };
-        const resumeTipoFrascoChartDataset = [{
+        const generalTipoFrascoChartDataset = [{
             label: 'Cantidad de muestras',
-            data: Object.values(resumeGeneralTipoFrasco).map(i => i.count),
-            borderColor: generateHslColors(resumeTipoFrascoLabels),
+            data: Object.values(generalGeneralTipoFrasco).map(i => i.count),
+            borderColor: generateHslColors(generalTipoFrascoLabels),
             borderWidth: 1.5,
-            backgroundColor: generateHslColors(resumeTipoFrascoLabels, 0.5),
+            backgroundColor: generateHslColors(generalTipoFrascoLabels, 0.5),
             hidden: false,
             yAxisID: 'y',
         }, {
             label: 'Inversión en muestras',
-            data: Object.values(resumeGeneralTipoFrasco).map(i => i.amount),
-            borderColor: generateHslColors(resumeTipoFrascoLabels),
+            data: Object.values(generalGeneralTipoFrasco).map(i => i.amount),
+            borderColor: generateHslColors(generalTipoFrascoLabels),
             borderWidth: 1.5,
-            backgroundColor: generateHslColors(resumeTipoFrascoLabels, 0.5),
+            backgroundColor: generateHslColors(generalTipoFrascoLabels, 0.5),
             hoverOffset: 4,
             hidden: true,
             yAxisID: 'y1',
         }];
 
-        const resumeTipoMuestraChart = createChart('#resume-tipo-muestras-chart', resumeTipoMuestraLabels,
-            resumeTipoMuestraChartDataset, 'pie', resumeTipoMuestraChartOptions);
+        const generalTipoMuestraChart = createChart('#general-tipo-muestras-chart', generalTipoMuestraLabels,
+            generalTipoMuestraChartDataset, 'pie', generalTipoMuestraChartOptions);
 
-        const resumeTipoFrascoChart = createChart('#resume-tipo-frasco-chart', resumeTipoFrascoLabels,
-            resumeTipoFrascoChartDataset, 'bar', withToggleableLegend(resumeTipoFrascoChartOptions));
+        const generalTipoFrascoChart = createChart('#general-tipo-frasco-chart', generalTipoFrascoLabels,
+            generalTipoFrascoChartDataset, 'bar', withToggleableLegend(generalTipoFrascoChartOptions));
 
-        $('#resume-tipo-muestra-dataset-selector').on('change', function(e) {
+        $('#general-tipo-muestra-dataset-selector').on('change', function(e) {
             const selectedIndex = parseInt($(this).val());
-            $('#resume-tipo-muestra-dataset-indicator').text($(this).find('option:selected').text());
-            updateActiveDataset(resumeTipoMuestraChart, selectedIndex);
+            $('#general-tipo-muestra-dataset-indicator').text($(this).find('option:selected').text());
+            updateActiveDataset(generalTipoMuestraChart, selectedIndex);
         })
-        $('#resume-tipo-frasco-dataset-selector').on('change', function(e) {
+        $('#general-tipo-frasco-dataset-selector').on('change', function(e) {
             const selectedIndex = parseInt($(this).val());
-            $('#resume-tipo-frasco-dataset-indicator').text($(this).find('option:selected').text());
-            const scales = resumeTipoFrascoChart.options.scales;
+            $('#general-tipo-frasco-dataset-indicator').text($(this).find('option:selected').text());
+            const scales = generalTipoFrascoChart.options.scales;
             if (selectedIndex === 0) {
                 scales.y.display = true;
                 scales.y1.display = false;
@@ -392,79 +401,87 @@
                 scales.y.display = false
                 scales.y1.display = true;
             }
-            updateActiveDataset(resumeTipoFrascoChart, selectedIndex);
+            updateActiveDataset(generalTipoFrascoChart, selectedIndex);
         })
 
-        function resumeTipoMuestraUpdateChart(data) {
+        function generalTipoMuestraUpdateChart(data) {
             const labels = Object.keys(data);
             const dataValues = Object.values(data);
 
-            resumeTipoMuestraChart.data.labels = labels;
-            resumeTipoMuestraChart.data.datasets[0].data = dataValues.map(i => i.count);
-            resumeTipoMuestraChart.data.datasets[1].data = dataValues.map(i => i.amount);
-            resumeTipoMuestraChart.data.datasets.forEach(ds => {
+            generalTipoMuestraChart.data.labels = labels;
+            generalTipoMuestraChart.data.datasets[0].data = dataValues.map(i => i.count);
+            generalTipoMuestraChart.data.datasets[1].data = dataValues.map(i => i.amount);
+            generalTipoMuestraChart.data.datasets.forEach(ds => {
                 ds.backgroundColor = generateHslColors(labels, 0.5);
             });
-            resumeTipoMuestraChart.update();
-            detectChartDataLength(resumeTipoMuestraChart);
+            generalTipoMuestraChart.update();
+            detectChartDataLength(generalTipoMuestraChart);
         }
 
-        function resumeTipoFrascoUpdateChart(data) {
+        function generalTipoFrascoUpdateChart(data) {
             const labels = Object.keys(data);
             const dataValues = Object.values(data);
 
-            resumeTipoFrascoChart.data.labels = labels;
-            resumeTipoFrascoChart.data.datasets[0].data = dataValues.map(i => i.count);
-            resumeTipoFrascoChart.data.datasets[1].data = dataValues.map(i => i.amount);
-            resumeTipoFrascoChart.data.datasets.forEach(ds => {
+            generalTipoFrascoChart.data.labels = labels;
+            generalTipoFrascoChart.data.datasets[0].data = dataValues.map(i => i.count);
+            generalTipoFrascoChart.data.datasets[1].data = dataValues.map(i => i.amount);
+            generalTipoFrascoChart.data.datasets.forEach(ds => {
                 ds.backgroundColor = generateHslColors(labels, 0.5);
                 ds.borderColor = generateHslColors(labels);
             });
-            resumeTipoFrascoChart.update();
-            detectChartDataLength(resumeTipoFrascoChart);
+            generalTipoFrascoChart.update();
+            detectChartDataLength(generalTipoFrascoChart);
         }
 
-        function resumeUpdateFrascoOriginalTable(data, generalStat) {
-            tableRenderRows(resumeTableForiginalBody, data, (i) => `
+        function generalUpdateFrascoOriginalTable(data, generalStat) {
+            tableRenderRows(generalTableForiginalBody, data, (i) => `
                 <tr>
                     <td>${i.nombre_muestra}</td>
                     <td class="text-center">${i.cantidad_de_muestra}</td>
                     <td class="text-center">S/ ${(i.precio ?? 0.0)}</td>
                     <td class="text-center">S/ ${(i.precio ?? 0.0) * i.cantidad_de_muestra}</td>
-                    <td class="text-right">${i.clasificacion.nombre_clasificacion} - ${i.clasificacion_presentacion.quantity} ${i.clasificacion.unidad_medida.nombre_unidad_de_medida}</td>
+                    <td class="text-center">${i.clasificacion.nombre_clasificacion} - ${i.clasificacion_presentacion.quantity} ${i.clasificacion.unidad_medida.nombre_unidad_de_medida}</td>
+                    <td class="text-right">${ i.doctor.name }</td>
                 </tr>`)
             $('#tfoot-frasco-original-cantidad').text(generalStat.quantity);
             $('#tfoot-frasco-original-amount').text('S/ ' + generalStat.amount);
         }
 
-        function resumeUpdateFrascoMuestraTable(data, generalStat) {
-            tableRenderRows(resumeTableFmuestraBody, data, (i) => `
+        function generalUpdateFrascoMuestraTable(data, generalStat) {
+            tableRenderRows(generalTableFmuestraBody, data, (i) => `
                 <tr>
                     <td>${i.nombre_muestra}</td>
                     <td class="text-center">${i.cantidad_de_muestra}</td>
                     <td class="text-center">S/ ${(i.precio ?? 0.0)}</td>
                     <td class="text-center">S/ ${(i.precio ?? 0.0) * i.cantidad_de_muestra}</td>
-                    <td class="text-right">${i.clasificacion.nombre_clasificacion}</td>
+                    <td class="text-center">${i.clasificacion.nombre_clasificacion}</td>
+                    <td class="text-right">${ i.doctor.name }</td>
                 </tr>`);
             $('#tfoot-frasco-muestra-cantidad').text(generalStat.quantity);
             $('#tfoot-frasco-muestra-amount').text('S/ ' + generalStat.amount);
         }
 
-        function resumeUpdateGraphics(response) {
-            $("#resumen-start-date-indicator").text(new Date(response.filters.start_date).toLocaleDateString(
-                'es-PE'));
-            $("#resumen-end-date-indicator").text(new Date(response.filters.end_date).toLocaleDateString(
-                'es-PE'));
+        function generalUpdateGraphics(response) {
 
-            resumeTipoMuestraUpdateChart(response.general_stats.by_tipo_muestra);
-            resumeTipoFrascoUpdateChart(response.general_stats.by_tipo_frasco);
-            resumeUpdateFrascoOriginalTable(response.data.frasco_original, response.general_stats.by_tipo_frasco[
+            const startDate = new Date(response.filters.start_date).toLocaleDateString(
+                'es-PE');
+            const endDate = new Date(response.filters.end_date).toLocaleDateString(
+                'es-PE');
+
+            $("#generaln-start-date-indicator").text(startDate);
+            $("#generaln-end-date-indicator").text(endDate);
+
+            generalTipoMuestraUpdateChart(response.general_stats.by_tipo_muestra);
+            generalTipoFrascoUpdateChart(response.general_stats.by_tipo_frasco);
+            generalUpdateFrascoOriginalTable(response.data.frasco_original, response.general_stats.by_tipo_frasco[
                 'Frasco Original']);
-            resumeUpdateFrascoMuestraTable(response.data.frasco_muestra, response.general_stats.by_tipo_frasco[
+            generalUpdateFrascoMuestraTable(response.data.frasco_muestra, response.general_stats.by_tipo_frasco[
                 'Frasco Muestra']);
+
+            toast(`Mostrando reporte del ${startDate} al ${endDate}`, ToastIcon.SUCCESS);
         }
 
-        $('#resume-filter').on('submit', function(e) {
+        $('#general-filter').on('submit', function(e) {
             e.preventDefault();
             const formData = $(this).serializeArray();
             const start_date = formData.find(i => i.name === 'start_date').value;
@@ -478,13 +495,8 @@
                     end_date
                 },
                 success: function(response) {
-                    resumeUpdateGraphics(response);
-                    const startDate = new Date(response.filters.start_date).toLocaleDateString(
-                        'es-PE');
-                    const endDate = new Date(response.filters.end_date).toLocaleDateString(
-                        'es-PE');
+                    generalUpdateGraphics(response);
 
-                    toast(`Mostrando reporte del ${startDate} al ${endDate}`, ToastIcon.SUCCESS);
                 },
                 error: function(xhr) {
                     $('#productos-filter button[type="submit"]').prop('disabled', false)
@@ -496,29 +508,29 @@
             });
         });
 
-        const resumeCleanFilter = $('#resume-clean-filter');
-        resumeCleanFilter.on('click', function(e) {
+        const generalCleanFilter = $('#general-clean-filter');
+        generalCleanFilter.on('click', function(e) {
             e.preventDefault();
 
             // Desactivar botón mientras carga
-            resumeCleanFilter.prop('disabled', true)
+            generalCleanFilter.prop('disabled', true)
                 .html('<i class="fas fa-spinner fa-spin"></i> Cargando...');
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
             // Resetear valores en los flatpickr
-            const startPicker = $('#resume-filter input[name="start_date"]')[0]._flatpickr;
-            const endPicker = $('#resume-filter input[name="end_date"]')[0]._flatpickr;
+            const startPicker = $('#general-filter input[name="start_date"]')[0]._flatpickr;
+            const endPicker = $('#general-filter input[name="end_date"]')[0]._flatpickr;
 
             if (startPicker) startPicker.setDate(startOfMonth, true);
             if (endPicker) endPicker.setDate(today, true);
 
             // Enviar formulario
-            $('#resume-filter').trigger('submit');
+            $('#general-filter').trigger('submit');
 
             // Restaurar botón
-            resumeCleanFilter.prop('disabled', false)
+            generalCleanFilter.prop('disabled', false)
                 .html('<i class="fas fa-eraser"></i> Limpiar');
         });
     </script>

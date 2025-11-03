@@ -86,6 +86,7 @@
     <script src="{{ asset('js/table-helpers.js') }}"></script>
     <script src="{{ asset('js/get-money-format.js') }}"></script>
     <script src="{{ asset('js/generate-hsl-color.js') }}"></script>
+    <script src="{{ asset('js/autocomplete-input.js') }}"></script>
 
     @stack('partial-js')
 
