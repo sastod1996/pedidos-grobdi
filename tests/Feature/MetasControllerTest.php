@@ -21,7 +21,7 @@ beforeEach(function () {
 });
 
 it('displays the list of metas', function () {
-    $url = 'visitadoras.metas';
+    $url = 'bonificaciones.index';
 
     $view = View::factory()->create(['url' => $url]);
 
@@ -44,12 +44,15 @@ it('displays the list of metas', function () {
         1,
         15,
         1,
-        ['path' => '/visitadoras/metas']
+        ['path' => '/bonificaciones']
     );
 
     $metasServiceMock->shouldReceive('getListOfMetas')
         ->once()
-        ->with()
+        ->with([
+            'month' => null,
+            'tipo_medico' => null,
+        ])
         ->andReturn($paginator);
 
     // Act & Assert
@@ -58,7 +61,7 @@ it('displays the list of metas', function () {
     $response = $this->actingAs($this->admin)->get(route($url));
 
     $response->assertOk()
-        ->assertViewIs('visitadoras.metas.index')
+        ->assertViewIs('bonificaciones.index')
         ->assertViewHas('listOfMetas', $paginator);
 });
 
