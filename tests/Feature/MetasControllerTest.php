@@ -150,8 +150,27 @@ it('returns chart data successfully when visitor goal exists', function () {
     $metasServiceMock
         ->shouldReceive('getPedidosDoctorStatsByMonthlyVisitorGoal')
         ->once()
-        ->with($monthlyGoal->id)
+        ->with($monthlyGoal->id, $visitorGoal->user_id)
         ->andReturn($mockedDoctorsData);
+
+    $expectedMetaSummary = [
+        'id' => $monthlyGoal->id,
+        'tipo_medico' => $monthlyGoal->tipo_medico,
+        'tipo_medico_label' => 'prescriptores',
+        'tipo_medico_slug' => 'prescriptor',
+        'start_date' => \Carbon\Carbon::parse($monthlyGoal->start_date)->startOfDay()->toIso8601String(),
+        'end_date' => \Carbon\Carbon::parse($monthlyGoal->end_date)->toIso8601String(),
+        'month' => $monthlyGoal->month,
+        'period_label' => \Carbon\Carbon::parse($monthlyGoal->start_date)->locale('es')->translatedFormat('F, Y'),
+    ];
+
+    $metasServiceMock
+        ->shouldReceive('mapMonthlyGoalToSummary')
+        ->once()
+        ->with(Mockery::on(function ($arg) use ($monthlyGoal) {
+            return $arg->id === $monthlyGoal->id;
+        }))
+        ->andReturn($expectedMetaSummary);
 
     // Act
     $response = $this->actingAs($this->admin)
@@ -164,6 +183,7 @@ it('returns chart data successfully when visitor goal exists', function () {
             'message' => 'Datos para chart obtenidos.',
             'chart-data' => $mockedChartData,
             'doctors-data' => $mockedDoctorsData->toArray(),
+            'meta' => $expectedMetaSummary,
         ]);
 });
 
