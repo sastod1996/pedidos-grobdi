@@ -7,8 +7,9 @@ use App\Application\DTOs\Reports\ReportBaseDto;
 class ReportDoctorsDto extends ReportBaseDto
 {
     public function __construct(
-        private int $totalVisitas,
-        private array $totalPerEstado,
+        private bool $isTopDoctor,
+        private string $doctor,
+        private string $tipoDoctor,
         array $data,
         array $filters = []
     ) {
@@ -17,9 +18,10 @@ class ReportDoctorsDto extends ReportBaseDto
     protected function getReportData(): array
     {
         return [
-            'general_stats' => [
-                'total_visitas' => $this->totalVisitas,
-                'total_per_estado' => $this->totalPerEstado,
+            'doctor_info' => [
+                'is_top_doctor' => $this->isTopDoctor,
+                'doctor' => $this->doctor,
+                'tipo_doctor' => $this->tipoDoctor,
             ],
         ];
     }
