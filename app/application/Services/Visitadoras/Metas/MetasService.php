@@ -125,11 +125,11 @@ class MetasService
         return $paginator;
     }
 
-    public function getListOfVisitorGoalByMetaId(int $metaId)
+    public function getListOfVisitorGoalByMetaId(int $metaId): array
     {
         $monthlyGoal = MonthlyVisitorGoal::with([
             'visitorGoals' => function ($query) {
-                $query->with('visitadora:id');
+                $query->with('visitadora:id,name');
             },
         ])->findOrFail($metaId);
 
@@ -139,7 +139,10 @@ class MetasService
             $results[] = $this->getVisitorGoalMetrics($visitorGoal->id);
         }
 
-        return $results;
+        return [
+            'meta' => $this->mapMonthlyGoalToSummary($monthlyGoal),
+            'visitor_goals' => $results,
+        ];
     }
 
     public function getVisitorGoalMetrics(int $visitorGoalId)
@@ -316,14 +319,115 @@ class MetasService
         return $configDetail?->commission ?? 0.0;
     }
 
-    public function getPedidosDoctorStatsByMonthlyVisitorGoal(int $id)
+    public function getPedidosDoctorStatsByMonthlyVisitorGoal(int $id, ?int $visitadoraId = null)
     {
         $monthlyVisitorGoal = MonthlyVisitorGoal::findOrFail($id);
         $range = $monthlyVisitorGoal->month;
-        if ($range['type'] === 'month') {
-            return $this->pedidosService->getPedidosDetailsByTipoMedico($monthlyVisitorGoal->tipo_medico, $range['value'], $range['year']);
-        } else {
-            return $this->pedidosService->getPedidosDetailsByTipoMedico($monthlyVisitorGoal->tipo_medico, startDate: $range['start_date'], endDate: $range['end_date']);
+
+        if (($range['type'] ?? null) === 'month') {
+            return $this->pedidosService->getPedidosDetailsByTipoMedico(
+                tipoMedico: $monthlyVisitorGoal->tipo_medico,
+                month: $range['value'] ?? null,
+                year: $range['year'] ?? null,
+                visitadoraId: $visitadoraId
+            );
+        }
+
+        return $this->pedidosService->getPedidosDetailsByTipoMedico(
+            tipoMedico: $monthlyVisitorGoal->tipo_medico,
+            startDate: $range['start_date'] ?? $monthlyVisitorGoal->start_date,
+            endDate: $range['end_date'] ?? $monthlyVisitorGoal->end_date,
+            visitadoraId: $visitadoraId
+        );
+    }
+
+    public function mapMonthlyGoalToSummary(MonthlyVisitorGoal $monthlyGoal): array
+    {
+        return [
+            'id' => $monthlyGoal->id,
+            'tipo_medico' => $monthlyGoal->tipo_medico,
+            'tipo_medico_label' => $this->formatDoctorTypeLabel($monthlyGoal->tipo_medico),
+            'tipo_medico_slug' => $this->normalizeDoctorTypeSlug($monthlyGoal->tipo_medico),
+            'start_date' => $this->formatDateIsoString($monthlyGoal->start_date),
+            'end_date' => $this->formatDateIsoString($monthlyGoal->end_date, true),
+            'month' => $monthlyGoal->month,
+            'period_label' => $this->formatMonthlyGoalPeriod($monthlyGoal),
+        ];
+    }
+
+    private function formatMonthlyGoalPeriod(MonthlyVisitorGoal $monthlyGoal): ?string
+    {
+        $range = $monthlyGoal->month;
+
+        if (is_array($range) && ($range['type'] ?? null) === 'month') {
+            $monthNumber = $range['value'] ?? null;
+            $yearNumber = $range['year'] ?? null;
+
+            if ($monthNumber && $yearNumber) {
+                return Carbon::createFromDate($yearNumber, $monthNumber, 1)
+                    ->locale('es')
+                    ->translatedFormat('F, Y');
+            }
+        }
+
+        if (! empty($monthlyGoal->start_date) && ! empty($monthlyGoal->end_date)) {
+            $start = Carbon::parse($monthlyGoal->start_date);
+            $end = Carbon::parse($monthlyGoal->end_date);
+
+            return $start->format('d/m/Y') . ' - ' . $end->format('d/m/Y');
+        }
+
+        if (! empty($monthlyGoal->start_date)) {
+            return Carbon::parse($monthlyGoal->start_date)
+                ->locale('es')
+                ->translatedFormat('F, Y');
+        }
+
+        return null;
+    }
+
+    private function formatDoctorTypeLabel(?string $value): string
+    {
+        if ($value === null || $value === '') {
+            return 'sin tipo';
+        }
+
+        $normalized = mb_strtolower($value);
+
+        return match ($normalized) {
+            'comprador', 'compradores' => 'compradores',
+            'prescriptor', 'prescriptores' => 'prescriptores',
+            default => $value,
+        };
+    }
+
+    private function normalizeDoctorTypeSlug(?string $value): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        $normalized = mb_strtolower(trim($value));
+
+        return str_replace(' ', '_', $normalized);
+    }
+
+    private function formatDateIsoString(mixed $value, bool $preserveTime = false): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        try {
+            $date = $value instanceof Carbon ? $value->copy() : Carbon::parse($value);
+
+            if (! $preserveTime) {
+                $date->startOfDay();
+            }
+
+            return $date->toIso8601String();
+        } catch (\Throwable $th) {
+            return is_string($value) ? $value : (string) $value;
         }
     }
 }
