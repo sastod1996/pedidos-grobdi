@@ -214,7 +214,13 @@ class ReportsRepository implements ReportsRepositoryInterface
 
         // Si no hay resultados, devolvemos una estructura coherente
         if (!$topDoctor) {
-            return $this->getDoctorInfo(1);
+            $doctor = Doctor::inRandomOrder()->select('id', 'name', 'tipo_medico')->first();
+            return [
+                'id' => $doctor['id'],
+                'name' => $doctor['name'],
+                'tipo_medico' => $doctor['tipo_medico'],
+                'is_top_doctor' => false,
+            ];
         }
 
         return [
@@ -238,6 +244,16 @@ class ReportsRepository implements ReportsRepositoryInterface
             ->groupBy('dr.id', 'dr.name', 'dr.tipo_medico')
             ->orderByDesc('total_amount')
             ->first();
+
+        if (!$topDoctor) {
+            $doctor = Doctor::inRandomOrder()->select('id', 'name', 'tipo_medico')->first();
+            return [
+                'id' => $doctor['id'],
+                'name' => $doctor['name'],
+                'tipo_medico' => $doctor['tipo_medico'],
+                'is_top_doctor' => false,
+            ];
+        }
 
         return [
             'id' => $topDoctor->doctor_id,
