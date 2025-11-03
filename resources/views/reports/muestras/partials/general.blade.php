@@ -433,15 +433,22 @@
             detectChartDataLength(generalTipoFrascoChart);
         }
 
+        const formatter = new Intl.NumberFormat('es-PE', {
+            style: 'currency',
+            currency: 'PEN',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        })
+
         function generalUpdateFrascoOriginalTable(data, generalStat) {
             tableRenderRows(generalTableForiginalBody, data, (i) => `
                 <tr>
                     <td>${i.nombre_muestra}</td>
                     <td class="text-center">${i.cantidad_de_muestra}</td>
-                    <td class="text-center">S/ ${(i.precio ?? 0.0)}</td>
-                    <td class="text-center">S/ ${(i.precio ?? 0.0) * i.cantidad_de_muestra}</td>
+                    <td class="text-center">${(i.precio ?? 0.0)}</td>
+                    <td class="text-center">${formatter.format((i.precio ?? 0.0) * i.cantidad_de_muestra)}</td>
                     <td class="text-center">${i.clasificacion.nombre_clasificacion} - ${i.clasificacion_presentacion.quantity} ${i.clasificacion.unidad_medida.nombre_unidad_de_medida}</td>
-                    <td class="text-right">${ i.doctor.name }</td>
+                    <td class="text-right">${i.doctor.name}</td>
                 </tr>`)
             $('#tfoot-frasco-original-cantidad').text(generalStat.quantity);
             $('#tfoot-frasco-original-amount').text('S/ ' + generalStat.amount);
@@ -453,7 +460,7 @@
                     <td>${i.nombre_muestra}</td>
                     <td class="text-center">${i.cantidad_de_muestra}</td>
                     <td class="text-center">S/ ${(i.precio ?? 0.0)}</td>
-                    <td class="text-center">S/ ${(i.precio ?? 0.0) * i.cantidad_de_muestra}</td>
+                    <td class="text-center">${formatter.format((i.precio ?? 0.0) * i.cantidad_de_muestra)}</td>
                     <td class="text-center">${i.clasificacion.nombre_clasificacion}</td>
                     <td class="text-right">${ i.doctor.name }</td>
                 </tr>`);
