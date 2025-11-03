@@ -16,13 +16,13 @@
         </div>
         <form method="POST" action="{{ route('compras.store') }}" id="compraForm">
             @csrf
-            
+
             <!-- Datos principales de la compra -->
             <div class="row">
                 <div class="col-md-4 mb-2">
                     <div class="form-group">
                         <label for="serie">Serie (Referencia)</label>
-                        <input type="text" class="form-control @error('serie') is-invalid @enderror" 
+                        <input type="text" class="form-control @error('serie') is-invalid @enderror"
                             id="serie" name="serie" value="{{ old('serie') }}" placeholder="F001" required>
                         @error('serie')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -32,7 +32,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="numero">Número (Referencia)</label>
-                        <input type="number" class="form-control @error('numero') is-invalid @enderror" 
+                        <input type="number" class="form-control @error('numero') is-invalid @enderror"
                             id="numero" name="numero" value="{{ old('numero') }}" placeholder="000001" required>
                         @error('numero')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -42,7 +42,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="condicion_pago">Condición de Pago</label>
-                        <select class="form-control @error('condicion_pago') is-invalid @enderror" 
+                        <select class="form-control @error('condicion_pago') is-invalid @enderror"
                             id="condicion_pago" name="condicion_pago" required>
                             <option value="">Seleccionar condición</option>
                             <option value="Contado" {{ old('condicion_pago') == 'Contado' ? 'selected' : '' }}>Contado</option>
@@ -59,7 +59,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="proveedor_id">Proveedor</label>
-                        <select class="form-control select2 @error('proveedor_id') is-invalid @enderror" 
+                        <select class="form-control select2 @error('proveedor_id') is-invalid @enderror"
                             id="proveedor_id" name="proveedor_id" required>
                             <option value="">Seleccionar proveedor</option>
                             @foreach ($proveedores as $proveedor)
@@ -76,7 +76,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="moneda_id">Tipo de Moneda</label>
-                        <select class="form-control @error('moneda_id') is-invalid @enderror" 
+                        <select class="form-control @error('moneda_id') is-invalid @enderror"
                             id="moneda_id" name="moneda_id" required>
                             <option value="">Seleccionar moneda</option>
                             @foreach ($monedas as $moneda)
@@ -90,12 +90,12 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    
+
                 </div>
                 <div class="col-md-4 mb-2">
                     <div class="form-group">
                         <label for="fecha_emision">Fecha de Emisión</label>
-                        <input type="date" class="form-control @error('fecha_emision') is-invalid @enderror" 
+                        <input type="date" class="form-control @error('fecha_emision') is-invalid @enderror"
                             id="fecha_emision" name="fecha_emision" value="{{ old('fecha_emision') ?? date('Y-m-d') }}" max="{{ date('Y-m-d') }}" required>
                         @error('fecha_emision')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -108,7 +108,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="igv">¿Incluye IGV?</label>
-                        <select class="form-control @error('igv') is-invalid @enderror" 
+                        <select class="form-control @error('igv') is-invalid @enderror"
                             id="igv" name="igv" required>
                             <option value="1" {{ old('igv', '1') == '1' ? 'selected' : '' }}>Agregar IGV</option>
                             <option value="0" {{ old('igv') == '0' ? 'selected' : '' }}>El precio incluye IGV</option>
@@ -122,7 +122,7 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <div class="alert alert-warning">
-                                <i class="fas fa-exclamation-triangle"></i> No se ha registrado el tipo de cambio para hoy ({{ \Carbon\Carbon::today()->format('d/m/Y') }}).  
+                                <i class="fas fa-exclamation-triangle"></i> No se ha registrado el tipo de cambio para hoy ({{ \Carbon\Carbon::today()->format('d/m/Y') }}).
                                 Si intentas registrar una compra en dólares, el sistema no podrá calcular el total.
                             </div>
                         </div>
@@ -151,7 +151,7 @@
                                 <th>Unidad</th>
                                 <th>Cantidad</th>
                                 <th>Precio Unit.</th>
-                              
+
                                 <th>Subtotal</th>
                                 <th>Acción</th>
                             </tr>
@@ -242,10 +242,10 @@
                         </thead>
                         <tbody>
                             @foreach ($articulos as $articulo)
-                            <tr class="fila-articulo" 
-                                data-id="{{ $articulo->id }}" 
-                                data-sku="{{ $articulo->sku }}" 
-                                data-nombre="{{ $articulo->nombre }}" 
+                            <tr class="fila-articulo"
+                                data-id="{{ $articulo->id }}"
+                                data-sku="{{ $articulo->sku }}"
+                                data-nombre="{{ $articulo->nombre }}"
                                 data-tipo="{{ $articulo->tipo }}"
                                 data-unidad="{{ $articulo->insumos->first()?->unidadMedida?->nombre_unidad_de_medida ?? 'und' }}">
                                 <td>{{ $articulo->sku }}</td>
@@ -283,7 +283,7 @@
                                 <input type="number" class="form-control" id="articulo-precio" step="0.0001" min="0" value="0" required>
                             </div>
                         </div>
-                        
+
                     </div>
                     <div class="gap-2">
                         <button type="button" class="btn btn_crear" id="btn-agregar-carrito">
@@ -308,10 +308,10 @@
 <style>
     .btn-sm{
         border: 1px solid#fe495f !important;
-        background-color:rgb(255, 113, 130); 
+        background-color:rgb(255, 113, 130);
         color: white;
-        padding: 5px 16px; 
-        font-size: 15px;  
+        padding: 5px 16px;
+        font-size: 15px;
         border-radius: 4px;
     }
 </style>
@@ -381,14 +381,14 @@ $(document).ready(function() {
 
         $('.fila-articulo').each(function() {
             const tipoArticulo = $(this).data('tipo').toLowerCase();
-            const nombreArticulo = $(this).data('nombre').toLowerCase();  
+            const nombreArticulo = $(this).data('nombre').toLowerCase();
 
             console.log('Tipo artículo:', tipoArticulo, 'Comparando con:', tipoSeleccionado);
             console.log('Nombre artículo:', nombreArticulo, 'Comparando con:', nombreBusqueda);
 
             // Comprobamos ambos filtros
             if (
-                (!tipoSeleccionado || tipoArticulo === tipoSeleccionado) && 
+                (!tipoSeleccionado || tipoArticulo === tipoSeleccionado) &&
                 (!nombreBusqueda || nombreArticulo.includes(nombreBusqueda))
             ) {
                 $(this).show();
@@ -401,7 +401,7 @@ $(document).ready(function() {
     // Seleccionar artículo
     $(document).on('click', '.btn-seleccionar', function() {
         console.log('Botón seleccionar clickeado');
-        
+
         const fila = $(this).closest('tr');
         const id = parseInt(fila.data('id'));
         const sku = fila.data('sku');
@@ -420,23 +420,23 @@ $(document).ready(function() {
 
         // Remover selección anterior
         $('.fila-articulo').removeClass('articulo-seleccionado');
-        
+
         // Marcar fila como seleccionada
         fila.addClass('articulo-seleccionado');
 
         // Guardar artículo seleccionado
         articuloSeleccionado = { id, sku, nombre, tipo, unidad };
-        
+
         // Mostrar nombre del artículo seleccionado
         $('#articulo-nombre-seleccionado').text(`${sku} - ${nombre}`);
-        
+
         // Mostrar formulario para completar datos
         $('#articulo-form').show();
-        
+
         // Limpiar campos del formulario
         $('#articulo-cantidad').val(1);
         $('#articulo-precio').val('');
-        
+
         // Enfocar en el campo cantidad
         $('#articulo-cantidad').focus();
     });
@@ -489,16 +489,16 @@ $(document).ready(function() {
 
         // Agregar al carrito
         carrito.push(nuevoArticulo);
-        
+
         // Actualizar tabla
         actualizarTablaCarrito();
-        
+
         // Cerrar modal y limpiar
         $('#modalArticulos').modal('hide');
         $('#articulo-form').hide();
         $('.fila-articulo').removeClass('articulo-seleccionado');
         articuloSeleccionado = null;
-        
+
         // Habilitar botón de registro
         $('#btnRegistrar').prop('disabled', false);
     });
@@ -507,11 +507,11 @@ $(document).ready(function() {
     $(document).on('click', '.btn-eliminar-articulo', function() {
         const index = parseInt($(this).data('index'));
         console.log('Eliminando artículo en índice:', index);
-        
+
         if (confirm('¿Está seguro de eliminar este artículo del carrito?')) {
             carrito.splice(index, 1);
             actualizarTablaCarrito();
-            
+
             // Deshabilitar botón de registro si no hay artículos
             if (carrito.length === 0) {
                 $('#btnRegistrar').prop('disabled', true);
@@ -524,7 +524,7 @@ $(document).ready(function() {
         const index = parseInt($(this).data('index'));
         const campo = $(this).hasClass('articulo-cantidad') ? 'cantidad' : 'precio';
         let valor = campo === 'cantidad' ? parseInt($(this).val()) || 1 : parseFloat($(this).val()) || 0;
-        
+
         // Validaciones
         if (campo === 'cantidad' && valor <= 0) {
             valor = 1;
@@ -534,10 +534,10 @@ $(document).ready(function() {
             valor = 0;
             $(this).val(0);
         }
-        
+
         carrito[index][campo] = valor;
         carrito[index].subtotal = carrito[index].cantidad * carrito[index].precio;
-        
+
         actualizarTablaCarrito();
     });
 
@@ -573,7 +573,7 @@ $(document).ready(function() {
     function actualizarTablaCarrito() {
         const tbody = $('#tablaArticulos tbody');
         tbody.empty();
-        
+
         if (carrito.length === 0) {
             tbody.append(`
                 <tr id="fila-vacia">
@@ -591,11 +591,11 @@ $(document).ready(function() {
                         <td class="observaciones">${item.nombre}</td>
                         <td><span class="badge badge-tipo"  style="color: #fe495f !important; border: 1px solid #fe495f !important;">${item.unidad}</span></td>
                         <td>
-                            <input type="number" class="form-control form-control-sm articulo-cantidad" 
+                            <input type="number" class="form-control form-control-sm articulo-cantidad"
                                 data-index="${index}" name="cantidades[]" value="${item.cantidad}" min="1" style="width: 80px">
                         </td>
                         <td>
-                            <input type="number" class="form-control form-control-sm articulo-precio" 
+                            <input type="number" class="form-control form-control-sm articulo-precio"
                                 data-index="${index}" name="precios[]" value="${item.precio}" min="0" step="0.0001" style="width: 100px">
                         </td>
                         <td class="font-weight-bold">${simboloMoneda} ${item.subtotal.toFixed(2)}</td>
@@ -611,7 +611,7 @@ $(document).ready(function() {
             });
             $('#totales-container').show();
         }
-        
+
         calcularTotales();
         localStorage.setItem('carritoCompra', JSON.stringify(carrito));
     }
@@ -660,7 +660,7 @@ $(document).ready(function() {
             localStorage.removeItem('formularioCompra');
             return false;
         }
-        
+
         // Validar que todos los artículos tengan cantidad y precio válidos
         let validacionOk = true;
         carrito.forEach((item, index) => {
@@ -668,7 +668,7 @@ $(document).ready(function() {
                 validacionOk = false;
             }
         });
-        
+
         if (!validacionOk) {
             e.preventDefault();
             alert('Todos los artículos deben tener cantidad mayor a 0 y precio válido');

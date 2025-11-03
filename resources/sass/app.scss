@@ -1743,3 +1743,387 @@
 		}
 	}
 }
+
+// ============================================
+// ESTILOS PARA FORMULARIOS GROBDI
+// ============================================
+
+.grobdi-label {
+	display: block;
+	margin-bottom: 0.5rem;
+	color: $grobdi-text-strong;
+	font-weight: 600;
+	font-size: 0.95rem;
+
+	i {
+		margin-right: 0.25rem;
+	}
+}
+
+.grobdi-input {
+	width: 100%;
+	padding: 0.75rem 1rem;
+	border: 2px solid $grobdi-slate-300;
+	border-radius: 0.5rem;
+	font-size: 0.95rem;
+	color: $grobdi-text-base;
+	background-color: $grobdi-bg-white;
+	transition: all 0.2s ease;
+	font-family: $grobdi-font-family;
+
+	&:focus {
+		outline: none;
+		border-color: $grobdi-red-500;
+		box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+		background-color: $grobdi-bg-white;
+	}
+
+	&::placeholder {
+		color: $grobdi-slate-400;
+		font-style: italic;
+	}
+
+	&:disabled {
+		background-color: $grobdi-slate-100;
+		cursor: not-allowed;
+		opacity: 0.6;
+	}
+
+	&.is-invalid {
+		border-color: $grobdi-red-500;
+		background-color: $grobdi-red-50;
+	}
+
+	&.is-valid {
+		border-color: $grobdi-success-500;
+		background-color: $grobdi-success-50;
+	}
+}
+
+textarea.grobdi-input {
+	resize: vertical;
+	min-height: 100px;
+}
+
+select.grobdi-input {
+	cursor: pointer;
+	appearance: none;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23475569' d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 0.75rem center;
+	background-size: 16px;
+	padding-right: 2.5rem;
+}
+
+.form-group {
+	margin-bottom: 1.5rem;
+
+	&:last-child {
+		margin-bottom: 0;
+	}
+
+	.form-text {
+		display: block;
+		margin-top: 0.5rem;
+		color: $grobdi-text-muted;
+		font-size: 0.85rem;
+
+		i {
+			margin-right: 0.25rem;
+		}
+	}
+
+	.invalid-feedback {
+		display: block;
+		margin-top: 0.5rem;
+		color: $grobdi-red-600;
+		font-size: 0.875rem;
+		font-weight: 500;
+	}
+
+	.valid-feedback {
+		display: block;
+		margin-top: 0.5rem;
+		color: $grobdi-success-600;
+		font-size: 0.875rem;
+		font-weight: 500;
+	}
+}
+
+// Switch mejorado para formularios
+.grobdi-switch-container {
+	padding: 1rem;
+	background-color: $grobdi-slate-50;
+	border-radius: 0.5rem;
+	border: 1px solid $grobdi-slate-200;
+}
+
+.grobdi-switch {
+	position: relative;
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+	user-select: none;
+
+	input[type="checkbox"] {
+		position: absolute;
+		opacity: 0;
+		width: 0;
+		height: 0;
+
+		&:checked ~ .switch-slider {
+			background-color: $grobdi-success-500;
+
+			&:before {
+				transform: translateX(1.75rem);
+			}
+		}
+
+		&:focus ~ .switch-slider {
+			box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+		}
+
+		&:disabled ~ .switch-slider {
+			opacity: 0.5;
+			cursor: not-allowed;
+		}
+	}
+
+	.switch-slider {
+		position: relative;
+		display: inline-block;
+		width: 3.5rem;
+		height: 1.75rem;
+		background-color: $grobdi-slate-300;
+		border-radius: 9999px;
+		transition: background-color 0.3s ease;
+		flex-shrink: 0;
+
+		&:before {
+			content: '';
+			position: absolute;
+			height: 1.25rem;
+			width: 1.25rem;
+			left: 0.25rem;
+			bottom: 0.25rem;
+			background-color: white;
+			border-radius: 50%;
+			transition: transform 0.3s ease;
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+		}
+	}
+
+	.switch-label {
+		margin-left: 0.75rem;
+		color: $grobdi-text-base;
+		font-size: 0.9rem;
+		font-weight: 500;
+	}
+
+	&:hover input:not(:disabled) ~ .switch-slider {
+		background-color: $grobdi-slate-400;
+	}
+
+	&:hover input:checked:not(:disabled) ~ .switch-slider {
+		background-color: $grobdi-success-600;
+	}
+}
+
+.info-section {
+	background-color: $grobdi-slate-50;
+	padding: 1rem 1.25rem;
+	border-radius: 0.5rem;
+	border-left: 4px solid $grobdi-red-500;
+
+	.info-title {
+		color: $grobdi-text-strong;
+		font-weight: 600;
+		font-size: 0.95rem;
+		margin-bottom: 0.25rem;
+
+		i {
+			color: $grobdi-red-500;
+			margin-right: 0.5rem;
+		}
+	}
+
+	.info-content {
+		color: $grobdi-text-base;
+		font-size: 0.875rem;
+	}
+}
+
+.form-actions {
+	display: flex;
+	gap: 0.75rem;
+	justify-content: flex-end;
+
+	@media (max-width: 576px) {
+		flex-direction: column;
+
+		button, a.btn {
+			width: 100%;
+		}
+	}
+}
+
+// ============================================
+// BOTONES DE ACCIÓN PARA TABLAS
+// ============================================
+
+.btn-action {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	padding: 0.5rem 0.875rem;
+	font-size: 0.875rem;
+	font-weight: 600;
+	border-radius: 0.375rem;
+	border: none;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	text-decoration: none;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	line-height: 1;
+
+	i {
+		font-size: 0.875rem;
+	}
+
+	&:focus {
+		outline: none;
+		box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+	}
+
+	// Botón Editar (Warning/Amarillo)
+	&.btn-edit {
+		background-color: $grobdi-warning-500;
+		color: $grobdi-bg-white;
+
+		&:hover {
+			background-color: $grobdi-warning-600;
+			transform: translateY(-1px);
+			box-shadow: 0 4px 6px rgba(245, 158, 11, 0.3);
+			color: $grobdi-bg-white;
+		}
+
+		&:active {
+			transform: translateY(0);
+			box-shadow: 0 1px 2px rgba(245, 158, 11, 0.3);
+		}
+	}
+
+	// Botón Eliminar (Danger/Rojo)
+	&.btn-delete {
+		background-color: $grobdi-red-500;
+		color: $grobdi-bg-white;
+
+		&:hover {
+			background-color: $grobdi-red-600;
+			transform: translateY(-1px);
+			box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3);
+		}
+
+		&:active {
+			transform: translateY(0);
+			box-shadow: 0 1px 2px rgba(239, 68, 68, 0.3);
+		}
+	}
+
+	// Botón Ver/Info (Azul)
+	&.btn-view {
+		background-color: $grobdi-info-500;
+		color: $grobdi-bg-white;
+
+		&:hover {
+			background-color: $grobdi-info-600;
+			transform: translateY(-1px);
+			box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
+			color: $grobdi-bg-white;
+		}
+
+		&:active {
+			transform: translateY(0);
+			box-shadow: 0 1px 2px rgba(59, 130, 246, 0.3);
+		}
+	}
+
+	// Botón Aprobar (Success/Verde)
+	&.btn-approve {
+		background-color: $grobdi-success-500;
+		color: $grobdi-bg-white;
+
+		&:hover {
+			background-color: $grobdi-success-600;
+			transform: translateY(-1px);
+			box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
+		}
+
+		&:active {
+			transform: translateY(0);
+			box-shadow: 0 1px 2px rgba(16, 185, 129, 0.3);
+		}
+	}
+
+	// Botón deshabilitado
+	&:disabled,
+	&.disabled {
+		background-color: $grobdi-slate-300;
+		color: $grobdi-slate-500;
+		cursor: not-allowed;
+		opacity: 0.6;
+
+		&:hover {
+			transform: none;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+		}
+	}
+
+	// Versión pequeña
+	&.btn-action-sm {
+		padding: 0.375rem 0.625rem;
+		font-size: 0.8rem;
+
+		i {
+			font-size: 0.8rem;
+		}
+	}
+
+	// Versión grande
+	&.btn-action-lg {
+		padding: 0.625rem 1.125rem;
+		font-size: 1rem;
+
+		i {
+			font-size: 1rem;
+		}
+	}
+
+	@media (max-width: 768px) {
+		padding: 0.4rem 0.7rem;
+		font-size: 0.8rem;
+
+		i {
+			font-size: 0.8rem;
+		}
+	}
+}
+
+// Contenedor de botones de acción en tablas
+.table-actions {
+	display: flex;
+	gap: 0.5rem;
+	justify-content: center;
+	flex-wrap: wrap;
+	align-items: center;
+
+	@media (max-width: 576px) {
+		flex-direction: column;
+
+		.btn-action {
+			width: 100%;
+		}
+	}
+}
+
+
