@@ -283,7 +283,7 @@
                 }
             }
         );
-        console.log(initialDoctorReport);
+
         let doctorAmountSpentMonthlyGroupedByTipoChart = createChart(
             '#amount-spent-monthly-grouped-by-tipo-chart',
             initialDoctorReport.data.amount_spent_monthly_grouped_by_tipo.map(i => i.tipo), [{
