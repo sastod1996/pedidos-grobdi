@@ -16,6 +16,8 @@
 	--grobdi-slate-300: #{$grobdi-slate-300};
 	--grobdi-text-base: #{$grobdi-text-base};
 	--grobdi-text-strong: #{$grobdi-text-strong};
+	--grobdi-red-500: #{$grobdi-red-500};
+	--grobdi-red-600: #{$grobdi-red-600};
 }
 
 .table-grobdi {
@@ -31,16 +33,19 @@
 		color: #f9fafb;
 		border-color: var(--grobdi-slate-300);
 		font-weight: 600;
+		font-size: 0.8rem;
 		text-transform: uppercase;
 		letter-spacing: 0.02em;
 		text-align: center;
 		vertical-align: middle;
+		padding: 0.75rem 0.5rem;
 	}
 
 	tbody td {
 		border-color: var(--grobdi-slate-300);
 		vertical-align: middle;
         text-align: center;
+		font-size: 0.9rem;
 	}
 
 	&.table-striped tbody tr:nth-of-type(odd) {
@@ -103,7 +108,7 @@
 		}
 
 		button, a.btn {
-			background-color: $grobdi-blue-500;
+			background-color: $grobdi-red-500;
 			border: none;
 			color: $grobdi-bg-white;
 			padding: 0.625rem 1.25rem;
@@ -112,14 +117,14 @@
 			border-radius: 0.5rem;
 			cursor: pointer;
 			transition: all 0.2s ease;
-			box-shadow: 0 0.125rem 0.25rem rgba(59, 130, 246, 0.2);
+			box-shadow: 0 0.125rem 0.25rem rgba(239, 68, 68, 0.2);
 			text-decoration: none;
 			display: inline-block;
 
 			&:hover {
-				background-color: $grobdi-blue-600;
+				background-color: $grobdi-red-600;
 				transform: translateY(-1px);
-				box-shadow: 0 0.25rem 0.5rem rgba(59, 130, 246, 0.3);
+				box-shadow: 0 0.25rem 0.5rem rgba(239, 68, 68, 0.3);
 				text-decoration: none;
 			}
 
@@ -158,8 +163,8 @@
 
 			&:focus {
 				outline: none;
-				border-color: $grobdi-blue-500;
-				box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+				border-color: $grobdi-red-500;
+				box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 			}
 
 			&::placeholder {
@@ -190,7 +195,7 @@
 				height: 0;
 
 				&:checked ~ .radio-custom {
-					border-color: $grobdi-blue-500;
+					border-color: $grobdi-red-500;
 					background-color: $grobdi-bg-white;
 
 					&::after {
@@ -200,7 +205,7 @@
 				}
 
 				&:focus ~ .radio-custom {
-					box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+					box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
 				}
 
 				&:disabled ~ .radio-custom {
@@ -234,7 +239,7 @@
 					width: 0.625rem;
 					height: 0.625rem;
 					border-radius: 50%;
-					background-color: $grobdi-blue-500;
+					background-color: $grobdi-red-500;
 					opacity: 0;
 					transition: all 0.2s ease;
 				}
@@ -249,7 +254,7 @@
 			}
 
 			&:hover input:not(:disabled) ~ .radio-custom {
-				border-color: $grobdi-blue-400;
+				border-color: $grobdi-red-400;
 			}
 		}
 
@@ -276,8 +281,8 @@
 				height: 0;
 
 				&:checked ~ .checkbox-custom {
-					background-color: $grobdi-blue-500;
-					border-color: $grobdi-blue-500;
+					background-color: $grobdi-red-500;
+					border-color: $grobdi-red-500;
 
 					&::after {
 						opacity: 1;
@@ -286,7 +291,7 @@
 				}
 
 				&:focus ~ .checkbox-custom {
-					box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+					box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
 				}
 
 				&:disabled ~ .checkbox-custom {
@@ -335,7 +340,7 @@
 			}
 
 			&:hover input:not(:disabled) ~ .checkbox-custom {
-				border-color: $grobdi-blue-400;
+				border-color: $grobdi-red-400;
 			}
 		}
 
@@ -355,7 +360,7 @@
 				height: 0;
 
 				&:checked ~ .switch-slider {
-					background-color: $grobdi-blue-500;
+					background-color: $grobdi-red-500;
 
 					&::before {
 						transform: translateX(1.25rem);
@@ -363,7 +368,7 @@
 				}
 
 				&:focus ~ .switch-slider {
-					box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+					box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
 				}
 
 				&:disabled ~ .switch-slider {
@@ -412,7 +417,7 @@
 			}
 
 			&:hover input:checked:not(:disabled) ~ .switch-slider {
-				background-color: $grobdi-blue-600;
+				background-color: $grobdi-red-600;
 			}
 		}
 
@@ -427,8 +432,8 @@
 				height: 0;
 
 				&:focus ~ .file-input-label {
-					border-color: $grobdi-blue-500;
-					box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+					border-color: $grobdi-red-500;
+					box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 				}
 			}
 
@@ -447,7 +452,7 @@
 				text-align: center;
 
 				&:hover {
-					border-color: $grobdi-blue-400;
+					border-color: $grobdi-red-400;
 					background-color: $grobdi-slate-100;
 				}
 
@@ -484,15 +489,15 @@
 				appearance: none;
 				width: 1.25rem;
 				height: 1.25rem;
-				background: $grobdi-blue-500;
+				background: $grobdi-red-500;
 				border-radius: 50%;
 				cursor: pointer;
 				transition: all 0.2s ease;
 				margin-top: -0.375rem;
-				box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+				box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
 
 				&:hover {
-					background: $grobdi-blue-600;
+					background: $grobdi-red-600;
 					transform: scale(1.1);
 				}
 			}
@@ -507,15 +512,15 @@
 			&::-moz-range-thumb {
 				width: 1.25rem;
 				height: 1.25rem;
-				background: $grobdi-blue-500;
+				background: $grobdi-red-500;
 				border: none;
 				border-radius: 50%;
 				cursor: pointer;
 				transition: all 0.2s ease;
-				box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+				box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
 
 				&:hover {
-					background: $grobdi-blue-600;
+					background: $grobdi-red-600;
 					transform: scale(1.1);
 				}
 			}
@@ -524,17 +529,17 @@
 				outline: none;
 
 				&::-webkit-slider-thumb {
-					box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+					box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
 				}
 
 				&::-moz-range-thumb {
-					box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+					box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
 				}
 			}
 		}
 
 		button, a.btn {
-			background-color: $grobdi-blue-500;
+			background-color: $grobdi-red-500;
 			border: none;
 			color: $grobdi-bg-white;
 			padding: 0.625rem 1.5rem;
@@ -549,9 +554,9 @@
 			text-align: center;
 
 			&:hover {
-				background-color: $grobdi-blue-600;
+				background-color: $grobdi-red-600;
 				transform: translateY(-1px);
-				box-shadow: 0 0.25rem 0.5rem rgba(59, 130, 246, 0.25);
+				box-shadow: 0 0.25rem 0.5rem rgba(239, 68, 68, 0.25);
 				text-decoration: none;
 			}
 
@@ -598,16 +603,13 @@
 // ============================================
 // ESTILOS PARA MODALES - SISTEMA GROBDI
 // ============================================
-// Todas las variables usadas deben estar definidas en _variables.scss
 
-// Overlay del modal (fondo claro)
 .modal-grobdi {
 	.modal-backdrop {
 		background-color: $grobdi-modal-backdrop;
 		backdrop-filter: blur($grobdi-modal-backdrop-blur);
 	}
 
-	// Contenedor del modal
 	.modal-dialog {
 		margin: 1.75rem auto;
 		max-width: 600px;
@@ -644,7 +646,6 @@
 		}
 	}
 
-	// Contenido del modal
 	.modal-content {
 		border: 1px solid $grobdi-slate-300;
 		border-radius: 0.75rem;
@@ -653,7 +654,6 @@
 		background-color: $grobdi-bg-white;
 	}
 
-	// Encabezado del modal
 	.modal-header {
 		background-color: $grobdi-navy-900;
 		color: $grobdi-bg-white;
@@ -691,7 +691,6 @@
 			margin-top: 0.25rem;
 		}
 
-		// Botón de cerrar
 		.btn-close {
 			background-color: transparent;
 			border: none;
@@ -722,13 +721,11 @@
 		}
 	}
 
-	// Cuerpo del modal
 	.modal-body {
 		padding: 1.5rem;
 		color: $grobdi-text-base;
 		background-color: $grobdi-bg-white;
 
-		// Estilos para formularios dentro del modal
 		.form-group {
 			margin-bottom: 1.25rem;
 
@@ -771,8 +768,8 @@
 
 				&:focus {
 					outline: none;
-					border-color: $grobdi-blue-500;
-					box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+					border-color: $grobdi-red-500;
+					box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 				}
 
 				&::placeholder {
@@ -867,14 +864,12 @@
 			}
 		}
 
-		// Separadores
 		hr {
 			border: none;
 			border-top: 1px solid $grobdi-slate-200;
 			margin: 1.25rem 0;
 		}
 
-		// Listas
 		ul, ol {
 			padding-left: 1.5rem;
 			margin-bottom: 1rem;
@@ -893,7 +888,6 @@
 			}
 		}
 
-		// Tablas pequeñas dentro del modal
 		.table-modal {
 			width: 100%;
 			margin-bottom: 1rem;
@@ -924,7 +918,6 @@
 			}
 		}
 
-		// Grid de dos columnas
 		.modal-grid {
 			display: grid;
 			grid-template-columns: repeat(2, 1fr);
@@ -935,12 +928,11 @@
 			}
 		}
 
-		// Sección de información
 		.info-section {
 			background-color: $grobdi-slate-100;
 			padding: 1rem;
 			border-radius: 0.5rem;
-			border-left: 4px solid $grobdi-blue-500;
+			border-left: 4px solid $grobdi-red-500;
 			margin-bottom: 1.25rem;
 
 			&:last-child {
@@ -961,7 +953,6 @@
 			}
 		}
 
-		// Estilos para input-group (con íconos al lado)
 		.input-group {
 			display: flex;
 			align-items: stretch;
@@ -1011,16 +1002,16 @@
 
 				&:focus {
 					z-index: 3;
-					border-color: $grobdi-blue-500;
+					border-color: $grobdi-red-500;
 
 					& ~ .input-group-text {
-						border-color: $grobdi-blue-500;
+						border-color: $grobdi-red-500;
 					}
 				}
 			}
 		}
 
-		// Radio buttons personalizados (ya incluidos del header)
+		// Radio buttons personalizados
 		.grobdi-radio-group {
 			display: flex;
 			flex-wrap: wrap;
@@ -1043,7 +1034,7 @@
 				height: 0;
 
 				&:checked ~ .radio-custom {
-					border-color: $grobdi-blue-500;
+					border-color: $grobdi-red-500;
 					background-color: $grobdi-bg-white;
 
 					&::after {
@@ -1053,7 +1044,7 @@
 				}
 
 				&:focus ~ .radio-custom {
-					box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+					box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
 				}
 
 				&:disabled ~ .radio-custom {
@@ -1087,7 +1078,7 @@
 					width: 0.625rem;
 					height: 0.625rem;
 					border-radius: 50%;
-					background-color: $grobdi-blue-500;
+					background-color: $grobdi-red-500;
 					opacity: 0;
 					transition: all 0.2s ease;
 				}
@@ -1102,11 +1093,11 @@
 			}
 
 			&:hover input:not(:disabled) ~ .radio-custom {
-				border-color: $grobdi-blue-400;
+				border-color: $grobdi-red-400;
 			}
 		}
 
-		// Checkboxes personalizados (ya incluidos del header)
+		// Checkboxes personalizados
 		.grobdi-checkbox-group {
 			display: flex;
 			flex-direction: column;
@@ -1129,8 +1120,8 @@
 				height: 0;
 
 				&:checked ~ .checkbox-custom {
-					background-color: $grobdi-blue-500;
-					border-color: $grobdi-blue-500;
+					background-color: $grobdi-red-500;
+					border-color: $grobdi-red-500;
 
 					&::after {
 						opacity: 1;
@@ -1139,7 +1130,7 @@
 				}
 
 				&:focus ~ .checkbox-custom {
-					box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+					box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
 				}
 
 				&:disabled ~ .checkbox-custom {
@@ -1188,11 +1179,11 @@
 			}
 
 			&:hover input:not(:disabled) ~ .checkbox-custom {
-				border-color: $grobdi-blue-400;
+				border-color: $grobdi-red-400;
 			}
 		}
 
-		// Switch/Toggle (ya incluido del header)
+		// Switch/Toggle
 		.grobdi-switch {
 			position: relative;
 			display: inline-flex;
@@ -1208,7 +1199,7 @@
 				height: 0;
 
 				&:checked ~ .switch-slider {
-					background-color: $grobdi-blue-500;
+					background-color: $grobdi-red-500;
 
 					&::before {
 						transform: translateX(1.25rem);
@@ -1216,7 +1207,7 @@
 				}
 
 				&:focus ~ .switch-slider {
-					box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+					box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
 				}
 
 				&:disabled ~ .switch-slider {
@@ -1265,7 +1256,7 @@
 			}
 
 			&:hover input:checked:not(:disabled) ~ .switch-slider {
-				background-color: $grobdi-blue-600;
+				background-color: $grobdi-red-600;
 			}
 		}
 	}
@@ -1295,14 +1286,14 @@
 			white-space: nowrap;
 
 			&.btn-primary {
-				background-color: $grobdi-blue-500;
+				background-color: $grobdi-red-500;
 				color: $grobdi-bg-white;
-				box-shadow: 0 0.125rem 0.25rem rgba(59, 130, 246, 0.2);
+				box-shadow: 0 0.125rem 0.25rem rgba(239, 68, 68, 0.2);
 
 				&:hover {
-					background-color: $grobdi-blue-600;
+					background-color: $grobdi-red-600;
 					transform: translateY(-1px);
-					box-shadow: 0 0.25rem 0.5rem rgba(59, 130, 246, 0.3);
+					box-shadow: 0 0.25rem 0.5rem rgba(239, 68, 68, 0.3);
 				}
 
 				&:active {
@@ -1378,12 +1369,12 @@
 
 			&.btn-link {
 				background-color: transparent;
-				color: $grobdi-blue-500;
+				color: $grobdi-red-500;
 				padding: 0.625rem 1rem;
 				box-shadow: none;
 
 				&:hover {
-					color: $grobdi-blue-600;
+					color: $grobdi-red-600;
 					text-decoration: underline;
 					transform: none;
 				}
@@ -1436,7 +1427,7 @@
 
 				&.icon-info {
 					background-color: $grobdi-info-50;
-					color: $grobdi-blue-500;
+					color: $grobdi-info-500;
 				}
 
 				&.icon-success {
@@ -1501,7 +1492,7 @@
 		width: 3rem;
 		height: 3rem;
 		border: 4px solid $grobdi-slate-200;
-		border-top-color: $grobdi-blue-500;
+		border-top-color: $grobdi-red-500;
 		border-radius: 50%;
 		animation: spin 0.8s linear infinite;
 	}
@@ -1509,6 +1500,197 @@
 	@keyframes spin {
 		to {
 			transform: rotate(360deg);
+		}
+	}
+}
+
+// ============================================
+// ESTILOS ADICIONALES PARA COMPONENTES
+// ============================================
+
+// Cards Grobdi
+.card-grobdi {
+	border: 1px solid $grobdi-slate-300;
+	border-radius: 0.75rem;
+	overflow: hidden;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+	background-color: $grobdi-bg-white;
+	margin-bottom: 1.5rem;
+
+	.card-header-grobdi {
+		background-color: $grobdi-navy-900;
+		color: $grobdi-bg-white;
+		padding: 1rem 1.25rem;
+		font-weight: 600;
+		border-bottom: 2px solid $grobdi-navy-700;
+	}
+
+	.card-body-grobdi {
+		padding: 1.25rem;
+		color: $grobdi-text-base;
+	}
+
+	.card-footer-grobdi {
+		background-color: $grobdi-bg-light;
+		padding: 1rem 1.25rem;
+		border-top: 1px solid $grobdi-slate-200;
+	}
+}
+
+// Badges Grobdi
+.badge-grobdi {
+	display: inline-block;
+	padding: 0.375rem 0.75rem;
+	border-radius: 9999px;
+	font-size: 0.8rem;
+	font-weight: 600;
+	line-height: 1;
+
+	&.badge-red {
+		background-color: $grobdi-red-100;
+		color: $grobdi-red-800;
+	}
+
+	&.badge-green {
+		background-color: $grobdi-success-100;
+		color: $grobdi-success-800;
+	}
+
+	&.badge-blue {
+		background-color: $grobdi-info-100;
+		color: $grobdi-info-800;
+	}
+
+	&.badge-yellow {
+		background-color: $grobdi-warning-100;
+		color: $grobdi-warning-800;
+	}
+
+	&.badge-gray {
+		background-color: $grobdi-slate-100;
+		color: $grobdi-slate-700;
+	}
+}
+
+// Alerts Grobdi (complemento a Bootstrap)
+.alert-grobdi {
+	padding: 0.875rem 1rem;
+	border-radius: 0.5rem;
+	border-left: 4px solid;
+	margin-bottom: 1rem;
+	font-size: 0.95rem;
+
+	&.alert-info-grobdi {
+		background-color: $grobdi-info-50;
+		border-color: $grobdi-info-500;
+		color: $grobdi-info-700;
+	}
+
+	&.alert-success-grobdi {
+		background-color: $grobdi-success-50;
+		border-color: $grobdi-success-500;
+		color: $grobdi-success-900;
+	}
+
+	&.alert-warning-grobdi {
+		background-color: $grobdi-warning-50;
+		border-color: $grobdi-warning-500;
+		color: $grobdi-warning-900;
+	}
+
+	&.alert-danger-grobdi {
+		background-color: $grobdi-danger-50;
+		border-color: $grobdi-danger-500;
+		color: $grobdi-danger-900;
+	}
+}
+
+// Botones Grobdi globales (fuera de modales y headers)
+.btn-grobdi {
+	padding: 0.625rem 1.5rem;
+	font-size: 0.95rem;
+	font-weight: 600;
+	border-radius: 0.5rem;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	border: none;
+	text-decoration: none;
+	display: inline-block;
+	text-align: center;
+
+	&.btn-primary-grobdi {
+		background-color: $grobdi-red-500;
+		color: $grobdi-bg-white;
+		box-shadow: 0 0.125rem 0.25rem rgba(239, 68, 68, 0.2);
+
+		&:hover {
+			background-color: $grobdi-red-600;
+			transform: translateY(-1px);
+			box-shadow: 0 0.25rem 0.5rem rgba(239, 68, 68, 0.3);
+			text-decoration: none;
+			color: $grobdi-bg-white;
+		}
+
+		&:active {
+			transform: translateY(0);
+		}
+	}
+
+	&.btn-secondary-grobdi {
+		background-color: $grobdi-slate-600;
+		color: $grobdi-bg-white;
+
+		&:hover {
+			background-color: $grobdi-slate-700;
+			transform: translateY(-1px);
+			color: $grobdi-bg-white;
+		}
+	}
+
+	&.btn-success-grobdi {
+		background-color: $grobdi-success-500;
+		color: $grobdi-bg-white;
+
+		&:hover {
+			background-color: $grobdi-success-600;
+			transform: translateY(-1px);
+			color: $grobdi-bg-white;
+		}
+	}
+
+	&.btn-warning-grobdi {
+		background-color: $grobdi-warning-500;
+		color: $grobdi-bg-white;
+
+		&:hover {
+			background-color: $grobdi-warning-600;
+			transform: translateY(-1px);
+			color: $grobdi-bg-white;
+		}
+	}
+
+	&.btn-danger-grobdi {
+		background-color: $grobdi-danger-500;
+		color: $grobdi-bg-white;
+
+		&:hover {
+			background-color: $grobdi-danger-600;
+			transform: translateY(-1px);
+			color: $grobdi-bg-white;
+		}
+	}
+
+	&.btn-outline-grobdi {
+		background-color: transparent;
+		border: 1px solid $grobdi-slate-300;
+		color: $grobdi-text-base;
+		box-shadow: none;
+
+		&:hover {
+			background-color: $grobdi-slate-100;
+			border-color: $grobdi-slate-400;
+			transform: translateY(-1px);
+			color: $grobdi-text-base;
 		}
 	}
 }
@@ -1544,6 +1726,20 @@
 			button, a.btn {
 				width: 100%;
 			}
+		}
+	}
+
+	.grobdi-header {
+		.grobdi-title {
+			padding: 1rem;
+
+			h1, h2, h3, h4, h5, h6 {
+				font-size: 1.25rem;
+			}
+		}
+
+		.grobdi-filter {
+			padding: 1rem;
 		}
 	}
 }

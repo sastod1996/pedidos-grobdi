@@ -24,113 +24,112 @@
 
 @section('content')
     @can('muestras.index')
-        <div class="container">
+        <div class="container-fluid">
             @include('messages')
-            <div class="d-flex flex-column flex-md-row justify-content-between">
-                <h1>Estado de las Muestras</h1>
-                <div class="btn-group mt-2 mt-md-0" role="group">
-                    @can('muestras.create')
-                        <a href="{{ route('muestras.create') }}" class="btn btn-s btn-success my-1">
-                            <i class="fas fa-plus-circle mr-1"></i> Agregar Muestra
-                        </a>
-                    @endcan
-                    @can('muestras.exportExcel')
-                        <a class="btn btn-s btn-outline-success my-1" href="{{ route('muestras.exportExcel') }}">
-                            <i class="fas fa-file-excel mr-1"></i>Exportar Excel
-                        </a>
-                    @endcan
+
+            {{-- Header Grobdi --}}
+            <div class="grobdi-header">
+                <div class="grobdi-title">
+                    <h1>Estado de las Muestras</h1>
+                    <div class="d-flex gap-2">
+                        @can('muestras.create')
+                            <a href="{{ route('muestras.create') }}" class="btn">
+                                <i class="fas fa-plus-circle mr-1"></i> Agregar Muestra
+                            </a>
+                        @endcan
+                        @can('muestras.exportExcel')
+                            <a href="{{ route('muestras.exportExcel') }}" class="btn">
+                                <i class="fas fa-file-excel mr-1"></i>Exportar Excel
+                            </a>
+                        @endcan
+                    </div>
                 </div>
-            </div>
-            <hr>
-            <div class="row my-3">
-                <div class="col-12">
-                    <form method="GET" action="{{ route('muestras.index') }}" class="d-flex flex-column flex-md-row">
-                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar por nombre..."
-                            class="form-control">
-                        <select class="custom-select mx-md-2 my-2 my-md-0" name="filter_by_date">
-                            <option value="registro" {{ request('filter_by_date') == 'registro' ? 'selected' : '' }}>
-                                Por fecha de registro
-                            </option>
-                            <option value="entrega" {{ request('filter_by_date') == 'entrega' ? 'selected' : '' }}>
-                                Por fecha de entrega
-                            </option>
-                        </select>
-                        <input type="date" name="date_since" value="{{ request('date_since') }}"
-                            class="form-control mb-2 mb-md-0 mr-md-2" placeholder="Desde">
-                        <input type="date" name="date_to" value="{{ request('date_to') }}" class="form-control mb-2 mb-md-0"
-                            placeholder="Hasta">
-                        <button type="submit" class="btn btn-primary ml-md-2">Buscar</button>
-                    </form>
-                </div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-12 col-xl-6 mb-3">
-                    <form id="orderForm" class="row" action="{{ route('muestras.index') }}" method="GET">
-                        <div class="col-xl-2 col-3 align-content-center">
-                            <h5 class="m-0">
-                                <strong>
-                                    Ordenar por
-                                </strong>
-                            </h5>
-                        </div>
-                        <div class="col-9 col-xl-10">
-                            <select class="custom-select rounded-0" id="orderSelect" onchange="window.location = this.value;">
-                                <option
-                                    value="{{ route('muestras.index', array_merge($currentParams, ['order_by' => 'fecha_registro'])) }}"
-                                    {{ request('order_by') == 'fecha_registro' ? 'selected' : '' }}>
-                                    Fecha de Registro
-                                </option>
-                                <option
-                                    value="{{ route('muestras.index', array_merge($currentParams, ['order_by' => 'fecha_entrega'])) }}"
-                                    {{ request('order_by') == 'fecha_entrega' ? 'selected' : '' }}>
-                                    Fecha de Entrega
-                                </option>
-                            </select>
+
+                {{-- Filtros Grobdi --}}
+                <div class="grobdi-filter">
+                    <form method="GET" action="{{ route('muestras.index') }}">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label for="search">Buscar por nombre</label>
+                                <input type="text" id="search" name="search" value="{{ request('search') }}" placeholder="Buscar por nombre...">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="filter_by_date">Filtrar por fecha</label>
+                                <select id="filter_by_date" name="filter_by_date">
+                                    <option value="registro" {{ request('filter_by_date') == 'registro' ? 'selected' : '' }}>
+                                        Por fecha de registro
+                                    </option>
+                                    <option value="entrega" {{ request('filter_by_date') == 'entrega' ? 'selected' : '' }}>
+                                        Por fecha de entrega
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="date_since">Desde</label>
+                                <input type="date" id="date_since" name="date_since" value="{{ request('date_since') }}">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="date_to">Hasta</label>
+                                <input type="date" id="date_to" name="date_to" value="{{ request('date_to') }}">
+                            </div>
+                            <div class="col-md-2">
+                                <label>&nbsp;</label>
+                                <button type="submit">Buscar</button>
+                            </div>
                         </div>
                     </form>
-                </div>
-                <div class="col-12 col-xl-6">
-                    <form id="filterForm" class="d-flex gap-2" action="{{ route('muestras.index') }}" method="GET">
-                        <div class="col-2 col-md-3 col-lg-4 align-content-center">
-                            <h5 class="m-0 text-truncate">
-                                <strong>
-                                    Estado de Laboratorio
-                                </strong>
-                            </h5>
-                        </div>
-                        <div class="col-10 col-md-9 col-lg-8">
-                            <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
-                                {{-- Pendientes --}}
-                                <label
-                                    class="btn {{ request('lab_state') == 'Pendiente' ? 'btn-info active' : 'btn-outline-secondary' }}">
-                                    <input type="radio" name="lab_state" value="Pendiente"
-                                        onchange="document.getElementById('filterForm').submit();"
-                                        {{ request('lab_state') == 'Pendiente' ? 'checked' : '' }}>
-                                    Pendientes
-                                </label>
-                                {{-- Todas (sin lab_state) --}}
-                                <label
-                                    class="btn {{ request()->has('lab_state') ? 'btn-outline-secondary' : 'btn-info active' }}">
-                                    <input type="radio" name="lab_state" value=""
-                                        onchange="window.location='{{ route('muestras.index') }}';"
-                                        {{ !request()->has('lab_state') ? 'checked' : '' }}>
-                                    Todas
-                                </label>
-                                {{-- Elaboradas --}}
-                                <label
-                                    class=" btn {{ request('lab_state') == 'Elaborado' ? 'btn-info active' : 'btn-outline-secondary' }}">
-                                    <input type="radio" name="lab_state" value="Elaborado"
-                                        onchange="document.getElementById('filterForm').submit();"
-                                        {{ request('lab_state') == 'Elaborado' ? 'checked' : '' }}>
-                                    Elaboradas
-                                </label>
+
+                    <hr style="border-color: var(--grobdi-slate-300); margin: 1.5rem 0;">
+
+                    <form id="orderForm" action="{{ route('muestras.index') }}" method="GET">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="orderSelect">Ordenar por</label>
+                                <select id="orderSelect" onchange="window.location = this.value;">
+                                    <option
+                                        value="{{ route('muestras.index', array_merge($currentParams, ['order_by' => 'fecha_registro'])) }}"
+                                        {{ request('order_by') == 'fecha_registro' ? 'selected' : '' }}>
+                                        Fecha de Registro
+                                    </option>
+                                    <option
+                                        value="{{ route('muestras.index', array_merge($currentParams, ['order_by' => 'fecha_entrega'])) }}"
+                                        {{ request('order_by') == 'fecha_entrega' ? 'selected' : '' }}>
+                                        Fecha de Entrega
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Estado de Laboratorio</label>
+                                <div class="grobdi-radio-group">
+                                    <label class="grobdi-radio">
+                                        <input type="radio" name="lab_state" value="Pendiente"
+                                            onchange="document.getElementById('filterForm').submit();"
+                                            {{ request('lab_state') == 'Pendiente' ? 'checked' : '' }}>
+                                        <span class="radio-custom"></span>
+                                        <span class="radio-label">Pendientes</span>
+                                    </label>
+                                    <label class="grobdi-radio">
+                                        <input type="radio" name="lab_state" value=""
+                                            onchange="window.location='{{ route('muestras.index') }}';"
+                                            {{ !request()->has('lab_state') ? 'checked' : '' }}>
+                                        <span class="radio-custom"></span>
+                                        <span class="radio-label">Todas</span>
+                                    </label>
+                                    <label class="grobdi-radio">
+                                        <input type="radio" name="lab_state" value="Elaborado"
+                                            onchange="document.getElementById('filterForm').submit();"
+                                            {{ request('lab_state') == 'Elaborado' ? 'checked' : '' }}>
+                                        <span class="radio-custom"></span>
+                                        <span class="radio-label">Elaboradas</span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </form>
                 </div>
             </div>
             <div class="table-responsive">
-                <table class="table table-hover" id="table_muestras">
+                <table class="table table-hover table-grobdi" id="table_muestras">
                     <thead>
                         <tr>
                             <th class="px-3">ID</th>
