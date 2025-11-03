@@ -10,6 +10,8 @@ use App\Application\DTOs\Reports\Ventas\ReportVisitadorasDto;
 use App\Application\Services\Reports\ReportBaseService;
 use App\Domain\Interfaces\ReportsRepositoryInterface;
 use App\Shared\Helpers\GetPercentageHelper;
+use Brick\Math\RoundingMode;
+use Brick\Money\Money;
 use Carbon\Carbon;
 
 class VentasReportService extends ReportBaseService
@@ -36,7 +38,7 @@ class VentasReportService extends ReportBaseService
         $dataMap = $rawData->keyBy('period')->mapWithKeys(function ($item) {
             return [
                 $item->period => [
-                    'total_amount' => (float) $item->total_amount,
+                    'total_amount' => Money::of($item->total_amount, 'PEN'),
                     'total_pedidos' => (int) $item->total_pedidos,
                 ]
             ];
@@ -51,24 +53,24 @@ class VentasReportService extends ReportBaseService
             $labels = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
         }
 
-        $totalAmount = 0;
+        $totalAmount = Money::zero('PEN');
         $totalPedidos = 0;
         foreach ($range as $index => $period) {
             $exists = $dataMap->has($period);
-            $amount = $exists ? $dataMap[$period]['total_amount'] : 0;
+            $amount = $exists ? $dataMap[$period]['total_amount'] : Money::zero('PEN');
             $pedidos = $exists ? $dataMap[$period]['total_pedidos'] : 0;
             $completeData[] = [
                 'label' => $labels[$index],
-                'total_amount' => $amount,
+                'total_amount' => $amount->getAmount()->toFloat(),
                 'total_pedidos' => $pedidos,
             ];
-            $totalAmount += $amount;
+            $totalAmount = $totalAmount->plus($amount);
             $totalPedidos += $pedidos;
         }
 
         $periodLabel = $isDaily ? sprintf('%02d-%d', $month, $year) : (string) $year;
 
-        $average = count($completeData) > 0 ? $totalAmount / count($completeData) : 0;
+        $average = count($completeData) > 0 ? $totalAmount->dividedBy(count($completeData), RoundingMode::HALF_UP) : Money::zero('PEN');
 
         return new ReportGeneralDto(
             $isDaily ? ReportGeneralType::DAILY : ReportGeneralType::MONTHLY,

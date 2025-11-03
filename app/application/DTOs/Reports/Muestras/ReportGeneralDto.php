@@ -3,13 +3,14 @@
 namespace App\Application\DTOs\Reports\Muestras;
 
 use App\Application\DTOs\Reports\ReportBaseDto;
+use Brick\Money\Money;
 
 class ReportGeneralDto extends ReportBaseDto
 {
     public function __construct(
         private int $totalMuestras,
         private int $totalQuantity,
-        private float $totalAmount,
+        private Money $totalAmount,
         private array $groupByTipoFrasco,
         private array $groupByTipoMuestra,
         array $data,

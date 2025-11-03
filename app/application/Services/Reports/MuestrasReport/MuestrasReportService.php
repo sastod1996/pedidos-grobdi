@@ -8,6 +8,7 @@ use App\Application\Services\Reports\ReportBaseService;
 use App\Infrastructure\Repository\ReportsRepository;
 use App\Models\Muestras;
 use App\Models\TipoMuestra;
+use Brick\Math\RoundingMode;
 use Brick\Money\Money;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -125,7 +126,7 @@ class MuestrasReportService extends ReportBaseService
         return [
             'count' => count($collection),
             'quantity' => $this->getMuestrasQuantity($collection),
-            'amount' => $this->getMuestrasTotalAmount($collection)
+            'amount' => $this->getMuestrasTotalAmount($collection)->getAmount()->__toString()
         ];
     }
 
@@ -133,9 +134,16 @@ class MuestrasReportService extends ReportBaseService
     {
         return $collection->sum('cantidad_de_muestra');
     }
-    private function getMuestrasTotalAmount(Collection $collection): float
+    private function getMuestrasTotalAmount(Collection $collection): Money
     {
-        return $collection->sum(fn($m) => ($m->precio ?? 0) * $m->cantidad_de_muestra);
+        return $collection->reduce(function (Money $total, $muestra) {
+            $precio = $muestra->precio ? Money::of($muestra->precio, 'PEN') : Money::zero('PEN');
+            $cantidad = $muestra->cantidad_de_muestra ?? 0;
+
+            $subTotal = $precio->multipliedBy($cantidad, RoundingMode::HALF_UP);
+
+            return $total->plus($subTotal);
+        }, Money::zero('PEN'));
     }
 
     private function buildDataGroupedByMonthInYear(Collection $collection): array
