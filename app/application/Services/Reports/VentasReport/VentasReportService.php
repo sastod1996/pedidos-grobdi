@@ -87,9 +87,9 @@ class VentasReportService extends ReportBaseService
 
         $data = $this->repo->getVentasVisitadorasReport($start_date, $end_date);
 
-        $totalAmount = $data->sum('total_amount');
-        $totalPedidos = $data->sum('total_pedidos');
-        $topVisitadora = $data->sortByDesc('total_amount')->first()->visitadora;
+        $totalAmount = $data->sum('total_amount') ?? 0;
+        $totalPedidos = $data->sum('total_pedidos') ?? 0;
+        $topVisitadora = $data->sortByDesc('total_amount')->first()->visitadora ?? 'No disponible';
 
         $data = $data->map(function ($item) use ($totalAmount, $totalPedidos) {
             return [
