@@ -42,18 +42,14 @@ class ReportsRepository implements ReportsRepositoryInterface
                 u.name as visitadora,
                 SUM(p.prize) as total_amount,
                 COUNT(p.id) as total_pedidos'
-            )->where('u.role_id', 6)->where('status', true)
+            )
+            ->where('u.role_id', 6)
+            ->where('status', true)
             ->when($startDate && $endDate, function ($q) use ($startDate, $endDate) {
                 $q->whereBetween('p.created_at', [$startDate, $endDate]);
-            })->groupBy('u.id', 'u.name')
-            ->get()->map(
-                fn($item) => (object) 
-                [
-                    'visitadora' => $item->visitadora,
-                    'total_amount' => (float) $item->total_amount,
-                    'total_pedidos' => (int) $item->total_pedidos,
-                ]
-            );
+            })
+            ->groupBy('u.id', 'u.name')
+            ->get();
     }
     public function getVentasProductosReport(string $startDate, string $endDate): Collection
     {
