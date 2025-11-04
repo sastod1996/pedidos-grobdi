@@ -52,7 +52,7 @@
     <div class="col-12 col-sm-6 col-lg-4 order-2 order-lg-1  mb-3 mb-lg-0">
         <div class="card card-outline card-danger bg-dark h-100">
             <div class="card-body text-center align-content-center">
-                <h3 id="general-total-pedidos">{{ $generalReport['general_stats']['total_pedidos'] ?? 0 }}</h3>
+                <h3 id="general-total-pedidos">{{ $generalReport['general_stats']['total_pedidos'] }}</h3>
                 <p class="mb-0">Total de Pedidos</p>
             </div>
         </div>
@@ -61,7 +61,7 @@
         <div class="card card-outline card-danger bg-dark h-100">
             <div class="card-body text-center align-content-center">
                 <h3 id="general-total-amount">S/
-                    {{ number_format($generalReport['general_stats']['total_amount'] ?? 0, 2) }}
+                    {{ $generalReport['general_stats']['total_amount'] }}
                 </h3>
                 <p class="mb-0">Ingresos Totales</p>
             </div>
@@ -71,7 +71,7 @@
         <div class="card card-outline card-danger bg-dark h-100">
             <div class="card-body text-center align-content-center">
                 <h3 id="general-average-amount">S/
-                    {{ number_format($generalReport['general_stats']['average_amount'] ?? 0, 2) }}</h3>
+                    {{ $generalReport['general_stats']['average_amount'] }}</h3>
                 <p class="mb-0">Promedio de Ingresos/Pedidos</p>
             </div>
         </div>

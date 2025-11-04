@@ -245,69 +245,131 @@ it('Calculate Commission Rate', function () {
 });
 
 it('returns a list of visitor goal metrics for a given meta id', function () {
-    $visitadora = User::factory()->create(['name' => 'Ana Pérez', 'role_id' => 6]);
+    $visitadora1 = User::factory()->create(['name' => 'Ana Pérez', 'role_id' => 6]);
+    $visitadora2 = User::factory()->create(['name' => 'Ana CASASA', 'role_id' => 6]);
+    $gnrc = GoalNotReachedConfig::factory()->create([
+        'name' => 'Configuración de Meta'
+    ]);
     GoalNotReachedConfigDetail::factory()->create([
-        'goal_not_reached_config_id' => $this->goalNotReachedConfig->id,
+        'goal_not_reached_config_id' => $gnrc->id,
         'initial_percentage' => 0.0,
-        'final_percentage' => 0.69,
-        'commission' => 0.01,
+        'final_percentage' => 0.7900,
+        'commission' => 0.0,
     ]);
     GoalNotReachedConfigDetail::factory()->create([
-        'goal_not_reached_config_id' => $this->goalNotReachedConfig->id,
-        'initial_percentage' => 0.7,
-        'final_percentage' => 0.9,
-        'commission' => 0.03,
+        'goal_not_reached_config_id' => $gnrc->id,
+        'initial_percentage' => 0.8,
+        'final_percentage' => 0.89,
+        'commission' => 0.0100,
     ]);
     GoalNotReachedConfigDetail::factory()->create([
-        'goal_not_reached_config_id' => $this->goalNotReachedConfig->id,
-        'initial_percentage' => 0.91,
-        'final_percentage' => 0.9999,
-        'commission' => 0.05,
+        'goal_not_reached_config_id' => $gnrc->id,
+        'initial_percentage' => 0.9,
+        'final_percentage' => 0.99,
+        'commission' => 0.015,
     ]);
-    $monthlyGoal = MonthlyVisitorGoal::factory()->create(['goal_not_reached_config_id' => $this->goalNotReachedConfig->id]);
+
+    $mg = MonthlyVisitorGoal::factory()->create([
+        'goal_not_reached_config_id' => $gnrc->id,
+        'tipo_medico' => 'prescriptor',
+        'start_date' => '2025-09-01',
+        'end_date' => '2025-09-30',
+    ]);
+    $mg2 = MonthlyVisitorGoal::factory()->create([
+        'goal_not_reached_config_id' => $gnrc->id,
+        'tipo_medico' => 'prescriptor',
+        'start_date' => '2025-10-01',
+        'end_date' => '2025-10-31',
+    ]);
     $visitorGoal = VisitorGoal::factory()->create([
-        'monthly_visitor_goal_id' => $monthlyGoal->id,
-        'user_id' => $visitadora->id,
-        'goal_amount' => 1000,
-        'commission_percentage' => 0.1,
+        'monthly_visitor_goal_id' => $mg->id,
+        'user_id' => $visitadora1->id,
+        'goal_amount' => 15000,
+        'commission_percentage' => 0.045,
+    ]);
+    $visitorGoal2 = VisitorGoal::factory()->create([
+        'monthly_visitor_goal_id' => $mg->id,
+        'user_id' => $visitadora2->id,
+        'goal_amount' => 15000,
+        'commission_percentage' => 0.045,
+    ]);
+    $visitorGoal3 = VisitorGoal::factory()->create([
+        'monthly_visitor_goal_id' => $mg2->id,
+        'user_id' => $visitadora1->id,
+        'goal_amount' => 1500,
+        'commission_percentage' => 0.035,
+    ]);
+    $visitorGoal4 = VisitorGoal::factory()->create([
+        'monthly_visitor_goal_id' => $mg2->id,
+        'user_id' => $visitadora2->id,
+        'goal_amount' => 1500,
+        'commission_percentage' => 0.035,
     ]);
 
-    $pedidos = Pedidos::factory()->count(8)->create([
-        'visitadora_id' => $visitadora->id,
-        'user_id' => $visitadora->id,
+    $doctor = Doctor::factory()->create([
+        'tipo_medico' => 'prEscriptOr',
     ]);
 
-    foreach ($pedidos as $pedido) {
-        DetailPedidos::factory()->count(2)->create([
-            'pedidos_id' => $pedido->id,
-            'cantidad' => 5,
-            'unit_prize' => 10,
-            'sub_total' => 50
-        ]);
-    }
+    $pedido1 = Pedidos::factory()->create([
+        'visitadora_id' => $visitadora1->id,
+        'user_id' => $visitadora1->id,
+        'id_doctor' => $doctor->id,
+        'created_at' => '2025-09-13 20:44:20'
+    ]);
+    $pedido2 = Pedidos::factory()->create([
+        'visitadora_id' => $visitadora2->id,
+        'user_id' => $visitadora2->id,
+        'id_doctor' => $doctor->id,
+        'created_at' => '2025-09-13 20:44:20'
+    ]);
 
-    // Mock del servicio para devolver un subtotal fijo
-    $this->mock(PedidosService::class, function ($mock) {
-        $mock->shouldReceive('calculateTotalSubTotal')
-            ->andReturn(800.0);
-    });
+    DetailPedidos::factory()->create([
+        'pedidos_id' => $pedido1->id,
+        'cantidad' => 5,
+        'unit_prize' => 10,
+        'sub_total' => 16687.61
+    ]);
+    DetailPedidos::factory()->create([
+        'pedidos_id' => $pedido2->id,
+        'cantidad' => 5,
+        'unit_prize' => 10,
+        'sub_total' => 9917.68
+    ]);
 
-    $result = $this->service->getListOfVisitorGoalByMetaId($monthlyGoal->id);
+    $result = $this->service->getListOfVisitorGoalByMetaId($mg->id);
 
-    expect($result)->toBeArray();
-    expect($result)->toHaveKeys(['meta', 'visitor_goals']);
-    expect($result['visitor_goals'])->toHaveCount(1);
-    expect($result['visitor_goals'][0])->toMatchArray([
+    expect($result)->toHaveCount(2);
+
+    // Registro 1: Ana Pérez (111.25% → usa comisión completa)
+    expect($result[0])->toMatchArray([
         'id' => $visitorGoal->id,
         'visitadora' => [
-            'id' => $visitadora->id,
+            'id' => $visitadora1->id,
             'name' => 'Ana Pérez',
         ],
-        'goal_amount' => '1000.00',
-        'porcentaje_actual' => 80.0, // (800 / 1000) * 100
-        'comision_actual' => 3.0, // 3% según la configuración
-        'total_sub_total_sin_igv' => '656.00', // 800 * 0.82
-        'monto_comisionado' => '19.68', // 656 * 0.03
+        'commission_percentage' => 4.5,
+        'goal_amount' => '15000.00',
+        'porcentaje_actual' => 111.25,
+        'comision_actual' => 4.5,
+        'total_sub_total_sin_igv' => '13683.84',
+        'monto_comisionado' => '615.77',
+        'debited_amount' => 'Sin monto debitado',
+        'debited_datetime' => 'No se ha debitado aún'
+    ]);
+
+    // Registro 2: Ana CASASA (66.12% → comisión = 0)
+    expect($result[1])->toMatchArray([
+        'id' => $visitorGoal2->id,
+        'visitadora' => [
+            'id' => $visitadora2->id,
+            'name' => 'Ana CASASA',
+        ],
+        'commission_percentage' => 4.5,
+        'goal_amount' => '15000.00',
+        'porcentaje_actual' => 66.12,
+        'comision_actual' => 0.0,
+        'total_sub_total_sin_igv' => '8132.50',
+        'monto_comisionado' => '0.00',
         'debited_amount' => 'Sin monto debitado',
         'debited_datetime' => 'No se ha debitado aún'
     ]);
