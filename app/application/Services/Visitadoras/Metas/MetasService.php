@@ -302,7 +302,7 @@ class MetasService
         float $fullCommissionPercentage,
         ?int $goalNotReachedConfigId
     ): float {
-        if ($currentPercentage >= 100) {
+        if ($currentPercentage >= 1) {
             return $fullCommissionPercentage;
         }
 

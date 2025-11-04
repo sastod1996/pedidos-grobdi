@@ -30,6 +30,35 @@
 		}
 		$titleSegments[] = 'Bonificación de médicos ' . ($tipoMedicoLabel ?? '');
 		$heroTitle = trim(implode(' - ', array_filter($titleSegments)));
+		$formatCurrency = static function ($value) {
+			if ($value === null || $value === '') {
+				return '-';
+			}
+			if (is_numeric($value)) {
+				return 'S/ ' . number_format((float) $value, 2, '.', ',');
+			}
+			// try to extract numeric amount from string, fallback to original text
+			if (is_string($value)) {
+				$numeric = preg_replace('/[^0-9\\.\-]/', '', $value);
+				if ($numeric !== '' && is_numeric($numeric)) {
+					return 'S/ ' . number_format((float) $numeric, 2, '.', ',');
+				}
+			}
+			return (string) $value;
+		};
+		$formatPercentage = static function ($value, int $decimals = 2, bool $clampTo100 = false) {
+			if ($value === null || $value === '') {
+				return '-';
+			}
+			if (! is_numeric($value)) {
+				return $value;
+			}
+			$numeric = (float) $value;
+			if ($clampTo100) {
+				$numeric = max(0, min(100, $numeric));
+			}
+			return number_format($numeric, $decimals, '.', ',') . '%';
+		};
 	@endphp
 	<div class="bonificaciones-wrapper">
         <div class="card bonificaciones-hero-card shadow-sm border-0 mb-4">
@@ -74,23 +103,24 @@
 							@forelse($visitorGoals as $vg)
 								<tr data-pedidos="{{ $vg['total_sub_total_sin_igv'] ?? '' }}" data-visitor-goal-id="{{ $vg['id'] }}">
 									<td class="fw-semibold">{{ $vg['visitadora']['name'] ?? '-' }}</td>
-									<td>{{ $vg['commission_percentage'] ?? '-' }}</td>
-									<td>{{ $vg['goal_amount'] ?? '-' }}</td>
-									@php
-										$__pct = isset($vg['porcentaje_actual']) ? floatval($vg['porcentaje_actual']) : null;
-										$__pct_clamped = $__pct !== null ? max(0, min(100, $__pct)) : null;
-									@endphp
+									<td>{{ $formatPercentage($vg['commission_percentage'] ?? null) }}</td>
+									<td>{{ $formatCurrency($vg['goal_amount'] ?? null) }}</td>
+								@php
+									$__pct = isset($vg['porcentaje_actual']) ? (float) $vg['porcentaje_actual'] : null;
+									$__pct_clamped = $formatPercentage($__pct, 2, true);
+									$__pct_value = isset($vg['porcentaje_actual']) ? max(0, min(100, (float) $vg['porcentaje_actual'])) : null;
+								@endphp
 									<td>
 										<div class="d-flex align-items-center gap-2">
-											<div class="me-2 fw-semibold">{{ $__pct !== null ? number_format($__pct, 2) . '%' : '-' }}</div>
-											<div class="progress flex-grow-1">
-												<div class="progress-bar bg-success" role="progressbar" style="width: {{ $__pct_clamped !== null ? $__pct_clamped.'%' : '0%' }};" aria-valuenow="{{ $__pct_clamped ?? 0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+										<div class="me-2 fw-semibold">{{ $__pct_clamped }}</div>
+										<div class="progress flex-grow-1">
+											<div class="progress-bar bg-success" role="progressbar" style="width: {{ $__pct_value !== null ? $__pct_value.'%' : '0%' }};" aria-valuenow="{{ $__pct_value ?? 0 }}" aria-valuemin="0" aria-valuemax="100"></div>
 											</div>
 										</div>
 									</td>
-									<td>{{ $vg['comision_actual'] ?? '-' }}</td>
-									<td>{{ $vg['total_sub_total_sin_igv'] ?? '-' }}</td>
-									<td>{{ $vg['monto_comisionado'] ?? '-' }}</td>
+									<td>{{ $formatPercentage($vg['comision_actual'] ?? null) }}</td>
+									<td>{{ $formatCurrency($vg['total_sub_total_sin_igv'] ?? null) }}</td>
+									<td>{{ $formatCurrency($vg['monto_comisionado'] ?? null) }}</td>
 									<td>
 										@php
 											$debited = $vg['debited_amount'] ?? null;
@@ -126,7 +156,7 @@
 										@php
 											$debitedAt = $vg['debited_datetime'] ?? null;
 											$debitedAtFormatted = null;
-											if (!empty($debitedAt) && $debitedAt !== 'No se ha debitado aún') {
+											if (! empty($debitedAt) && $debitedAt !== 'No se ha debitado aún') {
 												try {
 													$debitedAtFormatted = \Carbon\Carbon::parse($debitedAt)->format('d/m/Y H:i');
 												} catch (\Throwable $e) {
