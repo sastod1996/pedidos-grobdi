@@ -88,29 +88,25 @@
                     <div class="alert alert-success" role="alert"> {{ $value }} </div>
                 @endsession
                 <!-- Botones de acción masiva -->
-                @can('pedidoslaboratorio.update')
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <button type="button" class="btn btn-success" id="btnCambioMasivo" disabled>
-                                <i class="fa fa-check-square"></i> Marcar como Preparado (<span id="contadorSeleccionados">0</span>
-                                seleccionados)
-                            </button>
-                        </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <button type="button" class="btn btn-success" id="btnCambioMasivo" disabled>
+                            <i class="fa fa-check-square"></i> Marcar como Preparado (<span id="contadorSeleccionados">0</span>
+                            seleccionados)
+                        </button>
                     </div>
-                @endcan
+                </div>
 
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped table-grobdi" id="tablaPedidos">
                         <thead>
                             <tr>
-                                @if ($canUpdatePedido)
-                                    <th>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="selectAll">
-                                            <label class="form-check-label" for="selectAll">Todo</label>
-                                        </div>
-                                    </th>
-                                @endif
+                                <th>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="selectAll">
+                                        <label class="form-check-label" for="selectAll">Todo</label>
+                                    </div>
+                                </th>
                                 <th>Nro</th>
                                 <th>Nro pedido</th>
                                 <th>Cliente</th>
@@ -127,16 +123,14 @@
                         <tbody>
                             @forelse ($pedidos as $pedido)
                                 <tr>
-                                    @if ($canUpdatePedido)
-                                        <td>
-                                            <div class="form-check">
-                                                <input class="form-check-input border border-info" type="checkbox"
-                                                    value="{{ $pedido->id }}" id="checkbox{{ $pedido->id }}"
-                                                    {{ $pedido->productionStatus === 1 ? 'disabled' : '' }}>
-                                                <label class="form-check-label" for="checkbox{{ $pedido->id }}"></label>
-                                            </div>
-                                        </td>
-                                    @endif
+                                    <td>
+                                        <div class="form-check">
+                                            <input class="form-check-input border border-info pedido-checkbox" type="checkbox"
+                                                value="{{ $pedido->id }}" id="checkbox{{ $pedido->id }}"
+                                                {{ $pedido->productionStatus === 1 ? 'disabled' : '' }}>
+                                            <label class="form-check-label" for="checkbox{{ $pedido->id }}"></label>
+                                        </div>
+                                    </td>
                                     <td>{{ $pedido->nroOrder }}</td>
                                     <td>{{ $pedido->orderId }}</td>
                                     <td>{{ $pedido->customerName }}</td>
@@ -377,72 +371,70 @@
                 </div>
 
                 <!-- Modal para cambio masivo de estado -->
-                @can('pedidoslaboratorio.update')
-                    <div class="modal fade" id="cambioMasivoModal" tabindex="-1" role="dialog"
-                        aria-labelledby="cambioMasivoModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-lg" role="document">
-                            <div class="modal-content">
-                                <form id="formCambioMasivo" action="" method="POST">
-                                    @csrf
-                                    @method('PUT')
-                                    <div class="modal-header bg-success text-white">
-                                        <h5 class="modal-title" id="cambioMasivoModalLabel">
-                                            <i class="fa fa-check-square"></i> Cambio Masivo de Estado a Preparado
-                                        </h5>
-                                        <button type="button" class="close text-white" data-dismiss="modal"
-                                            aria-label="Cerrar">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
+                <div class="modal fade" id="cambioMasivoModal" tabindex="-1" role="dialog"
+                    aria-labelledby="cambioMasivoModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <form id="formCambioMasivo" action="" method="POST">
+                                @csrf
+                                @method('PUT')
+                                <div class="modal-header bg-success text-white">
+                                    <h5 class="modal-title" id="cambioMasivoModalLabel">
+                                        <i class="fa fa-check-square"></i> Cambio Masivo de Estado a Preparado
+                                    </h5>
+                                    <button type="button" class="close text-white" data-dismiss="modal"
+                                        aria-label="Cerrar">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="alert alert-info">
+                                        <i class="fa fa-info-circle"></i>
+                                        <strong>Información:</strong> Los siguientes pedidos cambiarán su estado de <span
+                                            class="badge badge-warning">Pendiente</span> a <span
+                                            class="badge badge-success">Preparado</span>
                                     </div>
-                                    <div class="modal-body">
-                                        <div class="alert alert-info">
-                                            <i class="fa fa-info-circle"></i>
-                                            <strong>Información:</strong> Los siguientes pedidos cambiarán su estado de <span
-                                                class="badge badge-warning">Pendiente</span> a <span
-                                                class="badge badge-success">Preparado</span>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h6><strong>Pedidos seleccionados:</strong></h6>
+                                            <ul id="listaPedidosSeleccionados" class="list-group list-group-flush"
+                                                style="max-height: 300px; overflow-y: auto;">
+                                                <!-- Se llena dinámicamente con JavaScript -->
+                                            </ul>
                                         </div>
-
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <h6><strong>Pedidos seleccionados:</strong></h6>
-                                                <ul id="listaPedidosSeleccionados" class="list-group list-group-flush"
-                                                    style="max-height: 300px; overflow-y: auto;">
-                                                    <!-- Se llena dinámicamente con JavaScript -->
-                                                </ul>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="observacion_masiva"><strong>Observación General
+                                                        (Opcional):</strong></label>
+                                                <textarea class="form-control" name="observacion_masiva" id="observacion_masiva" rows="4" maxlength="500"
+                                                    placeholder="Escriba una observación que se aplicará a todos los pedidos seleccionados..."></textarea>
+                                                <small class="form-text text-muted">Máximo 500 caracteres</small>
                                             </div>
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label for="observacion_masiva"><strong>Observación General
-                                                            (Opcional):</strong></label>
-                                                    <textarea class="form-control" name="observacion_masiva" id="observacion_masiva" rows="4" maxlength="500"
-                                                        placeholder="Escriba una observación que se aplicará a todos los pedidos seleccionados..."></textarea>
-                                                    <small class="form-text text-muted">Máximo 500 caracteres</small>
-                                                </div>
 
-                                                <div class="alert alert-warning">
-                                                    <i class="fa fa-exclamation-triangle"></i>
-                                                    <strong>Importante:</strong> Esta acción no se puede deshacer. Todos los pedidos
-                                                    seleccionados cambiarán a estado "Preparado".
-                                                </div>
+                                            <div class="alert alert-warning">
+                                                <i class="fa fa-exclamation-triangle"></i>
+                                                <strong>Importante:</strong> Esta acción no se puede deshacer. Todos los pedidos
+                                                seleccionados cambiarán a estado "Preparado".
                                             </div>
                                         </div>
+                                    </div>
 
-                                        <input type="hidden" name="pedidos_ids" id="pedidos_ids" value="">
-                                        <input type="hidden" name="accion_masiva" value="preparado">
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                                            <i class="fa fa-times"></i> Cancelar
-                                        </button>
-                                        <button type="submit" class="btn btn-success">
-                                            <i class="fa fa-check"></i> Confirmar Cambio Masivo
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
+                                    <input type="hidden" name="pedidos_ids" id="pedidos_ids" value="">
+                                    <input type="hidden" name="accion_masiva" value="preparado">
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                        <i class="fa fa-times"></i> Cancelar
+                                    </button>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fa fa-check"></i> Confirmar Cambio Masivo
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
-                @endcan
+                </div>
 
                 <!-- Modal global con carousel para mostrar una o varias imágenes -->
                 <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
