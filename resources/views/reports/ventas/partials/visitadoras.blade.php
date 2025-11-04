@@ -78,7 +78,7 @@
                 <div class="card bg-dark">
                     <div class="card-body text-center">
                         <h3 id="visitadoras-top-visitadora">
-                            {{ count($visitadorasReport['data']) > 0 ? collect($visitadorasReport['data'])->max('visitadora') : 'Aún no hay' }}
+                            {{ $visitadorasReport['general_stats']['top_visitadora'] }}
                         </h3>
                         <p class="mb-0">Mejor Visitadora</p>
                     </div>

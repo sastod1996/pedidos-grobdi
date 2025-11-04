@@ -214,10 +214,11 @@ class ReportsRepository implements ReportsRepositoryInterface
 
         // Si no hay resultados, devolvemos una estructura coherente
         if (!$topDoctor) {
+            $doctor = Doctor::inRandomOrder()->select('id', 'name', 'tipo_medico')->first();
             return [
-                'id' => null,
-                'name' => null,
-                'tipo_medico' => null,
+                'id' => $doctor['id'],
+                'name' => $doctor['name'],
+                'tipo_medico' => $doctor['tipo_medico'],
                 'is_top_doctor' => false,
             ];
         }
@@ -230,7 +231,7 @@ class ReportsRepository implements ReportsRepositoryInterface
         ];
     }
 
-    public function muestrasGetTopDoctorByAmountInfo(int $year): mixed
+    public function muestrasGetTopDoctorByAmountInfo(string $startDate, string $endDate): mixed
     {
         $topDoctor = Muestras::selectRaw(
             'dr.id as doctor_id,
@@ -239,10 +240,20 @@ class ReportsRepository implements ReportsRepositoryInterface
             SUM(muestras.precio) as total_amount'
         )
             ->join('doctor as dr', 'muestras.id_doctor', '=', 'dr.id')
-            ->whereYear('muestras.created_at', $year)
+            ->whereBetween('muestras.created_at', [$startDate, $endDate])
             ->groupBy('dr.id', 'dr.name', 'dr.tipo_medico')
             ->orderByDesc('total_amount')
             ->first();
+
+        if (!$topDoctor) {
+            $doctor = Doctor::inRandomOrder()->select('id', 'name', 'tipo_medico')->first();
+            return [
+                'id' => $doctor['id'],
+                'name' => $doctor['name'],
+                'tipo_medico' => $doctor['tipo_medico'],
+                'is_top_doctor' => false,
+            ];
+        }
 
         return [
             'id' => $topDoctor->doctor_id,
@@ -364,7 +375,8 @@ class ReportsRepository implements ReportsRepositoryInterface
             'clasificacion:id,nombre_clasificacion,unidad_de_medida_id',
             'clasificacion.unidadMedida:id,nombre_unidad_de_medida',
             'clasificacionPresentacion:id,quantity',
-            'tipoMuestra:id,name'
+            'tipoMuestra:id,name',
+            'doctor:id,name'
         ])->select([
                     'id',
                     'nombre_muestra',
@@ -374,6 +386,7 @@ class ReportsRepository implements ReportsRepositoryInterface
                     'id_tipo_muestra',
                     'clasificacion_id',
                     'clasificacion_presentacion_id',
+                    'id_doctor',
                     'created_at'
                 ])->whereBetween('created_at', [$startDate, $endDate])
             ->where('state', true)
@@ -381,7 +394,7 @@ class ReportsRepository implements ReportsRepositoryInterface
             ->get();
     }
 
-    public function getMuestrasByDoctorRawData(int $year, int $idDoctor): Collection
+    public function getMuestrasByDoctorRawData(string $startDate, string $endDate, int $idDoctor): Collection
     {
         return Muestras::with([
             /* 'clasificacion:id,nombre_clasificacion,unidad_de_medida_id',
@@ -400,7 +413,8 @@ class ReportsRepository implements ReportsRepositoryInterface
                     'clasificacion_id',
                     'clasificacion_presentacion_id', */
                     'created_at'
-                ])->whereYear('created_at', $year)
+                ])
+            ->whereBetween('created_at', [$startDate, $endDate])
             ->where('state', true)
             ->where('id_doctor', $idDoctor)
             ->orderBy('created_at', 'desc')
