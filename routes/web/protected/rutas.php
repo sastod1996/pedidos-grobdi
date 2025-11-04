@@ -39,7 +39,9 @@ Route::post('guardar-visita', [EnrutamientoController::class, 'GuardarVisita'])-
 
 Route::get('rutasvisitadora', [RutasVisitadoraController::class, 'ListarMisRutas'])->name('rutasvisitadora.ListarMisRutas');
 Route::get('rutasvisitadora/{id}', [RutasVisitadoraController::class, 'listadoctores'])->name('rutasvisitadora.listadoctores');
+Route::post('rutavisitadora/{id}', [RutasVisitadoraController::class, 'uploadProgressGetContents'])->name('rutasvisitadora.update');
 Route::post('/rutasvisitadora/asignar', [RutasVisitadoraController::class, 'asignar'])->name('rutasvisitadora.asignar');
+Route::post('/rutasvisitadora/reprogramar', [RutasVisitadoraController::class, 'reprogramar'])->name('rutasvisitadora.reprogramar');
 Route::get('/rutasvisitadora/buscardoctor/{cmp}', [DoctorController::class, 'buscarCMP'])->name('rutasvisitadora.buscarcmpdoctor');
 Route::post('/rutasvisitadora/doctores', [DoctorController::class, 'guardarDoctorVisitador'])->name('rutasvisitadora.guardardoctor');
 
