@@ -226,6 +226,13 @@ class MetasService
         $rawPercentage = $commonMetrics['rawPercentage'];
         $totalAmountWithoutIGV = $commonMetrics['totalAmountWithoutIGV'];
         $goalAmount = $commonMetrics['goalAmount'];
+        $fullCommissionPercentage = $visitorGoal->commission_percentage ?? 0.0;
+        $commissionRate = $this->calculateCommissionRate(
+            $rawPercentage,
+            $fullCommissionPercentage,
+            $visitorGoal->monthlyVisitorGoal->goal_not_reached_config_id
+        );
+        $commissionAmount = $totalAmountWithoutIGV->multipliedBy($commissionRate, \Brick\Math\RoundingMode::HALF_UP);
 
         $visitorId = $visitorGoal->visitadora->id;
 
@@ -245,7 +252,9 @@ class MetasService
             'total_amount_without_igv' => $totalAmountWithoutIGV->getAmount()->__toString(),
             'faltante_para_meta' => $faltanteParaMeta->getAmount()->__toString(),
             'avance_meta_general' => $currentPercentage,
-            'commissioned_amount' => $formattedDebitedAmount,
+            'commissioned_amount' => $commissionAmount->getAmount()->__toString(),
+            'commission_rate' => round($commissionRate * 100, 2),
+            'debited_amount' => $formattedDebitedAmount,
         ];
     }
 
