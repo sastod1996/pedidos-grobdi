@@ -17,7 +17,9 @@ use LogicException;
 
 class MetasService
 {
-    public function __construct(protected readonly PedidosService $pedidosService) {}
+    public function __construct(protected readonly PedidosService $pedidosService)
+    {
+    }
 
     public function create(array $data)
     {
@@ -92,12 +94,12 @@ class MetasService
         $query = MonthlyVisitorGoal::query();
 
         // Filter by tipo_medico if provided
-        if (! empty($filters['tipo_medico'])) {
+        if (!empty($filters['tipo_medico'])) {
             $query->where('tipo_medico', $filters['tipo_medico']);
         }
 
         // Filter by month (input from <input type="month"> returns YYYY-MM)
-        if (! empty($filters['month'])) {
+        if (!empty($filters['month'])) {
             try {
                 $parts = explode('-', $filters['month']);
                 if (count($parts) >= 2) {
@@ -110,7 +112,7 @@ class MetasService
             }
         }
 
-        $paginator = $query->orderBy('start_date', 'desc')->paginate($resultsPerPage)->appends(array_filter($filters, fn ($v) => $v !== null && $v !== ''));
+        $paginator = $query->orderBy('start_date', 'desc')->paginate($resultsPerPage)->appends(array_filter($filters, fn($v) => $v !== null && $v !== ''));
 
         $items = $paginator->getCollection()->map(function ($meta) {
             return [
@@ -145,7 +147,7 @@ class MetasService
     public function getVisitorGoalMetrics(int $visitorGoalId)
     {
         $visitorGoal = VisitorGoal::with([
-            'monthlyVisitorGoal:id,start_date,end_date,goal_not_reached_config_id',
+            'monthlyVisitorGoal:id,start_date,end_date,tipo_medico,goal_not_reached_config_id',
             'visitadora:id,name',
         ])->findOrFail($visitorGoalId);
 
@@ -204,7 +206,7 @@ class MetasService
         $goalAmountMoney = $goalAmount instanceof Money ? $goalAmount : Money::of($goalAmount, 'PEN');
 
         $rawPercentage = 0.0;
-        if (! $goalAmountMoney->isZero()) {
+        if (!$goalAmountMoney->isZero()) {
             $goalDecimal = $goalAmountMoney->getAmount();
             $totalDecimal = $totalSubTotalMoney->getAmount();
 
@@ -248,7 +250,7 @@ class MetasService
 
     private function calculateCommonGoalMetrics(VisitorGoal $visitorGoal): array
     {
-        $visitadoraId = $visitorGoal->user_id ?? $visitorGoal->visitadora->id; // Ajustar según qué relación uses
+        $visitadoraId = $visitorGoal->visitadora->id ?? $visitorGoal->user_id; // Ajustar según qué relación uses
         $startDate = $visitorGoal->monthlyVisitorGoal->start_date;
         $endDate = $visitorGoal->monthlyVisitorGoal->end_date;
         // Asegurar que es un objeto Money si goal_amount no lo es
@@ -258,19 +260,15 @@ class MetasService
         // When calculating totals for a visitor goal, only include pedidos whose doctor's tipo_medico
         // matches the monthly goal's tipo_medico. This ensures 'prescriptor' and 'comprador' months
         // use their respective doctors/orders.
-        $tipoMedicoFilter = $visitorGoal->monthlyVisitorGoal->tipo_medico ?? null;
+        $tipoMedico = $visitorGoal->monthlyVisitorGoal->tipo_medico;
 
-        $totalSubTotalRaw = $this->pedidosService->calculateTotalSubTotal(function ($query) use ($visitadoraId, $startDate, $endDate, $tipoMedicoFilter) {
+        $totalSubTotalRaw = $this->pedidosService->calculateTotalSubTotal(function ($query) use ($visitadoraId, $startDate, $endDate, $tipoMedico) {
             // The base query in calculateTotalSubTotal already joins `pedidos`, so filter by visitadora and date
             $query->where('pedidos.visitadora_id', $visitadoraId)
+                ->join('doctor as dr', 'pedidos.id_doctor', '=', 'dr.id')
+                ->where('dr.tipo_medico', 'like', "%$tipoMedico%")
+                ->where('pedidos.status', true)
                 ->whereBetween('pedidos.created_at', [Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay()]);
-
-            // Add a join to doctor and filter by tipo_medico when provided
-            if (!empty($tipoMedicoFilter)) {
-                // ensure we join the doctor table to filter by tipo_medico
-                $query->join('doctor as dr', 'pedidos.id_doctor', '=', 'dr.id')
-                    ->where('dr.tipo_medico', $tipoMedicoFilter);
-            }
         });
 
         $totalSubTotalMoney = Money::of($totalSubTotalRaw, 'PEN');
@@ -299,12 +297,12 @@ class MetasService
         float $fullCommissionPercentage,
         ?int $goalNotReachedConfigId
     ): float {
-        if ($currentPercentage >= 100) {
+        if ($currentPercentage >= 1) {
             return $fullCommissionPercentage;
         }
 
         if ($goalNotReachedConfigId === null) {
-            return 0.0;
+            throw new LogicException('No hay una configuración de meta no alcanzada para esta meta.');
         }
 
         // Buscar el rango correspondiente
