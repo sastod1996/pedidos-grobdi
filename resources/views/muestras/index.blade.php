@@ -100,22 +100,24 @@
                             </div>
                             <div class="col-md-6">
                                 <label>Estado de Laboratorio</label>
-                                <div class="grobdi-radio-group">
-                                    <label class="grobdi-radio">
+                                <div class="grobdi-radio-group d-flex flex-row flex-wrap align-items-center" >
+                                    <label class="grobdi-radio mb-0">
                                         <input type="radio" name="lab_state" value="Pendiente"
                                             onchange="document.getElementById('filterForm').submit();"
                                             {{ request('lab_state') == 'Pendiente' ? 'checked' : '' }}>
                                         <span class="radio-custom"></span>
                                         <span class="radio-label">Pendientes</span>
                                     </label>
-                                    <label class="grobdi-radio">
+
+                                    <label class="grobdi-radio mb-0">
                                         <input type="radio" name="lab_state" value=""
                                             onchange="window.location='{{ route('muestras.index') }}';"
                                             {{ !request()->has('lab_state') ? 'checked' : '' }}>
                                         <span class="radio-custom"></span>
                                         <span class="radio-label">Todas</span>
                                     </label>
-                                    <label class="grobdi-radio">
+
+                                    <label class="grobdi-radio mb-0">
                                         <input type="radio" name="lab_state" value="Elaborado"
                                             onchange="document.getElementById('filterForm').submit();"
                                             {{ request('lab_state') == 'Elaborado' ? 'checked' : '' }}>

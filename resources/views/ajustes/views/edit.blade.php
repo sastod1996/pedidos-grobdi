@@ -177,10 +177,10 @@
                 <hr style="border-top: 1px solid #e2e8f0; margin: 2rem 0;">
 
                 <div class="form-actions" style="display: flex; gap: 0.75rem; justify-content: flex-end;">
-                    <a href="{{ route('views.index') }}" class="btn btn-outline-grobdi">
+                    <a href="{{ route('views.index') }}" class="btn btn-grobdi btn-outline-grobdi">
                         <i class="fas fa-times"></i> Cancelar
                     </a>
-                    <button type="submit" class="btn btn-primary-grobdi">
+                    <button type="submit" class="btn btn-grobdi btn-primary-grobdi">
                         <i class="fas fa-save"></i> Actualizar Vista
                     </button>
                 </div>
