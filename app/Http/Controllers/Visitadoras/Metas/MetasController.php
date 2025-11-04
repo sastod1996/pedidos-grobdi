@@ -112,7 +112,6 @@ class MetasController extends Controller
         $periodLabel = $meta['period_label'] ?? null;
         $tipoMedicoLabel = $meta['tipo_medico_label'] ?? ($meta['tipo_medico'] ?? null);
         $tipoMedicoSlug = $meta['tipo_medico_slug'] ?? ($meta['tipo_medico'] ?? null);
-
         // Renderiza las bonificaciones. vista con todos los objetivos de las visitadoras
         return view('bonificaciones.view', compact('meta', 'visitorGoals', 'periodLabel', 'tipoMedicoLabel', 'tipoMedicoSlug'));
     }
