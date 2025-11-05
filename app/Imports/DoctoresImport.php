@@ -9,10 +9,10 @@ use App\Services\Import\DoctorImportService;
 class DoctoresImport extends BaseImport
 {
     protected DoctorImportService $doctorService;
-    
+
     /**
      * Constructor de la clase DoctoresImport
-     * 
+     *
      * Inicializa la instancia del servicio DoctorImportService
      * que se utilizará para manejar la lógica de negocio de los doctores.
      */
@@ -20,14 +20,14 @@ class DoctoresImport extends BaseImport
     {
         $this->doctorService = new DoctorImportService();
     }
-    
+
     /**
      * Obtiene el mapeo de columnas por defecto para importación de doctores
-     * 
+     *
      * Este método define el mapeo estándar de columnas para archivos Excel
      * que contienen información de doctores, incluyendo campos como nombre,
      * CMP, teléfonos, especialidad, centro de salud, distrito, etc.
-     * 
+     *
      * @return array Mapeo de columnas con índices y nombres de campos
      */
     protected function getDefaultColumnMapping(): array
@@ -61,14 +61,14 @@ class DoctoresImport extends BaseImport
             'dia_viernes' => 25,
         ];
     }
-    
+
     /**
      * Procesa una fila individual de datos de doctor
-     * 
+     *
      * Este método procesa cada fila del archivo Excel, valida los datos esenciales,
      * busca o crea las entidades relacionadas (centro de salud, especialidad, distrito),
      * crea el registro del doctor y opcionalmente asocia los días de atención.
-     * 
+     *
      * @param array $row La fila de datos a procesar
      * @param int $index El índice de la fila en el archivo
      * @param array $colMap El mapeo de columnas detectado
@@ -76,8 +76,8 @@ class DoctoresImport extends BaseImport
      */
     protected function processRow(array $row, int $index, array $colMap): void
     {
-        // Siempre saltar la primera fila (índice 0) que es la cabecera
-        if ($index === 0) {
+        // Siempre saltar las primeras dos filas (índices 0 y 1) que son cabeceras
+        if ($index === 0 || $index === 1) {
             $this->incrementStat('skipped');
             return;
         }
@@ -91,28 +91,28 @@ class DoctoresImport extends BaseImport
 
         // Validar solo los campos absolutamente requeridos
         $cmp = trim($row[$colMap['CMP']] ?? '');
-        
-        // Salta si no tiene CMP 
+
+        // Salta si no tiene CMP
         if (empty($cmp)) {
             $this->incrementStat('errors');
             return;
         }
-        
+
         // Verifica si el doctor ya existe por CMP
         if (Doctor::where('CMP', $cmp)->exists()) {
             $this->incrementStat('skipped');
             return;
         }
-        
+
         try {
             // Verifica si tiene centro de salud, sino usa un valor por defecto
             $centroSaludName = trim($row[$colMap['centrosalud']] ?? 'Sin Centro de Salud');
             $centroSalud = $this->doctorService->findOrCreateCentroSalud($centroSaludName);
-            
+
             $especialidad = $this->doctorService->findOrCreateEspecialidad(
                 trim($row[$colMap['especialidad']] ?? 'General')
             );
-            
+
             // Extract distrito from distrito_direccion field
             $distrito = null;
             $distritoField = $row[$colMap['distrito_direccion']] ?? '';
@@ -121,7 +121,7 @@ class DoctoresImport extends BaseImport
                 $distritoName = trim($distritoParts[0]);
                 $distrito = $this->doctorService->findDistrito($distritoName);
             }
-            
+
             // Prepare doctor data con manejo seguro de campos vacíos
             $doctorData = [
                 'name' => trim($row[$colMap['name']] ?? '') ?: 'Doctor Sin Nombre',
@@ -136,14 +136,14 @@ class DoctoresImport extends BaseImport
                 'especialidad_id' => $especialidad->id,
                 'distrito_id' => $distrito?->id,
             ];
-            
+
             // Create doctor
             $doctor = $this->doctorService->createDoctor($doctorData);
-            
+
             // Attach days if provided
             $days = [];
             $dayColumns = ['dia_lunes', 'dia_martes', 'dia_miercoles', 'dia_jueves', 'dia_viernes'];
-            
+
             foreach ($dayColumns as $dayIndex => $dayColumn) {
                 // Verificar que la columna existe en el mapeo antes de acceder
                 if (isset($colMap[$dayColumn])) {
@@ -153,13 +153,13 @@ class DoctoresImport extends BaseImport
                     }
                 }
             }
-            
+
             if (!empty($days)) {
                 $this->doctorService->attachDaysToDoctor($doctor, $days);
             }
-            
+
             $this->incrementStat('created');
-            
+
         } catch (\Exception $e) {
             $this->incrementStat('errors');
             // Log del error específico para debug
@@ -172,17 +172,17 @@ class DoctoresImport extends BaseImport
 
     /**
      * Obtiene las palabras clave para identificar encabezados específicos de doctores
-     * 
+     *
      * Este método sobrescribe el método padre para incluir palabras clave
      * específicas relacionadas con doctores además de las generales.
-     * 
+     *
      * @return array Array de palabras clave de encabezado
      */
     protected function getHeaderKeywords(): array
     {
         // Palabras clave generales del padre
         $parentKeywords = parent::getHeaderKeywords();
-        
+
         // Palabras clave específicas de doctores
         $doctorKeywords = [
             'estado',
@@ -207,7 +207,7 @@ class DoctoresImport extends BaseImport
             'jueves', 'dia_jueves',
             'viernes', 'dia_viernes'
         ];
-        
+
         return array_merge($parentKeywords, $doctorKeywords);
     }
 }
