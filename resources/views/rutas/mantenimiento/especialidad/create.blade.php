@@ -9,52 +9,56 @@
 @section('content')
 @can('especialidad.create')
 
-<div class="card mt-5">
-  <h2 class="card-header">Crear Especialidad</h2>
-  <div class="card-body">
-  
-    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-        <a class="btn btn-primary btn-sm" href="{{ url()->previous() }}"><i class="fa fa-arrow-left"></i> Atrás</a>
-    </div>
-  
-    <form action="{{ route('especialidad.store') }}" method="POST">
-        @csrf
-  
-        <div class="row">
-
-            <div class="col-xs-6 col-sm-6 col-md-6">
-                <label for="inputName" class="form-label"><strong>Nombre:</strong></label>
-                <input 
-                    type="text" 
-                    name="name" 
-                    value=""
-                    class="form-control @error('name') is-invalid @enderror" 
-                    id="inputName" 
-                    placeholder="Ingresar nombre de la especialidad">
-                @error('name')
-                    <div class="form-text text-danger">{{ $message }}</div>
-                @enderror
-            </div>
-            <div class="col-xs-6 col-sm-6 col-md-6">
-                <label for="description" class="form-label"><strong>Descripción:</strong></label>
-                <input 
-                    type="text" 
-                    name="description" 
-                    value=""
-                    class="form-control @error('description') is-invalid @enderror" 
-                    id="description" 
-                    placeholder="Descripción de la especialidad">
-                @error('description')
-                    <div class="form-text text-danger">{{ $message }}</div>
-                @enderror
-            </div>
-        </div>
-        <br>
-        <button type="submit" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> Registrar</button>
-    </form>
-  
+<div class="grobdi-header">
+    <div class="grobdi-title">
+        <h1>Crear Especialidad</h1>
+        <a class="btn btn-outline-grobdi btn-sm" href="{{ url()->previous() }}"><i class="fa fa-arrow-left"></i> Atrás</a>
     </div>
 </div>
+
+<div class="grobdi-form">
+    <form action="{{ route('especialidad.store') }}" method="POST">
+        @csrf
+
+        <div class="row">
+            <div class="col-xs-6 col-sm-6 col-md-6">
+                <div class="form-group-grobdi">
+                    <label class="grobdi-label">Nombre:</label>
+                    <input
+                        type="text"
+                        name="name"
+                        value=""
+                        class="grobdi-input @error('name') is-invalid @enderror"
+                        id="inputName"
+                        placeholder="Ingresar nombre de la especialidad">
+                    @error('name')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+            <div class="col-xs-6 col-sm-6 col-md-6">
+                <div class="form-group-grobdi">
+                    <label class="grobdi-label">Descripción:</label>
+                    <input
+                        type="text"
+                        name="description"
+                        value=""
+                        class="grobdi-input @error('description') is-invalid @enderror"
+                        id="description"
+                        placeholder="Descripción de la especialidad">
+                    @error('description')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary-grobdi btn-lg"><i class="fa-solid fa-floppy-disk"></i> Registrar</button>
+        </div>
+    </form>
+</div>
+
 @endcan
 
 @stop
@@ -67,6 +71,3 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> -->
 @stop
 
-@section('js')
-    <script> console.log("Hi, I'm using the Laravel-AdminLTE package!"); </script>
-@stop
