@@ -53,6 +53,8 @@ Route::get('/pedidoscontabilidad/downloadExcel/{fechainicio}/{fechafin}', Pedido
 Route::get('hoja-ruta-motorizado', [PedidosController::class, 'exportHojaDeRutaByMotorizadoForm'])->name('motorizado.viewFormHojaDeRuta');
 Route::post('export-hoja-ruta-motorizado', [PedidosController::class, 'exportHojaDeRutaByMotorizadoExcel'])->name('motorizado.exportHojaDeRuta');
 Route::post('excelhojaruta', FormatosController::class . '@excelhojaruta')->name('formatos.excelhojaruta');
+Route::post('plantillaenvioolva', [PedidosController::class, 'exportPlantillaEnvioOlva'])->name('pedidos.plantillaenvioolva');
+Route::post('wordrutuladoenvio', [PedidosController::class, 'exportPlantillaEnvioOlvaWord'])->name('pedidos.wordrutuladoenvio');
 
 Route::resource('pedidosmotorizado', PedidosMotoController::class);
 Route::put('/pedidosmotorizado/fotos/{id}', [PedidosMotoController::class, 'cargarFotos'])->name('pedidosmotorizado.cargarfotos');

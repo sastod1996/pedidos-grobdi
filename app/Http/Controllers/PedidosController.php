@@ -13,11 +13,15 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Illuminate\Support\Facades\Response;
 use \PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
+use PhpOffice\PhpWord\IOFactory as WordIOFactory;
+use PhpOffice\PhpWord\PhpWord;
+use PhpOffice\PhpWord\SimpleType\Jc;
 
 class PedidosController extends Controller
 {
@@ -319,6 +323,182 @@ class PedidosController extends Controller
             'success' => true,
             'states' => $states
         ]);
+    }
+
+    public function exportPlantillaEnvioOlva(Request $request)
+    {
+        $request->validate([
+            'delivery_date' => ['required', 'date'],
+        ]);
+
+        $deliveryDate = Carbon::parse($request->delivery_date)->toDateString();
+
+        $pedidos = Pedidos::select([
+            'customerName',
+            'customerNumber',
+            'district',
+            'address',
+            'reference',
+            'prize',
+            'deliveryDate',
+        ])
+            ->where('zone_id', 1)
+            ->whereDate('deliveryDate', $deliveryDate)
+            ->orderBy('customerName')
+            ->get();
+
+        if ($pedidos->isEmpty()) {
+            return redirect()->back()->with('danger', 'No se encontraron pedidos para exportar con los filtros seleccionados.');
+        }
+
+        $templatePath = public_path('formatos/041125 PLANILLA DE ENVIO.xlsx');
+
+        if (! file_exists($templatePath)) {
+            return redirect()->back()->with('danger', 'No se encontró la plantilla de exportación.');
+        }
+
+        try {
+            $spreadsheet = IOFactory::load($templatePath);
+        } catch (\Throwable $exception) {
+            return redirect()->back()->with('danger', 'No se pudo cargar la plantilla de exportación.');
+        }
+
+        $sheet = $spreadsheet->getSheetByName('InputData');
+
+        if (! $sheet) {
+            return redirect()->back()->with('danger', 'La plantilla no contiene la hoja InputData requerida.');
+        }
+
+        $spreadsheet->setActiveSheetIndexByName('InputData');
+
+        $rows = $pedidos->map(function (Pedidos $pedido) {
+            $districtRaw = $pedido->district ?? '';
+            $districtParts = array_values(array_filter(
+                array_map(static fn ($value) => trim($value), explode('/', $districtRaw)),
+                static fn ($value) => $value !== ''
+            ));
+
+            if (count($districtParts) >= 3) {
+                [$departamento, $provincia, $distrito] = array_slice($districtParts, 0, 3);
+            } elseif ($districtRaw !== '') {
+                $departamento = trim($districtRaw);
+                $provincia = '';
+                $distrito = '';
+            } else {
+                $departamento = '';
+                $provincia = '';
+                $distrito = '';
+            }
+
+            return [
+                $pedido->customerName,
+                $pedido->customerNumber,
+                'Delivery',
+                $departamento,
+                $provincia,
+                $distrito,
+                $pedido->address,
+                $pedido->reference,
+                'Paquete',
+                'MEDICINAS',
+                'MEDICINAS',
+                is_null($pedido->prize) ? '' : round((float) $pedido->prize, 2),
+            ];
+        })->toArray();
+
+        if (! empty($rows)) {
+            $sheet->fromArray($rows, null, 'D7');
+        }
+
+        $filename = 'plantilla_envio_olva_' . now()->format('Ymd_His') . '.xlsx';
+        $tempFile = tempnam(sys_get_temp_dir(), 'plantilla_envio_');
+
+        $writer = new Xlsx($spreadsheet);
+        $writer->save($tempFile);
+
+        return Response::download($tempFile, $filename)->deleteFileAfterSend(true);
+    }
+
+    public function exportPlantillaEnvioOlvaWord(Request $request)
+    {
+        $request->validate([
+            'delivery_date' => ['required', 'date'],
+        ]);
+
+        $deliveryDate = Carbon::parse($request->delivery_date)->toDateString();
+
+        $pedidos = Pedidos::with(['zone'])
+            ->where('zone_id', 1)
+            ->whereDate('deliveryDate', $deliveryDate)
+            ->orderBy('customerName')
+            ->get();
+
+        if ($pedidos->isEmpty()) {
+            return redirect()->back()->with('danger', 'No se encontraron pedidos para exportar con los filtros seleccionados.');
+        }
+
+        $phpWord = new PhpWord();
+        $phpWord->setDefaultFontName('Arial');
+        $phpWord->setDefaultFontSize(14);
+
+        foreach ($pedidos as $pedido) {
+            $section = $phpWord->addSection([
+                'orientation' => 'landscape',
+                'marginLeft' => 400,
+                'marginRight' => 400,
+                'marginTop' => 400,
+                'marginBottom' => 400,
+            ]);
+
+            $section->addText('REMITENTE: GROBDI SAC', ['bold' => true, 'size' => 22]);
+            $section->addText('RUC: 20602806023   CELULAR: 994866504', ['size' => 18]);
+            $section->addText('DIRECCION: AV. BRASIL N° 1241 JESUS MARIA', ['size' => 18]);
+
+            $section->addTextBreak(1);
+
+            $customerName = $pedido->customerName ?? '';
+            $section->addText('DESTINATARIO: ' . Str::upper($customerName), ['bold' => true, 'size' => 22]);
+
+            $dni = $pedido->dni ?? $pedido->customer_dni ?? $pedido->customerDni ?? null;
+            $phone = $pedido->customerNumber ?? null;
+            $dniText = 'DNI: ' . ($dni ? Str::upper($dni) : '____________');
+            $phoneText = 'CELULAR: ' . ($phone ? $phone : '____________');
+            $section->addText($dniText . '      ' . $phoneText, ['size' => 20]);
+
+            $district = $pedido->district ?? '';
+            if (! empty($district)) {
+                $section->addText('DISTRITO: ' . Str::upper($district), ['size' => 18]);
+            }
+
+            $address = $pedido->address ?? '';
+            if (! empty($address)) {
+                $section->addText('DIRECCION: ' . Str::upper($address), ['size' => 18]);
+            }
+
+            $reference = $pedido->reference ?? '';
+            if (! empty($reference)) {
+                $section->addText(Str::upper($reference), ['size' => 20]);
+            }
+
+            $section->addTextBreak(2);
+
+            $section->addText('↑   FRÁGIL   ↑', [
+                'bold' => true,
+                'size' => 100,
+                'color' => 'FF0000',
+            ], [
+                'alignment' => Jc::CENTER,
+                'lineHeight' => 1.2,
+            ]);
+        }
+
+        $filename = 'rotulados_envio_' . $deliveryDate . '_' . now()->format('His') . '.docx';
+        $tempFile = tempnam(sys_get_temp_dir(), 'rotulados_envio_');
+
+        $writer = WordIOFactory::createWriter($phpWord, 'Word2007');
+        $writer->save($tempFile);
+
+        return Response::download($tempFile, $filename)->deleteFileAfterSend(true);
     }
 
     public function exportHojaDeRutaByMotorizadoForm()

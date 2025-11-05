@@ -33,6 +33,12 @@
                             <a href="{{ route('motorizado.viewFormHojaDeRuta') }}" class="btn btn-outline-success"><i
                                     class="fas fa-file-excel mr-1"></i>Descargar Hoja de Ruta del día</a>
                         @endcan
+                        @can('pedidos.plantillaenvioolva')
+                            <button type="button" class="btn btn-outline-primary" data-toggle="modal"
+                                data-target="#export-template-modal">
+                                <i class="fas fa-file-export mr-1"></i>Exportar plantilla de envío
+                            </button>
+                        @endcan
                         @if ($canCreatePedido)
                             <a class="btn btn-success" href="{{ route('cargarpedidos.create') }}"> <i class="fas fa-upload"></i>
                                 Cargar datos</a>
@@ -285,6 +291,41 @@
                 @endif
             </div>
         </div>
+        <div class="modal fade" id="export-template-modal" tabindex="-1" role="dialog"
+            aria-labelledby="export-template-modal-label" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <form action="{{ route('pedidos.plantillaenvioolva') }}" method="POST" id="export-template-form"
+                        data-word-action="{{ route('pedidos.wordrutuladoenvio') }}">
+                        @csrf
+                        <div class="modal-header bg-primary text-white">
+                            <h5 class="modal-title" id="export-template-modal-label">Exportar - plantilla de envío corrier
+                            </h5>
+                            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="mb-3">Solo se exportarán los pedidos correspondientes a la zona Otros (ID 1).</p>
+                            <div class="form-group">
+                                <label for="export-delivery-date">Fecha de entrega<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="export-delivery-date" name="delivery_date"
+                                    placeholder="Selecciona la fecha de entrega" required>
+                                @error('delivery_date')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary" id="export-template-excel">Exportar Excel</button>
+                            <button type="button" class="btn btn-warning" id="export-template-word">Exportar Word</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <div class="modal fade" id="delivery-records-modal" tabindex="-1" role="dialog"
             aria-labelledby="delivery-records-modal" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
@@ -399,6 +440,37 @@
                 locale: 'es',
             });
 
+            const exportDeliveryDate = document.getElementById('export-delivery-date');
+            if (exportDeliveryDate) {
+                flatpickr(exportDeliveryDate, {
+                    altInput: true,
+                    dateFormat: "Y-m-d",
+                    altFormat: "d/m/Y",
+                    locale: 'es',
+                });
+            }
+
+            const exportTemplateForm = document.getElementById('export-template-form');
+            const exportExcelBtn = document.getElementById('export-template-excel');
+            const exportWordBtn = document.getElementById('export-template-word');
+            if (exportTemplateForm && exportExcelBtn && exportWordBtn) {
+                const excelAction = exportTemplateForm.getAttribute('action');
+                const wordAction = exportTemplateForm.dataset.wordAction;
+
+                exportExcelBtn.addEventListener('click', function() {
+                    exportTemplateForm.setAttribute('action', excelAction);
+                });
+
+                exportWordBtn.addEventListener('click', function() {
+                    if (!wordAction) {
+                        return;
+                    }
+                    exportTemplateForm.setAttribute('action', wordAction);
+                    exportTemplateForm.requestSubmit();
+                    exportTemplateForm.setAttribute('action', excelAction);
+                });
+            }
+
             $('#miTabla').DataTable({
                 language: {
                     url: 'https://cdn.datatables.net/plug-ins/1.10.19/i18n/Spanish.json'
@@ -492,12 +564,15 @@
                             // A veces puede devolver HTML directo
                             content.html(response);
                         } else {
-                            content.html('<div class="alert alert-warning">Respuesta inesperada del servidor.</div>');
+                            content.html(
+                                '<div class="alert alert-warning">Respuesta inesperada del servidor.</div>'
+                                );
                         }
                         modalEl.modal('show');
                     },
                     error: function(xhr) {
-                        const message = xhr.responseText || xhr.responseJSON?.message || xhr.statusText || 'Error al cargar detalles';
+                        const message = xhr.responseText || xhr.responseJSON?.message || xhr
+                            .statusText || 'Error al cargar detalles';
                         content.html(`<div class="alert alert-danger">${message}</div>`);
                         modalEl.modal('show');
                     }
