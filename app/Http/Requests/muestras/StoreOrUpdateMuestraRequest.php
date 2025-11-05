@@ -12,7 +12,7 @@ class StoreOrUpdateMuestraRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('muestras.update') || $this->user->can('muestras.store');
+        return $this->user()->can('muestras.update') || $this->user()->can('muestras.store');
     }
 
     /**
