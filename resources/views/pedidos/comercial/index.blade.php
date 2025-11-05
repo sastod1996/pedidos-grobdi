@@ -105,26 +105,38 @@
                     </div>
                     <div class="col-md-4 mb-3">
                         <label for="doctor" class="text-muted font-weight-bold">Doctor</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text bg-white"><i class="fa fa-stethoscope"></i></span>
-                            </div>
-                            <select
-                                name="doctor"
-                                id="doctor"
-                                class="form-control"
-                            >
-                                <option value="">Selecciona un doctor</option>
-                                @foreach ($doctorOptions as $doctorOption)
-                                    <option
-                                        value="{{ $doctorOption->id }}"
-                                        {{ (string)($filters['doctor'] ?? '') === (string)$doctorOption->id ? 'selected' : '' }}
-                                    >
-                                        {{ $doctorOption->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                        @php
+                            $selectedDoctor = $filters['doctor'] ?? '';
+                            $hasSelectedDoctorOption = false;
+
+                            if ($selectedDoctor !== '') {
+                                foreach ($doctorOptions as $doctorCandidate) {
+                                    if ((string) $doctorCandidate->id === (string) $selectedDoctor) {
+                                        $hasSelectedDoctorOption = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        @endphp
+                        <select
+                            name="doctor"
+                            id="doctor"
+                            class="form-control"
+                            data-placeholder="Buscar doctor"
+                        >
+                            <option value="">Seleccionar todos</option>
+                            @foreach ($doctorOptions as $doctorOption)
+                                <option
+                                    value="{{ $doctorOption->id }}"
+                                    {{ (string)($filters['doctor'] ?? '') === (string)$doctorOption->id ? 'selected' : '' }}
+                                >
+                                    {{ $doctorOption->name }}
+                                </option>
+                            @endforeach
+                            @if (! $hasSelectedDoctorOption && $selectedDoctor !== '')
+                                <option value="{{ $selectedDoctor }}" selected>{{ $selectedDoctor }}</option>
+                            @endif
+                        </select>
                     </div>
                     <div class="col-md-4 mb-3">
                         <label for="distrito" class="text-muted font-weight-bold">Distrito (Lima y Callao)</label>
@@ -420,4 +432,76 @@
             }
         }
     </style>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@1.5.2/dist/select2-bootstrap4.min.css" rel="stylesheet" />
+    <style>
+        .select2-container--bootstrap4 .select2-selection {
+            position: relative;
+            padding-left: 2.5rem;
+        }
+        .select2-container--bootstrap4 .select2-selection::before {
+            content: "\f0f1";
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            z-index: 1;
+        }
+    </style>
+@endsection
+
+@section('js')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+$(document).ready(function() {
+    var $doctorSelect = $('#doctor');
+
+    $doctorSelect.select2({
+        theme: 'bootstrap4',
+        width: '100%',
+        placeholder: $doctorSelect.data('placeholder') || 'Buscar doctor',
+        allowClear: true,
+        tags: true,
+        createTag: function(params) {
+            var term = $.trim(params.term);
+
+            if (term === '') {
+                return null;
+            }
+
+            var exists = $doctorSelect.find('option').filter(function() {
+                return $.trim($(this).text()).toLowerCase() === term.toLowerCase();
+            }).length > 0;
+
+            if (exists) {
+                return null;
+            }
+
+            return {
+                id: term,
+                text: term,
+                newTag: true
+            };
+        }
+    });
+
+    $doctorSelect.on('select2:select', function(event) {
+        var data = event.params.data;
+
+        if (data && data.newTag) {
+            var valueExists = $doctorSelect.find('option').filter(function() {
+                return $(this).val() === data.id;
+            }).length > 0;
+
+            if (!valueExists) {
+                var newOption = new Option(data.text, data.id, true, true);
+                $doctorSelect.append(newOption).trigger('change');
+            }
+        }
+    });
+});
+</script>
 @endsection
