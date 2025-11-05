@@ -296,7 +296,7 @@
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <form action="{{ route('pedidos.plantillaenvioolva') }}" method="POST" id="export-template-form"
-                        data-word-action="{{ route('pedidos.wordrutuladoenvio') }}">
+                        data-word-action="{{ route('pedidos.wordrotuladoenvio') }}">
                         @csrf
                         <div class="modal-header bg-primary text-white">
                             <h5 class="modal-title" id="export-template-modal-label">Exportar - plantilla de envío corrier
