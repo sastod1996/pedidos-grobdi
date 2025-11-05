@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\rutas\visita;
 
 use App\Http\Controllers\Controller;
+use App\Models\Day;
 use App\Models\Doctor;
 use App\Models\VisitaDoctor;
 use Illuminate\Http\Request;
@@ -71,7 +72,9 @@ class VisitaDoctorController extends Controller
             ->whereDate('visita_doctor.fecha', '=', now()->toDateString())
             ->get();
 
-        return view('rutas.mapa', compact('data'));
+        $days = Day::select('id', 'name')->orderBy('id')->get();
+
+        return view('rutas.mapa', compact('data', 'days'));
     }
 
     public function FindDetalleVisitaByID($id)
@@ -80,6 +83,7 @@ class VisitaDoctorController extends Controller
             'visita_doctor.id',
             'centrosalud.latitude as centrosalud_lat',
             'centrosalud.longitude as centrosalud_lng',
+            'doctor.id as doctor_id',
             'doctor.name as doctor_name',
             'doctor.cmp as doctor_cmp',
             'doctor.first_lastname as doctor_first_lastname',
@@ -107,6 +111,27 @@ class VisitaDoctorController extends Controller
             ->where('visita_doctor.id', '=', $id)
             ->first();
 
+        if (!$data) {
+            return response()->json(['success' => false, 'message' => 'Detalle de visita no encontrado'], 404);
+        }
+
+        $doctorDays = DB::table('doctor_day')
+            ->join('day', 'doctor_day.day_id', '=', 'day.id')
+            ->select([
+                'day.id as id',
+                'day.name as name',
+                'doctor_day.turno as turno',
+            ])
+            ->where('doctor_day.doctor_id', $data->doctor_id)
+            ->get()
+            ->map(function ($day) {
+                $day->turno = (int) $day->turno;
+                $day->id = (int) $day->id;
+                return $day;
+            });
+
+        $data->doctor_days = $doctorDays;
+
         return response()->json(['success' => true, 'data' => $data]);
     }
 
@@ -116,7 +141,11 @@ class VisitaDoctorController extends Controller
 
         $request->validate([
             'estado_visita' => 'required|exists:estado_visita,id',
-            'observaciones_visita' => 'nullable|string',
+            'observaciones' => 'nullable|string',
+            'fecha_visita_reprogramada' => 'nullable|date',
+            'dias' => 'nullable|array',
+            'dias.*' => 'integer|exists:day,id',
+            'update_days' => 'nullable|boolean',
         ]);
 
         if ($visita->fecha != now()->toDateString()) {
@@ -152,6 +181,28 @@ class VisitaDoctorController extends Controller
 
         if ($visita->estado_visita_id === 3 || $visita->estado_visita_id == 4) {
             return response()->json(['success' => false, 'message' => 'No se puede actualizar el estado una vez marcado como VISITADO o NO VISITADO.'], 400);
+        }
+
+        if ($request->boolean('update_days')) {
+            $doctor = $visita->doctor;
+
+            if ($doctor) {
+                $selectedDays = $request->input('dias', []);
+                $syncPayload = [];
+
+                foreach ($selectedDays as $dayId) {
+                    $turnoKey = "turno_{$dayId}";
+                    $turnoValue = $request->input($turnoKey);
+
+                    if ($turnoValue === null || ($turnoValue !== '0' && $turnoValue !== '1' && $turnoValue !== 0 && $turnoValue !== 1)) {
+                        return response()->json(['success' => false, 'message' => 'Debe seleccionar un turno válido para cada día habilitado.'], 422);
+                    }
+
+                    $syncPayload[$dayId] = ['turno' => (int) $turnoValue];
+                }
+
+                $doctor->days()->sync($syncPayload);
+            }
         }
 
         $visita->estado_visita_id = $request['estado_visita'];
