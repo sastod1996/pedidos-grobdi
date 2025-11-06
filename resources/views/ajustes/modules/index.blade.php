@@ -2,15 +2,11 @@
 
 @section('title', 'Módulos')
 
-@section('content_header')
-    <h1>🧩 Gestión de Módulos</h1>
-@stop
-
 @section('content')
     <div class="grobdi-header">
         <div class="grobdi-title">
             <div>
-                <h2>Gestión de Modulos</h2>
+                <h2>🧩 Gestión de Modulos</h2>
                 <p>Administra los modulos del sistema</p>
             </div>
             <a href="{{ route('modules.create') }}" class="btn">
