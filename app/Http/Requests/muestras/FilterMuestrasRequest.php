@@ -40,7 +40,7 @@ class FilterMuestrasRequest extends FormRequest
         $search = $this->filled('search') ? trim($this->search) : null;
         $filterByDate = $this->filter_by_date === 'entrega' ? 'datetime_scheduled' : 'created_at';
 
-        $dateSince = Carbon::parse($this->date_since ?? now()->startOfMonth())->startOfDay();
+        $dateSince = Carbon::parse($this->date_since ?? now()->subDays(30))->startOfDay();
         $dateTo = Carbon::parse($this->date_to ?? now())->endOfDay();
 
         $labState = match ($this->lab_state) {

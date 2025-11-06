@@ -335,7 +335,7 @@
                         } else {
                             tbody.append(
                                 '<tr class="text-center"><td colspan="4">No hay configuración activa.</td></tr>'
-                                );
+                            );
                         }
                     }).catch(function(err) {
                         console.error('Error loading active config', err);
@@ -464,8 +464,4 @@
             });
         })();
     });
-<<<<<<< HEAD
-    </script>
-=======
 </script>
->>>>>>> 1c3381026b4e6445f32c65f3c8f328012868af7a

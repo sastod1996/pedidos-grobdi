@@ -48,17 +48,9 @@
                         </div>
                     </div>
                     <div class="col-12 col-lg-7">
-<<<<<<< HEAD
-                        <div class="avance-chart-container">
-                            <div class="d-flex flex-column w-100">
-                                <div style="height:260px;">
-                                    <canvas id="avanceChart"></canvas>
-                                </div>
-=======
                         <div class="d-flex flex-column w-100">
                             <div style="height:260px;">
                                 <canvas id="avanceChart"></canvas>
->>>>>>> 1c3381026b4e6445f32c65f3c8f328012868af7a
                             </div>
                         </div>
                     </div>

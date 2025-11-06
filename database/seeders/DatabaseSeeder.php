@@ -156,7 +156,7 @@ class DatabaseSeeder extends Seeder
             'role_id' => 13,
         ]);
         $this->call(ZoneSeeder::class);
-    $this->call(MotorizadoUserZoneSeeder::class);
+        $this->call(MotorizadoUserZoneSeeder::class);
         $this->call(DepartamentosSeeder::class);
         $this->call(ProvinciaSeeder::class);
         $this->call(DistritoSeeder::class);
@@ -170,5 +170,6 @@ class DatabaseSeeder extends Seeder
         $this->call(TipoMuestraSeeder::class);
         $this->call(ClasificacionPresentacionSeeder::class);
         $this->call(PedidosSeeder::class);
+        $this->call(MuestrasEstadoSeeder::class);
     }
 }

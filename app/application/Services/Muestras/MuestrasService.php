@@ -3,8 +3,10 @@
 namespace App\Application\Services\Muestras;
 
 use App\Models\Muestras;
+use App\Models\MuestrasEstado;
 use App\Models\TipoMuestra;
 use App\Models\User;
+use App\MuestraEstadoType;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -12,6 +14,123 @@ use Illuminate\Support\Str;
 
 class MuestrasService
 {
+
+    /* Status Flow:
+            Coordinador@ de lineas → Jef@ Comercial → Contador@ → Jef@ de Operaciones → Laboratorio lo produce
+    */
+    private const TRANSITIONS = [
+        null => [MuestraEstadoType::APROVE_COORDINADOR],
+        MuestraEstadoType::APROVE_COORDINADOR->value => [MuestraEstadoType::APROVE_JEFE_COMERCIAL],
+        MuestraEstadoType::APROVE_JEFE_COMERCIAL->value => [MuestraEstadoType::SET_PRICE],
+        MuestraEstadoType::SET_PRICE->value => [MuestraEstadoType::SET_PRICE, MuestraEstadoType::APROVE_JEFE_OPERACIONES],
+        MuestraEstadoType::APROVE_JEFE_OPERACIONES->value => [MuestraEstadoType::PRODUCED],
+        MuestraEstadoType::PRODUCED->value => [],
+    ];
+
+    private const TRANSITION_ERROR_MESSAGES = [
+        null => [
+            'message' => 'Se requiere aprobación de la Coordinadora de Líneas.',
+            'targets' => [
+                MuestraEstadoType::APROVE_JEFE_COMERCIAL,
+                MuestraEstadoType::SET_PRICE,
+                MuestraEstadoType::APROVE_JEFE_OPERACIONES,
+                MuestraEstadoType::PRODUCED,
+            ],
+        ],
+        MuestraEstadoType::APROVE_COORDINADOR->value => [
+            [
+                'message' => 'La muestra ya fue aprobada por la Coordinadora de Líneas.',
+                'targets' => [MuestraEstadoType::APROVE_COORDINADOR],
+            ],
+            [
+                'message' => 'Se requiere aprobación del Jefe Comercial.',
+                'targets' => [
+                    MuestraEstadoType::SET_PRICE,
+                    MuestraEstadoType::APROVE_JEFE_OPERACIONES,
+                    MuestraEstadoType::PRODUCED,
+                ],
+            ],
+        ],
+        MuestraEstadoType::APROVE_JEFE_COMERCIAL->value => [
+            [
+                'message' => 'La muestra ya fue aprobada por el Jefe Comercial.',
+                'targets' => [MuestraEstadoType::APROVE_COORDINADOR, MuestraEstadoType::APROVE_JEFE_COMERCIAL],
+            ],
+            [
+                'message' => 'La muestra requiere que se le asigne un precio.',
+                'targets' => [
+                    MuestraEstadoType::APROVE_JEFE_OPERACIONES,
+                    MuestraEstadoType::PRODUCED,
+                ],
+            ],
+        ],
+        MuestraEstadoType::SET_PRICE->value => [
+            [
+                'message' => 'La muestra ya fue aprobada por el Jefe Comercial.',
+                'targets' => [
+                    MuestraEstadoType::APROVE_COORDINADOR,
+                    MuestraEstadoType::APROVE_JEFE_COMERCIAL,
+                ],
+            ],
+            [
+                'message' => 'Se requiere de aprobación del Jefe de Operaciones.',
+                'targets' => [
+                    MuestraEstadoType::PRODUCED,
+                ],
+            ],
+        ],
+        MuestraEstadoType::APROVE_JEFE_OPERACIONES->value => [
+            [
+                'message' => 'La muestra ya fue aprobada por el Jefe de Operaciones.',
+                'targets' => [
+                    MuestraEstadoType::APROVE_COORDINADOR,
+                    MuestraEstadoType::APROVE_JEFE_COMERCIAL,
+                    MuestraEstadoType::SET_PRICE,
+                    MuestraEstadoType::APROVE_JEFE_OPERACIONES
+                ],
+            ],
+        ],
+        MuestraEstadoType::PRODUCED->value => [
+            [
+                'message' => 'La muestra ya fue producida.',
+                'targets' => [
+                    MuestraEstadoType::APROVE_COORDINADOR,
+                    MuestraEstadoType::APROVE_JEFE_COMERCIAL,
+                    MuestraEstadoType::SET_PRICE,
+                    MuestraEstadoType::APROVE_JEFE_OPERACIONES,
+                    MuestraEstadoType::PRODUCED
+                ],
+            ]
+        ],
+    ];
+
+    private function assertValidTransition(Muestras $muestra, MuestraEstadoType $nextState)
+    {
+        $currentState = $muestra->currentStatus?->type;
+
+        $allowedTransitions = self::TRANSITIONS[$currentState->value] ?? [];
+
+        if (in_array($nextState, $allowedTransitions, true))
+            return;
+
+        $errorMessage = null;
+
+        if (isset(self::TRANSITION_ERROR_MESSAGES[$currentState->value])) {
+            foreach (self::TRANSITION_ERROR_MESSAGES[$currentState->value] as $group) {
+                if (in_array($nextState, $group['targets'], true)) {
+                    $errorMessage = $group['message'];
+                    break;
+                }
+            }
+        }
+
+        if (!$errorMessage) {
+            $currentLabel = $currentState?->value ?? 'ninguno';
+            $errorMessage = "Transición inválida: no se puede pasar de '$currentLabel' a '{$nextState->value}'.";
+        }
+
+        throw new \LogicException($errorMessage);
+    }
 
     public function getFilteredMuestras(array $filters, User $user): array
     {
@@ -26,13 +145,9 @@ class MuestrasService
             if ($user->hasRole('visitador')) {
                 $query->where('created_by', $user->id);
             } elseif ($user->hasRole('jefe-comercial')) {
-                $query->where('aprobado_coordinadora', true);
+                $query->withEvent(MuestraEstadoType::APROVE_COORDINADOR);
             } elseif ($user->hasRole('laboratorio')) {
-                $query->where([
-                    'aprobado_coordinadora' => true,
-                    'aprobado_jefe_comercial' => true,
-                    'aprobado_jefe_operaciones' => true
-                ]);
+                $query->withEvent(MuestraEstadoType::APROVE_JEFE_OPERACIONES);
             } elseif ($user->hasRole('jefe-operaciones')) {
                 $restrictedRange = $this->getLimitMuestrasShowed();
 
@@ -44,15 +159,9 @@ class MuestrasService
                     });
                 }
 
-                $query->where([
-                    'aprobado_coordinadora' => true,
-                    'aprobado_jefe_comercial' => true
-                ]);
+                $query->withEvent(MuestraEstadoType::APROVE_JEFE_COMERCIAL);
             } else {
-                $query->where([
-                    'aprobado_coordinadora' => true,
-                    'aprobado_jefe_comercial' => true
-                ]);
+                $query->withEvent(MuestraEstadoType::APROVE_JEFE_COMERCIAL);
             }
         }
 
@@ -75,7 +184,11 @@ class MuestrasService
 
         // === Filtro por estado de laboratorio ===
         if ($filters['lab_state'] !== null) {
-            $query->where('lab_state', $filters['lab_state']);
+            if ($filters['lab_state']) {
+                $query->withEvent(MuestraEstadoType::PRODUCED);
+            } else {
+                $query->withoutEvent(MuestraEstadoType::PRODUCED);
+            }
         }
 
         // === Ordenamiento ===
@@ -138,7 +251,7 @@ class MuestrasService
         if (!$muestra->state) {
             throw new \LogicException("No se puede editar una muestra inhabilitada.");
         }
-        if ($muestra->aprobado_coordinadora) {
+        if ($muestra->hasEvent(MuestraEstadoType::APROVE_COORDINADOR)) {
             throw new \LogicException("No se puede editar una muestra ya aprobada.");
         }
 
@@ -159,7 +272,7 @@ class MuestrasService
 
     public function disable(Muestras $muestra, string $reason, int $userId)
     {
-        if ($muestra->aprobado_jefe_operaciones) {
+        if ($muestra->hasEvent(MuestraEstadoType::APROVE_JEFE_OPERACIONES)) {
             throw new \LogicException("No se puede deshabilitar una muestra aprobada por Jefe de Operaciones.");
         }
 
@@ -176,10 +289,9 @@ class MuestrasService
     {
         if (!$muestra->state)
             throw new \LogicException("No se puede realizar esta operación. La muestra esta inhabilitada.");
-        if (!$muestra->aprobado_jefe_comercial)
-            throw new \LogicException("El Jefe Comercial debe aprobar la muestra primero.");
-        if ($muestra->aprobado_jefe_operaciones)
-            throw new \LogicException("No se puede cambiar el precio una vez aprobado por el Jefe de Operaciones.");
+
+        $this->assertValidTransition($muestra, MuestraEstadoType::SET_PRICE);
+
         if ($muestra->precio === $price)
             throw new \LogicException("El precio es el mismo al ya asignado.");
 
@@ -193,9 +305,8 @@ class MuestrasService
     {
         if (!$muestra->state)
             throw new \LogicException("No se puede realizar esta operación. La muestra esta inhabilitada.");
-        if ($muestra->aprobado_coordinadora) {
+        if ($muestra->hasEvent(MuestraEstadoType::APROVE_COORDINADOR))
             throw new \LogicException("No se puede cambiar el tipo de muestra una vez aprobada por la Supervisora.");
-        }
 
         $muestra->id_tipo_muestra = $tipoMuestraId;
         $muestra->save();
@@ -206,7 +317,7 @@ class MuestrasService
     {
         if (!$muestra->state)
             throw new \LogicException("No se puede realizar esta operación. La muestra esta inhabilitada.");
-        if ($muestra->aprobado_coordinadora)
+        if ($muestra->hasEvent(MuestraEstadoType::APROVE_COORDINADOR))
             throw new \LogicException("No se puede cambiar fecha tras aprobación.");
 
         $muestra->datetime_scheduled = $datetime;
@@ -224,22 +335,23 @@ class MuestrasService
         return $muestra;
     }
 
-    public function markAsElaborated(Muestras $muestra)
+    public function markAsElaborated(Muestras $muestra, User $user)
     {
         if (!$muestra->state)
             throw new \LogicException("No se puede realizar esta operación. La muestra esta inhabilitada.");
-        if (!$muestra->aprobado_jefe_operaciones)
-            throw new \LogicException("La muestra debe estar aprobada por el Jefe de Operaciones.");
-        if ($muestra->lab_state)
-            throw new \LogicException("La muestra ya está marcada como elaborada.");
 
-        $muestra->lab_state = true;
-        $muestra->datetime_delivered = Carbon::now();
-        $muestra->save();
-        return $muestra;
+        $this->assertValidTransition($muestra, MuestraEstadoType::PRODUCED);
+
+        MuestrasEstado::create([
+            'muestra_id' => $muestra->id,
+            'user_id' => $user->id,
+            'type' => MuestraEstadoType::PRODUCED,
+            'comment' => "Marcada como producida por $user->name"
+        ]);
+        return $muestra->currentStatus;
     }
 
-    public function aproveByCoordinadora(Muestras $muestra)
+    public function aproveByCoordinadora(Muestras $muestra, User $user)
     {
         if (!$muestra->state)
             throw new \LogicException("No se puede realizar esta operación. La muestra esta inhabilitada.");
@@ -247,42 +359,50 @@ class MuestrasService
             throw new \LogicException("Se requiere un tipo de muestra para aprobarse.");
         if (!$muestra->datetime_scheduled)
             throw new \LogicException("Se requiere una fecha y hora de entrega para aprobarse.");
-        if ($muestra->aprobado_coordinadora)
-            throw new \LogicException("La muestra ya ha sido aprobada.");
+        $this->assertValidTransition($muestra, MuestraEstadoType::APROVE_COORDINADOR);
 
-        $muestra->aprobado_coordinadora = true;
-        $muestra->saveWithoutTimestamps();
-        return $muestra;
+        MuestrasEstado::create([
+            'muestra_id' => $muestra->id,
+            'user_id' => $user->id,
+            'type' => MuestraEstadoType::APROVE_COORDINADOR,
+            'comment' => "Aprobado por Coordinador@: $user->name"
+        ]);
+        return $muestra->currentStatus;
     }
 
-    public function aproveByJefeComercial(Muestras $muestra)
+    public function aproveByJefeComercial(Muestras $muestra, User $user)
     {
         if (!$muestra->state)
             throw new \LogicException("No se puede realizar esta operación. La muestra esta inhabilitada.");
-        if (!$muestra->aprobado_coordinadora)
-            throw new \LogicException("La Supervisora debe aprobar la muestra primero.");
-        if ($muestra->aprobado_jefe_comercial)
-            throw new \LogicException("La muestra ya ha sido aprobada.");
 
-        $muestra->aprobado_jefe_comercial = true;
-        $muestra->saveWithoutTimestamps();
-        return $muestra;
+        $this->assertValidTransition($muestra, MuestraEstadoType::APROVE_JEFE_COMERCIAL);
+
+        MuestrasEstado::create([
+            'muestra_id' => $muestra->id,
+            'user_id' => $user->id,
+            'type' => MuestraEstadoType::APROVE_JEFE_COMERCIAL,
+            'comment' => "Aprobado por Jefe Comercial: $user->name"
+        ]);
+        return $muestra->currentStatus;
     }
 
-    public function aproveByJefeOperaciones(Muestras $muestra)
+    public function aproveByJefeOperaciones(Muestras $muestra, User $user)
     {
         if (!$muestra->state)
             throw new \LogicException("No se puede realizar esta operación. La muestra esta inhabilitada.");
-        if (!$muestra->aprobado_jefe_comercial)
-            throw new \LogicException("El Jefe Comercial debe aprobar la muestra primero.");
+
+        $this->assertValidTransition($muestra, MuestraEstadoType::APROVE_JEFE_OPERACIONES);
+
         if (is_null($muestra->precio) || $muestra->precio <= 0)
             throw new \LogicException("Contabilidad debe asignar precio a la muestra.");
-        if ($muestra->aprobado_jefe_operaciones)
-            throw new \LogicException("La muestra ya ha sido aprobada.");
 
-        $muestra->aprobado_jefe_operaciones = true;
-        $muestra->saveWithoutTimestamps();
-        return $muestra;
+        MuestrasEstado::create([
+            'muestra_id' => $muestra->id,
+            'user_id' => $user->id,
+            'type' => MuestraEstadoType::APROVE_JEFE_OPERACIONES,
+            'comment' => "Aprobado por Jefe de Operaciones: $user->name"
+        ]);
+        return $muestra->currentStatus;
     }
 
     // --- Métodos privados auxiliares ---

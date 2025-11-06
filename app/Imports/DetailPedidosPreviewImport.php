@@ -36,13 +36,13 @@ class DetailPedidosPreviewImport implements ToCollection
             'not_found' => [],
             'prepared_orders' => [],
             'duplicates' => [],
-            'to_delete' => [], 
+            'to_delete' => [],
             'stats' => []
         ];
 
         // Convertir colección a array manteniendo claves para mejor manejo
         $originalRows = $rows->toArray();
-        
+
         $colMap = $this->detectColumns($originalRows);
         $processedRows = $this->detectDuplicates($originalRows, $colMap);
 
@@ -53,7 +53,7 @@ class DetailPedidosPreviewImport implements ToCollection
                 'count' => count($processedRows['duplicates']),
                 'duplicates' => $processedRows['duplicates']
             ]);
-            
+
             $this->changes['duplicates'] = $processedRows['duplicates'];
             // No retornar aquí - continuar procesamiento para mostrar vista previa con duplicados resaltados
         }
@@ -87,7 +87,7 @@ class DetailPedidosPreviewImport implements ToCollection
             'no_changes_count' => 0,
             'not_found_count' => 0,
             'prepared_orders_count' => 0,
-            'to_delete_count' => 0, 
+            'to_delete_count' => 0,
             'total_count' => 0
         ];
     }
@@ -122,15 +122,17 @@ class DetailPedidosPreviewImport implements ToCollection
         $maxProbe = min(10, count($rows));
         for ($i = 0; $i < $maxProbe; $i++) {
             $row = $rows[$i];
-            if (!is_array($row)) { $row = $row->toArray(); }
+            if (!is_array($row)) {
+                $row = $row->toArray();
+            }
 
             // Omitir filas completamente vacías
-            if (empty(array_filter($row, fn($v) => $v !== null && trim((string)$v) !== ''))) {
+            if (empty(array_filter($row, fn($v) => $v !== null && trim((string) $v) !== ''))) {
                 continue;
             }
 
-            $col2 = isset($row[2]) ? strtoupper(trim((string)$row[2])) : '';
-            $hasOldArticleCol = array_key_exists(16, $row) && trim((string)($row[16] ?? '')) !== '';
+            $col2 = isset($row[2]) ? strtoupper(trim((string) $row[2])) : '';
+            $hasOldArticleCol = array_key_exists(16, $row) && trim((string) ($row[16] ?? '')) !== '';
             if ($col2 === 'PEDIDO' && $hasOldArticleCol) {
                 Log::info('Detected old Excel format (D/Q/R/S/T mapping)');
                 return [
@@ -155,9 +157,11 @@ class DetailPedidosPreviewImport implements ToCollection
 
         foreach ($rows as $rowIndex => $row) {
             // Omitir las dos primeras filas como encabezados si están presentes
-            if ($rowIndex < 2) { continue; }
-            if (!is_array($row)) { 
-                $row = $row->toArray(); 
+            if ($rowIndex < 2) {
+                continue;
+            }
+            if (!is_array($row)) {
+                $row = $row->toArray();
             }
 
             // Omitir líneas vacías y encabezados
@@ -166,12 +170,12 @@ class DetailPedidosPreviewImport implements ToCollection
             }
 
             // Leer usando el mapeo de columnas detectado solamente
-            $pedidoIdRaw = isset($row[$colMap['numero']]) ? trim((string)$row[$colMap['numero']]) : '';
-            $articulo = isset($row[$colMap['articulo']]) ? trim((string)$row[$colMap['articulo']]) : '';
-            $cantidad = isset($row[$colMap['cantidad']]) ? (float)$row[$colMap['cantidad']] : 0;
+            $pedidoIdRaw = isset($row[$colMap['numero']]) ? trim((string) $row[$colMap['numero']]) : '';
+            $articulo = isset($row[$colMap['articulo']]) ? trim((string) $row[$colMap['articulo']]) : '';
+            $cantidad = isset($row[$colMap['cantidad']]) ? (float) $row[$colMap['cantidad']] : 0;
             // Usar precisión de 2 decimales para coincidir con la lógica de importación
-            $precio = isset($row[$colMap['precio']]) ? round((float)$row[$colMap['precio']], 2) : 0;
-            
+            $precio = isset($row[$colMap['precio']]) ? round((float) $row[$colMap['precio']], 2) : 0;
+
             // Registro de depuración para filas problemáticas específicas
             if ($rowIndex >= 9 && $rowIndex <= 11) {
                 Log::info('Debugging specific row data', [
@@ -186,7 +190,7 @@ class DetailPedidosPreviewImport implements ToCollection
                     'raw_precio_value' => isset($row[$colMap['precio']]) ? $row[$colMap['precio']] : 'NOT_SET'
                 ]);
             }
-            
+
             // Omitir filas con datos críticos faltantes
             if (empty($pedidoIdRaw) || empty($articulo)) {
                 continue;
@@ -205,11 +209,11 @@ class DetailPedidosPreviewImport implements ToCollection
 
             // Crear clave única incluyendo pedido + artículo + cantidad + precio
             // Dos filas solo son duplicadas si TODOS estos valores son exactamente iguales
-            $normalizedKey = strtoupper(trim($pedidoIdRaw)) . '|' . 
-                           strtoupper(trim($articulo)) . '|' . 
-                           $cantidad . '|' . 
-                           $precio;
-            
+            $normalizedKey = strtoupper(trim($pedidoIdRaw)) . '|' .
+                strtoupper(trim($articulo)) . '|' .
+                $cantidad . '|' .
+                $precio;
+
             Log::info('Generated duplicate key', [
                 'row_index' => $rowIndex,
                 'normalizedKey' => $normalizedKey,
@@ -218,10 +222,10 @@ class DetailPedidosPreviewImport implements ToCollection
                 'cantidad' => $cantidad,
                 'precio' => $precio
             ]);
-            
+
             if (isset($seen[$normalizedKey])) {
                 $has_duplicates = true;
-                
+
                 Log::info('Duplicate found!', [
                     'key' => $normalizedKey,
                     'original_row' => $seen[$normalizedKey] + 1,
@@ -231,7 +235,7 @@ class DetailPedidosPreviewImport implements ToCollection
                     'cantidad' => $cantidad,
                     'precio' => $precio
                 ]);
-                
+
                 // Agregar la fila original si aún no está en duplicados
                 $originalRowIndex = $seen[$normalizedKey];
                 $alreadyAdded = false;
@@ -241,11 +245,11 @@ class DetailPedidosPreviewImport implements ToCollection
                         break;
                     }
                 }
-                
+
                 if (!$alreadyAdded) {
                     $duplicates[] = $this->formatDuplicateRow($rows[$originalRowIndex], $originalRowIndex + 1, $colMap);
                 }
-                
+
                 // Agregar el duplicado actual
                 $duplicates[] = $this->formatDuplicateRow($row, $rowIndex + 1, $colMap);
             } else {
@@ -266,12 +270,12 @@ class DetailPedidosPreviewImport implements ToCollection
 
     private function formatDuplicateRow(array $row, int $rowIndex, array $colMap)
     {
-        $pedidoId = isset($row[$colMap['numero']]) ? trim((string)$row[$colMap['numero']]) : '';
-        $articulo = isset($row[$colMap['articulo']]) ? trim((string)$row[$colMap['articulo']]) : '';
-        $cantidad = isset($row[$colMap['cantidad']]) ? (float)$row[$colMap['cantidad']] : 0;
-    $precio = isset($row[$colMap['precio']]) ? round((float)$row[$colMap['precio']], 2) : 0;
-    $subtotal = isset($row[$colMap['subtotal']]) ? round((float)$row[$colMap['subtotal']], 2) : 0;
-        
+        $pedidoId = isset($row[$colMap['numero']]) ? trim((string) $row[$colMap['numero']]) : '';
+        $articulo = isset($row[$colMap['articulo']]) ? trim((string) $row[$colMap['articulo']]) : '';
+        $cantidad = isset($row[$colMap['cantidad']]) ? (float) $row[$colMap['cantidad']] : 0;
+        $precio = isset($row[$colMap['precio']]) ? round((float) $row[$colMap['precio']], 2) : 0;
+        $subtotal = isset($row[$colMap['subtotal']]) ? round((float) $row[$colMap['subtotal']], 2) : 0;
+
         return [
             'row_index' => $rowIndex,
             'pedido_id' => $pedidoId,
@@ -282,7 +286,7 @@ class DetailPedidosPreviewImport implements ToCollection
             'duplicate_key' => strtoupper(trim($pedidoId)) . '|' . strtoupper(trim($articulo)) . '|' . $cantidad . '|' . $precio,
             'raw_data_preview' => [
                 'col_' . $colMap['numero'] => isset($row[$colMap['numero']]) ? $row[$colMap['numero']] : 'N/A',
-                'col_' . $colMap['articulo'] => isset($row[$colMap['articulo']]) ? $row[$colMap['articulo']] : 'N/A',  
+                'col_' . $colMap['articulo'] => isset($row[$colMap['articulo']]) ? $row[$colMap['articulo']] : 'N/A',
                 'col_' . $colMap['cantidad'] => isset($row[$colMap['cantidad']]) ? $row[$colMap['cantidad']] : 'N/A',
                 'col_' . $colMap['precio'] => isset($row[$colMap['precio']]) ? $row[$colMap['precio']] : 'N/A'
             ]
@@ -293,29 +297,29 @@ class DetailPedidosPreviewImport implements ToCollection
     private function shouldSkipRow(array $row, array $colMap)
     {
         // Omitir líneas completamente vacías
-        $nonEmptyValues = array_filter($row, fn($v) => $v !== null && trim((string)$v) !== '');
+        $nonEmptyValues = array_filter($row, fn($v) => $v !== null && trim((string) $v) !== '');
         if (empty($nonEmptyValues)) {
             return true;
         }
 
         // Omitir filas de encabezado - verifica palabras clave de encabezado en varias columnas
 
-        $numeroRaw = isset($row[$colMap['numero']]) ? 
-            strtolower(trim((string)$row[$colMap['numero']])) : '';
-        $articuloRaw = isset($row[$colMap['articulo']]) ? 
-            strtolower(trim((string)$row[$colMap['articulo']])) : '';
-        
+        $numeroRaw = isset($row[$colMap['numero']]) ?
+            strtolower(trim((string) $row[$colMap['numero']])) : '';
+        $articuloRaw = isset($row[$colMap['articulo']]) ?
+            strtolower(trim((string) $row[$colMap['articulo']])) : '';
+
         $headerKeywords = ['numero', 'número', 'pedido', 'order', 'nro', 'articulo', 'artículo', 'producto', 'item'];
-        
+
         // Si la columna de pedido contiene palabras clave de encabezado O la columna de artículo contiene palabras clave de encabezado
 
         if (in_array($numeroRaw, $headerKeywords) || in_array($articuloRaw, $headerKeywords)) {
             return true;
         }
-        
+
         // Para el formato antiguo, verifica si la columna 2 contiene "PEDIDO" pero la columna 3 parece encabezado
-        if (isset($row[2]) && strtoupper(trim((string)$row[2])) === 'PEDIDO') {
-            $col3 = isset($row[3]) ? strtolower(trim((string)$row[3])) : '';
+        if (isset($row[2]) && strtoupper(trim((string) $row[2])) === 'PEDIDO') {
+            $col3 = isset($row[3]) ? strtolower(trim((string) $row[3])) : '';
             if (in_array($col3, ['numero', 'número', 'pedido', 'order', 'nro'])) {
                 return true;
             }
@@ -326,8 +330,8 @@ class DetailPedidosPreviewImport implements ToCollection
 
     private function processRow($row, int $rowIndex, array $colMap)
     {
-        if (!is_array($row)) { 
-            $row = $row->toArray(); 
+        if (!is_array($row)) {
+            $row = $row->toArray();
         }
 
         // Omitir las dos primeras filas como encabezados si están presentes
@@ -339,11 +343,11 @@ class DetailPedidosPreviewImport implements ToCollection
             return;
         }
 
-    // Extraer y validar datos usando las columnas detectadas
-    $pedidoIdRaw = isset($row[$colMap['numero']]) ? trim((string)$row[$colMap['numero']]) : '';
-    $articulo    = isset($row[$colMap['articulo']]) ? trim((string)$row[$colMap['articulo']]) : '';
-    $cantidad    = isset($row[$colMap['cantidad']]) ? (float)$row[$colMap['cantidad']] : 0;
-        
+        // Extraer y validar datos usando las columnas detectadas
+        $pedidoIdRaw = isset($row[$colMap['numero']]) ? trim((string) $row[$colMap['numero']]) : '';
+        $articulo = isset($row[$colMap['articulo']]) ? trim((string) $row[$colMap['articulo']]) : '';
+        $cantidad = isset($row[$colMap['cantidad']]) ? (float) $row[$colMap['cantidad']] : 0;
+
         // Omitir filas con datos críticos vacíos
         if (empty($pedidoIdRaw) || empty($articulo) || $cantidad <= 0) {
             return;
@@ -352,7 +356,7 @@ class DetailPedidosPreviewImport implements ToCollection
         $this->stats['total_count']++;
 
         $pedido = $this->findPedido($pedidoIdRaw);
-        
+
         if (!$pedido) {
             $this->stats['not_found_count']++;
             $this->changes['not_found'][] = [
@@ -374,7 +378,7 @@ class DetailPedidosPreviewImport implements ToCollection
             return;
         }
 
-    $this->processArticle($row, $rowIndex, $colMap, $pedido);
+        $this->processArticle($row, $rowIndex, $colMap, $pedido);
     }
 
     /**
@@ -391,15 +395,15 @@ class DetailPedidosPreviewImport implements ToCollection
         // Intentar buscar por orderId
         $pedido = Pedidos::where('orderId', $pedidoIdRaw)->first();
         if (!$pedido && is_numeric($pedidoIdRaw)) {
-            $pedido = Pedidos::where('orderId', (int)$pedidoIdRaw)->first();
+            $pedido = Pedidos::where('orderId', (int) $pedidoIdRaw)->first();
         }
-        
+
         // Intentar buscar por nroOrder si no se encuentra por orderId
 
         if (!$pedido) {
             $pedido = Pedidos::where('nroOrder', $pedidoIdRaw)->first();
             if (!$pedido && is_numeric($pedidoIdRaw)) {
-                $pedido = Pedidos::where('nroOrder', (int)$pedidoIdRaw)->first();
+                $pedido = Pedidos::where('nroOrder', (int) $pedidoIdRaw)->first();
             }
         }
 
@@ -420,12 +424,12 @@ class DetailPedidosPreviewImport implements ToCollection
      */
     private function processArticle(array $row, int $rowIndex, array $colMap, $pedido)
     {
-        $articulo = isset($row[$colMap['articulo']]) ? trim((string)$row[$colMap['articulo']]) : '';
-        $cantidad = isset($row[$colMap['cantidad']]) ? (float)$row[$colMap['cantidad']] : 0;
-        $unit = isset($row[$colMap['precio']]) && $row[$colMap['precio']] !== '' ? 
-            round((float)$row[$colMap['precio']], 2) : 0.0;
-        $sub = isset($row[$colMap['subtotal']]) && $row[$colMap['subtotal']] !== '' ? 
-            round((float)$row[$colMap['subtotal']], 2) : 
+        $articulo = isset($row[$colMap['articulo']]) ? trim((string) $row[$colMap['articulo']]) : '';
+        $cantidad = isset($row[$colMap['cantidad']]) ? (float) $row[$colMap['cantidad']] : 0;
+        $unit = isset($row[$colMap['precio']]) && $row[$colMap['precio']] !== '' ?
+            round((float) $row[$colMap['precio']], 2) : 0.0;
+        $sub = isset($row[$colMap['subtotal']]) && $row[$colMap['subtotal']] !== '' ?
+            round((float) $row[$colMap['subtotal']], 2) :
             round($cantidad * $unit, 2);
         // Regla: solo considerar como SIN CAMBIOS cuando existe una línea exactamente igual (artículo + cantidad + precio unitario)
         $exactExists = DetailPedidos::where('pedidos_id', $pedido->id)
@@ -468,12 +472,12 @@ class DetailPedidosPreviewImport implements ToCollection
      */
     private function addNewArticle($row, int $rowIndex, array $colMap, $pedido, string $articulo, float $cantidad, float $unit, float $sub)
     {
-    $this->stats['new_count']++;
-    $this->changes['new'][] = [
+        $this->stats['new_count']++;
+        $this->changes['new'][] = [
             'row_index' => $rowIndex + 1,
             'data' => [
-        'pedido_id' => $pedido->orderId ?? $pedido->nroOrder,
-        'pedido_cliente' => $pedido->customerName ?? $pedido->customer_name ?? 'N/A',
+                'pedido_id' => $pedido->orderId ?? $pedido->nroOrder,
+                'pedido_cliente' => $pedido->customerName ?? $pedido->customer_name ?? 'N/A',
                 'articulo' => $articulo,
                 'cantidad' => $cantidad,
                 'unit_prize' => $unit,
@@ -483,90 +487,6 @@ class DetailPedidosPreviewImport implements ToCollection
     }
 
     /**
-<<<<<<< HEAD
-     * Verifica las modificaciones necesarias en un artículo existente
-     * 
-     * Este método compara los valores actuales de un artículo con los nuevos valores
-     * del archivo Excel y determina qué campos necesitan ser actualizados.
-     * 
-     * @param array $row La fila de datos nueva
-     * @param int $rowIndex El índice de la fila
-     * @param array $colMap El mapeo de columnas
-     * @param mixed $pedido El pedido al que pertenece
-     * @param mixed $existing El artículo existente en la base de datos
-     * @param float $cantidad La nueva cantidad
-     * @param float $unit El nuevo precio unitario
-     * @param float $sub El nuevo subtotal
-     * @return void
-     */
-    private function checkModifications($row, int $rowIndex, array $colMap, $pedido, $existing, float $cantidad, float $unit, float $sub)
-    {
-        $modifications = [];
-
-        if ((float)$existing->cantidad != $cantidad) {
-            $modifications[] = [
-                'field' => 'cantidad',
-                'label' => 'Cantidad',
-                'old_value' => (float)$existing->cantidad,
-                'new_value' => $cantidad,
-            ];
-        }
-
-    if (round((float)$existing->unit_prize, 2) !== $unit) {
-            $modifications[] = [
-                'field' => 'unit_prize', 
-                'label' => 'Precio Unitario',
-                'old_value' => 'S/ ' . round((float)$existing->unit_prize, 2),
-                'new_value' => 'S/ ' . $unit,
-            ];
-        }
-
-    if (round((float)$existing->sub_total, 2) !== $sub) {
-            $modifications[] = [
-                'field' => 'sub_total',
-                'label' => 'Sub Total',
-                'old_value' => 'S/ ' . round((float)$existing->sub_total, 2),
-                'new_value' => 'S/ ' . $sub,
-            ];
-        }
-
-        if (!empty($modifications)) {
-            $this->stats['modified_count']++;
-            $this->changes['modified'][] = [
-                'row_index' => $rowIndex + 1,
-                'pedido_id' => $pedido->orderId ?? $pedido->nroOrder,
-                'modifications' => $modifications,
-                'existing' => [
-                    'pedido_id' => $pedido->orderId ?? $pedido->nroOrder,
-                    'pedido_cliente' => $pedido->customerName ?? $pedido->customer_name ?? 'N/A',
-                    'articulo' => $existing->articulo,
-                    'cantidad' => (float)$existing->cantidad,
-                    'unit_prize' => round((float)$existing->unit_prize, 2),
-                    'sub_total' => round((float)$existing->sub_total, 2),
-                    'last_data_update' => $existing->updated_at ? $existing->updated_at->format('Y-m-d H:i:s') : 'N/A',
-                ],
-                'new' => [
-                    'pedido_id' => $pedido->orderId ?? $pedido->nroOrder,
-                    'pedido_cliente' => $pedido->customerName ?? $pedido->customer_name ?? 'N/A',
-                    'articulo' => trim((string)$row[$colMap['articulo']]),
-                    'cantidad' => $cantidad,
-                    'unit_prize' => $unit,
-                    'sub_total' => $sub,
-                ]
-            ];
-        } else {
-            $this->stats['no_changes_count']++;
-            $this->changes['no_changes'][] = [
-                'row_index' => $rowIndex + 1,
-                'pedido_id' => $pedido->orderId ?? $pedido->nroOrder,
-                'articulo' => $existing->articulo,
-            ];
-        }
-    }
-
-    /**
-=======
->>>>>>> f76f4ac7a11c11334cc0a0e9b770a16c887d9683
      * Finaliza los resultados del análisis de vista previa
      * 
      * Este método completa el proceso de vista previa, genera el resumen final,
@@ -578,9 +498,9 @@ class DetailPedidosPreviewImport implements ToCollection
     {
         $this->changes['stats'] = $this->stats;
 
-        $processedSum = $this->stats['new_count'] + $this->stats['modified_count'] + 
-                        $this->stats['no_changes_count'] + $this->stats['not_found_count'] + 
-                        $this->stats['prepared_orders_count'] + $this->stats['to_delete_count']; // NUEVO: incluir eliminaciones
+        $processedSum = $this->stats['new_count'] + $this->stats['modified_count'] +
+            $this->stats['no_changes_count'] + $this->stats['not_found_count'] +
+            $this->stats['prepared_orders_count'] + $this->stats['to_delete_count']; // NUEVO: incluir eliminaciones
 
         // Si no se procesó nada pero hay duplicados detectados, aún así devolver vista previa para que el usuario pueda corregir el Excel
         if ($processedSum === 0 && !empty($this->changes['duplicates'])) {
@@ -607,7 +527,7 @@ class DetailPedidosPreviewImport implements ToCollection
         $summary .= "Total filas procesadas: {$this->stats['total_count']}\n";
 
         $this->data = $this->changes;
-        
+
         if ($this->stats['new_count'] + $this->stats['modified_count'] + $this->stats['to_delete_count'] > 0) {
             $this->key = $this->stats['not_found_count'] > 0 ? 'warning' : 'success';
         } else {
@@ -628,54 +548,54 @@ class DetailPedidosPreviewImport implements ToCollection
     private function collectExcelOrders(array $rows, array $colMap): array
     {
         $excelPedidos = [];
-        
+
         foreach ($rows as $rowIndex => $row) {
             // Omitir las dos primeras filas como encabezados si están presentes
             if ($rowIndex < 2) {
                 continue;
             }
-            
+
             if (!is_array($row)) {
                 $row = $row->toArray();
             }
-            
+
             if ($this->shouldSkipRow($row, $colMap)) {
                 continue;
             }
-            
-            $pedidoIdRaw = isset($row[$colMap['numero']]) ? trim((string)$row[$colMap['numero']]) : '';
-            $articulo = isset($row[$colMap['articulo']]) ? trim((string)$row[$colMap['articulo']]) : '';
-            $cantidad = isset($row[$colMap['cantidad']]) ? (float)$row[$colMap['cantidad']] : 0;
-            $unit = isset($row[$colMap['precio']]) && $row[$colMap['precio']] !== '' ? 
-                round((float)$row[$colMap['precio']], 2) : 0.0;
-            
+
+            $pedidoIdRaw = isset($row[$colMap['numero']]) ? trim((string) $row[$colMap['numero']]) : '';
+            $articulo = isset($row[$colMap['articulo']]) ? trim((string) $row[$colMap['articulo']]) : '';
+            $cantidad = isset($row[$colMap['cantidad']]) ? (float) $row[$colMap['cantidad']] : 0;
+            $unit = isset($row[$colMap['precio']]) && $row[$colMap['precio']] !== '' ?
+                round((float) $row[$colMap['precio']], 2) : 0.0;
+
             // Omitir filas con datos críticos vacíos
             if (empty($pedidoIdRaw) || empty($articulo) || $cantidad <= 0) {
                 continue;
             }
-            
+
             // Normalizar pedido ID
             $pedidoKey = strtoupper(trim($pedidoIdRaw));
-            
+
             if (!isset($excelPedidos[$pedidoKey])) {
                 $excelPedidos[$pedidoKey] = [];
             }
-            
+
             // Crear clave única para el artículo (artículo + cantidad + precio)
             $articleKey = strtoupper(trim($articulo)) . '|' . $cantidad . '|' . $unit;
-            
+
             $excelPedidos[$pedidoKey][$articleKey] = [
                 'articulo' => $articulo,
                 'cantidad' => $cantidad,
                 'unit_prize' => $unit,
             ];
         }
-        
+
         Log::info('Excel orders collected', [
             'pedidos_count' => count($excelPedidos),
             'pedidos_keys' => array_keys($excelPedidos)
         ]);
-        
+
         return $excelPedidos;
     }
 
@@ -694,25 +614,25 @@ class DetailPedidosPreviewImport implements ToCollection
         foreach ($excelPedidos as $pedidoKey => $excelArticles) {
             // Buscar el pedido en BD
             $pedido = $this->findPedido($pedidoKey);
-            
+
             if (!$pedido) {
                 continue; // Ya se maneja en not_found
             }
-            
+
             // Omitir pedidos preparados
             if ($pedido->productionStatus === 2) {
                 continue; // Ya se maneja en prepared_orders
             }
-            
+
             // Obtener todos los artículos actuales de este pedido en BD
             $currentArticles = DetailPedidos::where('pedidos_id', $pedido->id)->get();
-            
+
             foreach ($currentArticles as $currentArticle) {
                 // Crear clave única para comparar con Excel
-                $currentKey = strtoupper(trim($currentArticle->articulo)) . '|' . 
-                             $currentArticle->cantidad . '|' . 
-                             round((float)$currentArticle->unit_prize, 2);
-                
+                $currentKey = strtoupper(trim($currentArticle->articulo)) . '|' .
+                    $currentArticle->cantidad . '|' .
+                    round((float) $currentArticle->unit_prize, 2);
+
                 // Si este artículo NO está en el Excel, marcarlo para eliminación
                 if (!isset($excelArticles[$currentKey])) {
                     $this->stats['to_delete_count']++;
@@ -722,8 +642,8 @@ class DetailPedidosPreviewImport implements ToCollection
                         'pedido_cliente' => $pedido->customerName ?? $pedido->customer_name ?? 'N/A',
                         'articulo' => $currentArticle->articulo,
                         'cantidad' => $currentArticle->cantidad,
-                        'unit_prize' => round((float)$currentArticle->unit_prize, 2),
-                        'sub_total' => round((float)$currentArticle->sub_total, 2),
+                        'unit_prize' => round((float) $currentArticle->unit_prize, 2),
+                        'sub_total' => round((float) $currentArticle->sub_total, 2),
                         'current_bd_data' => [
                             'created_at' => $currentArticle->created_at,
                             'updated_at' => $currentArticle->updated_at,
@@ -732,7 +652,7 @@ class DetailPedidosPreviewImport implements ToCollection
                 }
             }
         }
-        
+
         Log::info('Articles to delete detected', [
             'count' => $this->stats['to_delete_count']
         ]);

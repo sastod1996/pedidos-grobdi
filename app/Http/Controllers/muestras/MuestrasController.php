@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\muestras\DisableMuestraRequest;
 use App\Http\Requests\muestras\FilterMuestrasRequest;
 use App\Http\Requests\muestras\StoreOrUpdateMuestraRequest;
-use App\Models\TipoMuestra;
 use App\Models\Muestras;
 use Illuminate\Http\Request;
 use App\Models\Clasificacion;
@@ -197,7 +196,7 @@ class MuestrasController extends Controller
     {
         $this->authorize('muestras.markAsElaborated');
         try {
-            $this->service->markAsElaborated($muestra);
+            $this->service->markAsElaborated($muestra, auth()->user());
             return response()->json(['success' => true, 'message' => "Muestra con ID: {$muestra->id} marcada como elaborada."]);
         } catch (\LogicException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
@@ -209,7 +208,7 @@ class MuestrasController extends Controller
     {
         $this->authorize('muestras.aproveCoordinadora');
         try {
-            $this->service->aproveByCoordinadora($muestra);
+            $this->service->aproveByCoordinadora($muestra, auth()->user());
             return response()->json(['success' => true, 'message' => 'Aprobación realizada correctamente.']);
         } catch (\LogicException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
@@ -220,7 +219,7 @@ class MuestrasController extends Controller
     {
         $this->authorize('muestras.aproveJefeComercial');
         try {
-            $this->service->aproveByJefeComercial($muestra);
+            $this->service->aproveByJefeComercial($muestra, auth()->user());
             return response()->json(['success' => true, 'message' => 'Aprobación realizada correctamente.']);
         } catch (\LogicException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
@@ -231,7 +230,7 @@ class MuestrasController extends Controller
     {
         $this->authorize('muestras.aproveJefeOperaciones');
         try {
-            $this->service->aproveByJefeOperaciones($muestra);
+            $this->service->aproveByJefeOperaciones($muestra, auth()->user());
             return response()->json(['success' => true, 'message' => 'Aprobación realizada correctamente.']);
         } catch (\LogicException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);

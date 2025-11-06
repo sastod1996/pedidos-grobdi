@@ -76,11 +76,7 @@
                         </td>
                     </tr>
                 @empty
-<<<<<<< HEAD
-                    @include('empty-table', ['colspan' => 6, 'dataLength' => 0])
-=======
                     @include('empty-table', ['dataLength' => 0, 'colspan' => 7])
->>>>>>> 1c3381026b4e6445f32c65f3c8f328012868af7a
                 @endforelse
             </tbody>
         </table>

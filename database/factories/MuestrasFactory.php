@@ -3,8 +3,11 @@
 namespace Database\Factories;
 
 use App\Models\Clasificacion;
+use App\Models\ClasificacionPresentacion;
 use App\Models\Doctor;
 use App\Models\Muestras;
+use App\Models\Role;
+use App\Models\UnidadMedida;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -30,7 +33,7 @@ class MuestrasFactory extends Factory
             'cantidad_de_muestra' => fake()->numberBetween(1, 100),
             'precio' => fake()->randomFloat(2, 10, 1000),
             'lab_state' => false,
-            'clasificacion_id' => 3,
+            'clasificacion_id' => Clasificacion::factory()->create()->id,
             'datetime_scheduled' => now()->addDays(2),
             'datetime_delivered' => null,
             'tipo_frasco' => $tipoFrasco,
@@ -38,11 +41,11 @@ class MuestrasFactory extends Factory
             'aprobado_coordinadora' => false,
             'aprobado_jefe_operaciones' => false,
             'name_doctor' => fake()->name,
-            'id_doctor' => 1,
+            'id_doctor' => Doctor::factory()->create()->id,
             'state' => true,
-            'created_by' => User::factory(),
+            'created_by' => User::factory()->create()->id,
             'foto' => null,
-            'clasificacion_presentacion_id' => $tipoFrasco === 'Frasco Original' ? 3 : null,
+            'clasificacion_presentacion_id' => $tipoFrasco === 'Frasco Original' ? ClasificacionPresentacion::factory()->create()->id : null,
             'delete_reason' => null,
         ];
     }
