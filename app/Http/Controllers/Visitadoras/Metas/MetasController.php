@@ -121,7 +121,7 @@ class MetasController extends Controller
         try {
             $visitorGoal = VisitorGoal::with([
                 'visitadora:id,name',
-                'monthlyVisitorGoal:id,start_date,end_date,tipo_medico'
+                'monthlyVisitorGoal:id,start_date,end_date,tipo_medico,goal_not_reached_config_id',
             ])
                 ->select('id', 'user_id', 'goal_amount', 'debited_amount', 'monthly_visitor_goal_id')
                 ->findOrFail($visitorGoalId);
