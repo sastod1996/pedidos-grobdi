@@ -9,10 +9,11 @@ use App\Http\Requests\muestras\DisableMuestraRequest;
 use App\Http\Requests\muestras\FilterMuestrasRequest;
 use App\Http\Requests\muestras\StoreOrUpdateMuestraRequest;
 use App\Models\Muestras;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use App\Models\Clasificacion;
 use Carbon\Carbon;
-
+use Exception;
 use Maatwebsite\Excel\Facades\Excel;
 
 class MuestrasController extends Controller
@@ -55,7 +56,7 @@ class MuestrasController extends Controller
     // Mostrar detalles de una muestra por su ID
     public function show($id)
     {
-        $muestra = Muestras::with(['clasificacion.unidadMedida', 'tipoMuestra', 'creator', 'doctor', 'clasificacionPresentacion'])->findOrFail($id);
+        $muestra = Muestras::with(['clasificacion.unidadMedida', 'tipoMuestra', 'creator', 'doctor', 'clasificacionPresentacion', 'status'])->findOrFail($id);
         return response()->json([
             'success' => true,
             'data' => $muestra
@@ -233,6 +234,30 @@ class MuestrasController extends Controller
             return response()->json(['success' => true, 'message' => 'Aprobación realizada correctamente.']);
         } catch (\LogicException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /* --- ESTADOS --- */
+    public function getStatusByMuestra(Muestras $muestra)
+    {
+        try {
+            $data = $this->service->getStatusByMuestra($muestra);
+
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+                'message' => "Obtenida correctamente la lista de estados de la muestra con ID: $muestra->id"
+            ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Muestra no encontrada.'
+            ], 404);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 }

@@ -57,6 +57,7 @@ class ViewSeeder extends Seeder
             ['url' => 'muestras.aproveCoordinadora', 'is_menu' => false, 'name' => 'Aprobar muestra por Coordinadora', 'module_id' => 2],
             ['url' => 'muestras.aproveJefeComercial', 'is_menu' => false, 'name' => 'Aprobar muestra por Jefe Comercial', 'module_id' => 2],
             ['url' => 'muestras.aproveJefeOperaciones', 'is_menu' => false, 'name' => 'Aprobar muestra por Jefe de Operaciones', 'module_id' => 2],
+            ['url' => 'muestras.status.history', 'is_menu' => false, 'name' => 'Estados de Muestra', 'description' => 'Historial de estados de la muestra', 'module_id' => 2],
             ['url' => 'doctor.index', 'is_menu' => true, 'name' => 'Doctores', 'icon' => 'fa-user-md', 'module_id' => 4],
             ['url' => 'doctor.create', 'is_menu' => false, 'name' => 'Crear Doctor', 'module_id' => 4],
             ['url' => 'doctor.store', 'is_menu' => false, 'name' => 'Guardar Doctor', 'module_id' => 4],
@@ -156,6 +157,9 @@ class ViewSeeder extends Seeder
             ['url' => 'reports.doctores.tipo-doctor', 'is_menu' => false, 'name' => 'Reporte de Doctores por Tipo Doctor', 'description' => 'API para el reporte de doctores por tipo doctor (^tipo-medico^ en las tablas)', 'module_id' => 9],
             ['url' => 'reports.rutas', 'is_menu' => true, 'name' => 'Reporte de Rutas', 'description' => 'Vista del reporte de rutas', 'module_id' => 9],
             ['url' => 'reports.rutas.zones', 'is_menu' => false, 'name' => 'Reporte de Rutas por Zona', 'description' => 'API para el reporte de rutas por zona', 'module_id' => 9],
+            ['url' => 'reports.muestras', 'is_menu' => true, 'name' => 'Reporte de Muestras', 'description' => 'Vista del reporte de muestras', 'module_id' => 9],
+            ['url' => 'reports.muestras.general', 'is_menu' => false, 'name' => 'Reporte General de Muestras', 'description' => 'API para el reporte general de muestras', 'module_id' => 9],
+            ['url' => 'reports.muestras.doctores', 'is_menu' => false, 'name' => 'Reporte de Muestras por Doctores', 'description' => 'API para el reporte de muestras por doctores', 'module_id' => 9],
             ['url' => 'rutas.zones.distritos', 'is_menu' => false, 'name' => 'Obtener los distritos por zonas', 'description' => 'API para obtener los distritos en base a la zona especificada', 'module_id' => 9],
         ];
 
