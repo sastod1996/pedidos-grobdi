@@ -6,7 +6,7 @@ use App\Models\Muestras;
 use App\Models\MuestrasEstado;
 use App\Models\TipoMuestra;
 use App\Models\User;
-use App\MuestraEstadoType;
+use App\Models\Enums\MuestraEstadoType;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -133,7 +133,7 @@ class MuestrasService
     {
         $this->verifyIsActive($muestra);
 
-        if ($muestra->hasEvent(MuestraEstadoType::APROVE_COORDINADOR))
+        if ($muestra->isAprovedByCoordinadora())
             throw new \LogicException("No se puede editar una muestra ya aprobada.");
 
         if ($data['tipo_frasco'] === 'frasco muestra') {
@@ -153,7 +153,7 @@ class MuestrasService
 
     public function disable(Muestras $muestra, string $reason, int $userId)
     {
-        if ($muestra->hasEvent(MuestraEstadoType::APROVE_JEFE_OPERACIONES)) {
+        if ($muestra->isAprovedByJefeOperaciones()) {
             throw new \LogicException("No se puede deshabilitar una muestra aprobada por Jefe de Operaciones.");
         }
 
@@ -187,14 +187,14 @@ class MuestrasService
             ]);
         });
 
-        return $muestra->currentStatus;
+        return $muestra;
     }
 
     public function updateTipoMuestra(Muestras $muestra, int $tipoMuestraId)
     {
         $this->verifyIsActive($muestra);
 
-        if ($muestra->hasEvent(MuestraEstadoType::APROVE_COORDINADOR))
+        if ($muestra->isAprovedByCoordinadora())
             throw new \LogicException("No se puede cambiar el tipo de muestra una vez aprobada por la Supervisora.");
 
         $muestra->id_tipo_muestra = $tipoMuestraId;
@@ -206,7 +206,7 @@ class MuestrasService
     {
         $this->verifyIsActive($muestra);
 
-        if ($muestra->hasEvent(MuestraEstadoType::APROVE_COORDINADOR))
+        if ($muestra->isAprovedByCoordinadora())
             throw new \LogicException("No se puede cambiar fecha tras aprobación.");
 
         $muestra->datetime_scheduled = $datetime;
@@ -291,6 +291,30 @@ class MuestrasService
         return $muestra->currentStatus;
     }
 
+    public function getStatusByMuestra($muestra)
+    {
+        if (!$muestra instanceof Muestras) {
+            $muestra = Muestras::findOrFail((int) $muestra);
+        }
+
+        return $muestra->status()
+            ->with('user:id,name,role_id')
+            ->with('user.role:id,name')
+            ->get()
+            ->map(function ($status) {
+                return [
+                    'id' => $status->id,
+                    'muestras_id' => $status->muestras_id,
+                    'user_id' => $status->user_id,
+                    'user_name' => $status->user->name,
+                    'user_role' => $status->user->role->name,
+                    'type' => $status->type,
+                    'comment' => $status->comment,
+                    'created_at' => $status->created_at,
+                ];
+            });
+    }
+
     /* ------------- Estados para Muestras ------------- */
 
     /* Status Flow:
@@ -307,13 +331,15 @@ class MuestrasService
 
     private const TRANSITION_ERROR_MESSAGES = [
         null => [
-            'message' => 'Se requiere aprobación de la Coordinadora de Líneas.',
-            'targets' => [
-                MuestraEstadoType::APROVE_JEFE_COMERCIAL,
-                MuestraEstadoType::SET_PRICE,
-                MuestraEstadoType::APROVE_JEFE_OPERACIONES,
-                MuestraEstadoType::PRODUCED,
-            ],
+            [
+                'message' => 'Se requiere aprobación de la Coordinadora de Líneas.',
+                'targets' => [
+                    MuestraEstadoType::APROVE_JEFE_COMERCIAL,
+                    MuestraEstadoType::SET_PRICE,
+                    MuestraEstadoType::APROVE_JEFE_OPERACIONES,
+                    MuestraEstadoType::PRODUCED,
+                ],
+            ]
         ],
         MuestraEstadoType::APROVE_COORDINADOR->value => [
             [
@@ -384,17 +410,17 @@ class MuestrasService
 
     private function assertValidTransition(Muestras $muestra, MuestraEstadoType $nextState)
     {
-        $currentState = $muestra->currentStatus?->type;
+        $currentStateVal = $muestra->currentStatus?->type?->value;
 
-        $allowedTransitions = self::TRANSITIONS[$currentState->value] ?? [];
+        $allowedTransitions = self::TRANSITIONS[$currentStateVal] ?? [];
 
         if (in_array($nextState, $allowedTransitions, true))
             return;
 
         $errorMessage = null;
 
-        if (isset(self::TRANSITION_ERROR_MESSAGES[$currentState->value])) {
-            foreach (self::TRANSITION_ERROR_MESSAGES[$currentState->value] as $group) {
+        if (isset(self::TRANSITION_ERROR_MESSAGES[$currentStateVal])) {
+            foreach (self::TRANSITION_ERROR_MESSAGES[$currentStateVal] as $group) {
                 if (in_array($nextState, $group['targets'], true)) {
                     $errorMessage = $group['message'];
                     break;
@@ -403,7 +429,7 @@ class MuestrasService
         }
 
         if (!$errorMessage) {
-            $currentLabel = $currentState?->value ?? 'ninguno';
+            $currentLabel = $currentStateVal ?? 'ninguno';
             $errorMessage = "Transición inválida: no se puede pasar de '$currentLabel' a '{$nextState->value}'.";
         }
 
