@@ -265,6 +265,15 @@
                         class="grobdi-input form-control @error('password') is-invalid @enderror"
                         placeholder="••••••••"
                     >
+                    <button
+                        type="button"
+                        class="grobdi-toggle-password"
+                        aria-label="Mostrar contraseña"
+                        style="position:absolute; inset-inline-end:1rem; inset-block-start:50%; transform:translateY(-50%); background:none; border:none; color:#475569; font-size:1rem; display:flex; align-items:center; justify-content:center;"
+                        onclick="const input=this.previousElementSibling; const icon=this.querySelector('span'); if (input.type==='password') { input.type='text'; icon.classList.replace('fa-eye','fa-eye-slash'); } else { input.type='password'; icon.classList.replace('fa-eye-slash','fa-eye'); }"
+                    >
+                        <span class="fas fa-eye"></span>
+                    </button>
                 </div>
                 @error('password')
                     <span class="invalid-feedback" role="alert">
