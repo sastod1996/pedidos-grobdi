@@ -200,21 +200,38 @@ class ReportsRepository implements ReportsRepositoryInterface
             'doctor.id as doctor_id,
          doctor.name,
          doctor.tipo_medico,
+         esp.name as especialidad,
+         dist.name as distrito,
+         cs.name as centro_salud,
          SUM(pedidos.prize) as total_amount'
         )
             ->join('doctor', 'pedidos.id_doctor', '=', 'doctor.id')
+            ->leftJoin('especialidad as esp', 'doctor.especialidad_id', '=', 'esp.id')
+            ->leftJoin('distritos as dist', 'doctor.distrito_id', '=', 'dist.id')
+            ->leftJoin('centrosalud as cs', 'doctor.centrosalud_id', '=', 'cs.id')
             ->whereBetween('pedidos.created_at', [$startDate, $endDate])
-            ->groupBy('doctor.id', 'doctor.name', 'doctor.tipo_medico')
+            ->groupBy('doctor.id', 'doctor.name', 'doctor.tipo_medico', 'esp.name', 'dist.name', 'cs.name')
             ->orderByDesc('total_amount')
             ->first();
 
-        // Si no hay resultados, devolvemos una estructura coherente
         if (!$topDoctor) {
-            $doctor = Doctor::inRandomOrder()->select('id', 'name', 'tipo_medico')->first();
+            $doctor = Doctor::with([
+                'especialidad:id,name',
+                'distrito:id,name',
+                'centrosalud:id,name',
+            ])->select('id', 'name', 'tipo_medico', 'especialidad_id', 'distrito_id', 'centrosalud_id')->inRandomOrder()->first();
+
+            if (!$doctor) {
+                return null;
+            }
+
             return [
-                'id' => $doctor['id'],
-                'name' => $doctor['name'],
-                'tipo_medico' => $doctor['tipo_medico'],
+                'id' => $doctor->id,
+                'name' => $doctor->name,
+                'tipo_medico' => $doctor->tipo_medico,
+                'especialidad' => $doctor->especialidad->name ?? null,
+                'distrito' => $doctor->distrito->name ?? null,
+                'centro_salud' => $doctor->centrosalud->name ?? null,
                 'is_top_doctor' => false,
             ];
         }
@@ -223,6 +240,9 @@ class ReportsRepository implements ReportsRepositoryInterface
             'id' => $topDoctor->doctor_id,
             'name' => $topDoctor->name,
             'tipo_medico' => $topDoctor->tipo_medico,
+            'especialidad' => $topDoctor->especialidad,
+            'distrito' => $topDoctor->distrito,
+            'centro_salud' => $topDoctor->centro_salud,
             'is_top_doctor' => true,
         ];
     }
@@ -233,20 +253,38 @@ class ReportsRepository implements ReportsRepositoryInterface
             'dr.id as doctor_id,
             dr.name,
             dr.tipo_medico,
+            esp.name as especialidad,
+            dist.name as distrito,
+            cs.name as centro_salud,
             SUM(muestras.precio) as total_amount'
         )
             ->join('doctor as dr', 'muestras.id_doctor', '=', 'dr.id')
+            ->leftJoin('especialidad as esp', 'dr.especialidad_id', '=', 'esp.id')
+            ->leftJoin('distritos as dist', 'dr.distrito_id', '=', 'dist.id')
+            ->leftJoin('centrosalud as cs', 'dr.centrosalud_id', '=', 'cs.id')
             ->whereBetween('muestras.created_at', [$startDate, $endDate])
-            ->groupBy('dr.id', 'dr.name', 'dr.tipo_medico')
+            ->groupBy('dr.id', 'dr.name', 'dr.tipo_medico', 'esp.name', 'dist.name', 'cs.name')
             ->orderByDesc('total_amount')
             ->first();
 
         if (!$topDoctor) {
-            $doctor = Doctor::inRandomOrder()->select('id', 'name', 'tipo_medico')->first();
+            $doctor = Doctor::with([
+                'especialidad:id,name',
+                'distrito:id,name',
+                'centrosalud:id,name',
+            ])->select('id', 'name', 'tipo_medico', 'especialidad_id', 'distrito_id', 'centrosalud_id')->inRandomOrder()->first();
+
+            if (!$doctor) {
+                return null;
+            }
+
             return [
-                'id' => $doctor['id'],
-                'name' => $doctor['name'],
-                'tipo_medico' => $doctor['tipo_medico'],
+                'id' => $doctor->id,
+                'name' => $doctor->name,
+                'tipo_medico' => $doctor->tipo_medico,
+                'especialidad' => $doctor->especialidad->name ?? null,
+                'distrito' => $doctor->distrito->name ?? null,
+                'centro_salud' => $doctor->centrosalud->name ?? null,
                 'is_top_doctor' => false,
             ];
         }
@@ -255,17 +293,34 @@ class ReportsRepository implements ReportsRepositoryInterface
             'id' => $topDoctor->doctor_id,
             'name' => $topDoctor->name,
             'tipo_medico' => $topDoctor->tipo_medico,
+            'especialidad' => $topDoctor->especialidad,
+            'distrito' => $topDoctor->distrito,
+            'centro_salud' => $topDoctor->centro_salud,
             'is_top_doctor' => true,
         ];
     }
 
     public function getDoctorInfo(int $doctorId): mixed
     {
-        $doctor = Doctor::select('id', 'name', 'tipo_medico')->where('id', $doctorId)->first();
+        $doctor = Doctor::with([
+            'especialidad:id,name',
+            'distrito:id,name',
+            'centrosalud:id,name',
+        ])->select('id', 'name', 'tipo_medico', 'especialidad_id', 'distrito_id', 'centrosalud_id')
+            ->where('id', $doctorId)
+            ->first();
+
+        if (!$doctor) {
+            return null;
+        }
+
         return [
-            'id' => $doctor['id'],
-            'name' => $doctor['name'],
-            'tipo_medico' => $doctor['tipo_medico'],
+            'id' => $doctor->id,
+            'name' => $doctor->name,
+            'tipo_medico' => $doctor->tipo_medico,
+            'especialidad' => $doctor->especialidad->name ?? null,
+            'distrito' => $doctor->distrito->name ?? null,
+            'centro_salud' => $doctor->centrosalud->name ?? null,
             'is_top_doctor' => false,
         ];
     }
