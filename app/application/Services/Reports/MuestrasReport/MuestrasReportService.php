@@ -88,6 +88,9 @@ class MuestrasReportService extends ReportBaseService
             $doctorData['is_top_doctor'],
             $doctorData['name'],
             $doctorData['tipo_medico'],
+            $doctorData['especialidad'] ?? null,
+            $doctorData['distrito'] ?? null,
+            $doctorData['centro_salud'] ?? null,
             $data,
             compact('id_doctor', 'start_date', 'end_date')
         );
