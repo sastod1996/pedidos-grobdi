@@ -15,6 +15,284 @@ use Illuminate\Support\Str;
 class MuestrasService
 {
 
+    public function getFilteredMuestras(array $filters, User $user): array
+    {
+        $query = Muestras::with(['clasificacion.unidadMedida', 'tipoMuestra', 'doctor', 'clasificacionPresentacion'])
+            ->where('state', true);
+
+        $tiposMuestra = null;
+        // === Filtros por rol del usuario ===
+        if (in_array($user->role->name, ['admin', 'coordinador-lineas', 'supervisor'])) {
+            $tiposMuestra = TipoMuestra::get();
+        } else {
+            if ($user->hasRole('visitador')) {
+                $query->where('created_by', $user->id);
+            } elseif ($user->hasRole('jefe-comercial')) {
+                $query->withEvent(MuestraEstadoType::APROVE_COORDINADOR);
+            } elseif ($user->hasRole('laboratorio')) {
+                $query->withEvent(MuestraEstadoType::APROVE_JEFE_OPERACIONES);
+            } elseif ($user->hasRole('jefe-operaciones')) {
+                $restrictedRange = $this->getLimitMuestrasShowed();
+
+                if ($restrictedRange) {
+                    [$start, $end] = $restrictedRange;
+                    $query->where(function ($q) use ($start, $end) {
+                        $q->where('created_at', '<', $start)
+                            ->orWhere('created_at', '>=', $end);
+                    });
+                }
+
+                $query->withEvent(MuestraEstadoType::APROVE_JEFE_COMERCIAL);
+            } else {
+                $query->withEvent(MuestraEstadoType::APROVE_JEFE_COMERCIAL);
+            }
+        }
+
+        // === Filtros de búsqueda ===
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('nombre_muestra', 'like', "%{$search}%")
+                    ->orWhereHas('doctor', function ($q2) use ($search) {
+                        $q2->where(DB::raw("CONCAT_WS(' ', name, first_lastname, second_lastname)"), 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        // === Filtro por rango de fechas ===
+        $query->whereBetween(
+            $filters['filter_by_date_field'],
+            [$filters['date_since'], $filters['date_to']]
+        );
+
+        // === Filtro por estado de laboratorio ===
+        if ($filters['lab_state'] !== null) {
+            if ($filters['lab_state']) {
+                $query->withEvent(MuestraEstadoType::PRODUCED);
+            } else {
+                $query->withoutEvent(MuestraEstadoType::PRODUCED);
+            }
+        }
+
+        // === Ordenamiento ===
+        if ($filters['order_by'] === 'datetime_scheduled') {
+            $query->orderByRaw('CASE WHEN datetime_scheduled IS NULL THEN 0 ELSE 1 END ASC')
+                ->orderBy('datetime_scheduled', 'desc');
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        // === Paginación ===
+        $muestras = $query->paginate(10);
+
+        // === Preparar respuesta ===
+        $data = compact('muestras');
+
+        if ($tiposMuestra) {
+            $data['tiposMuestra'] = $tiposMuestra;
+        }
+
+        return $data;
+    }
+
+    private function getLimitMuestrasShowed()
+    {
+        $now = Carbon::now();
+
+        $startRestriction = $now->copy()->startOfWeek()->addDays(2)->setTime(14, 0, 0);
+        $endRestriction = $now->copy()->startOfWeek()->addDays(4)->setTime(12, 0, 0);
+
+        if ($now->between($startRestriction, $endRestriction)) {
+            return [$startRestriction, $endRestriction];
+        }
+
+        return null;
+    }
+
+    public function create(array $data, $userId, $foto = null)
+    {
+        // Manejo de imagen
+        $fotoPath = $this->handleImageUpload($foto, $data['nombre_muestra'] ?? 'muestra');
+
+        $muestra = Muestras::create([
+            'nombre_muestra' => $data['nombre_muestra'],
+            'clasificacion_id' => $data['clasificacion_id'],
+            'cantidad_de_muestra' => $data['cantidad_de_muestra'],
+            'observacion' => $data['observacion'] ?? null,
+            'tipo_frasco' => $data['tipo_frasco'],
+            'id_doctor' => $data['id_doctor'],
+            'clasificacion_presentacion_id' => $data['clasificacion_presentacion_id'] ?? null,
+            'foto' => $fotoPath,
+            'created_by' => $userId,
+        ]);
+
+        return $muestra;
+    }
+
+    public function update(Muestras $muestra, array $data)
+    {
+        $this->verifyIsActive($muestra);
+
+        if ($muestra->hasEvent(MuestraEstadoType::APROVE_COORDINADOR))
+            throw new \LogicException("No se puede editar una muestra ya aprobada.");
+
+        if ($data['tipo_frasco'] === 'frasco muestra') {
+            $data['clasificacion_presentacion_id'] = null;
+        }
+
+        if (isset($data['foto']) && $data['foto'] instanceof \Illuminate\Http\UploadedFile) {
+            $this->deleteOldImage($muestra->foto);
+            $data['foto'] = $this->handleImageUpload($data['foto'], $data['nombre_muestra']);
+        } else {
+            unset($data['foto']); // no actualizar si no hay nueva imagen
+        }
+
+        $muestra->update($data);
+        return $muestra;
+    }
+
+    public function disable(Muestras $muestra, string $reason, int $userId)
+    {
+        if ($muestra->hasEvent(MuestraEstadoType::APROVE_JEFE_OPERACIONES)) {
+            throw new \LogicException("No se puede deshabilitar una muestra aprobada por Jefe de Operaciones.");
+        }
+
+        $muestra->update([
+            'state' => false,
+            'delete_reason' => $reason,
+            'updated_by' => $userId,
+        ]);
+
+        return $muestra;
+    }
+
+    public function updatePrice(Muestras $muestra, float $price, User $user)
+    {
+        $this->verifyIsActive($muestra);
+
+        $this->assertValidTransition($muestra, MuestraEstadoType::SET_PRICE);
+
+        if ($muestra->precio === $price)
+            throw new \LogicException("El precio es el mismo al ya asignado.");
+
+        DB::transaction(function () use ($muestra, $price, $user) {
+            $muestra->precio = $price;
+            $muestra->save();
+
+            MuestrasEstado::create([
+                'muestras_id' => $muestra->id,
+                'user_id' => $user->id,
+                'type' => MuestraEstadoType::SET_PRICE,
+                'comment' => "Precio actualizado {Precio: $price} por $user->name"
+            ]);
+        });
+
+        return $muestra->currentStatus;
+    }
+
+    public function updateTipoMuestra(Muestras $muestra, int $tipoMuestraId)
+    {
+        $this->verifyIsActive($muestra);
+
+        if ($muestra->hasEvent(MuestraEstadoType::APROVE_COORDINADOR))
+            throw new \LogicException("No se puede cambiar el tipo de muestra una vez aprobada por la Supervisora.");
+
+        $muestra->id_tipo_muestra = $tipoMuestraId;
+        $muestra->save();
+        return $muestra;
+    }
+
+    public function updateDateTimeScheduled(Muestras $muestra, string $datetime)
+    {
+        $this->verifyIsActive($muestra);
+
+        if ($muestra->hasEvent(MuestraEstadoType::APROVE_COORDINADOR))
+            throw new \LogicException("No se puede cambiar fecha tras aprobación.");
+
+        $muestra->datetime_scheduled = $datetime;
+        $muestra->save();
+        return $muestra;
+    }
+
+    public function updateComentarioLab(Muestras $muestra, string $comentario)
+    {
+        $this->verifyIsActive($muestra);
+
+        $muestra->comentarios = $comentario;
+        $muestra->save();
+        return $muestra;
+    }
+
+    public function markAsElaborated(Muestras $muestra, User $user)
+    {
+        $this->verifyIsActive($muestra);
+
+        $this->assertValidTransition($muestra, MuestraEstadoType::PRODUCED);
+
+        MuestrasEstado::create([
+            'muestras_id' => $muestra->id,
+            'user_id' => $user->id,
+            'type' => MuestraEstadoType::PRODUCED,
+            'comment' => "Marcada como producida por $user->name"
+        ]);
+        return $muestra->currentStatus;
+    }
+
+    public function aproveByCoordinadora(Muestras $muestra, User $user)
+    {
+        $this->verifyIsActive($muestra);
+
+        if (!$muestra->id_tipo_muestra || $muestra->id_tipo_muestra < 1)
+            throw new \LogicException("Se requiere un tipo de muestra para aprobarse.");
+        if (!$muestra->datetime_scheduled)
+            throw new \LogicException("Se requiere una fecha y hora de entrega para aprobarse.");
+
+        $this->assertValidTransition($muestra, MuestraEstadoType::APROVE_COORDINADOR);
+
+        MuestrasEstado::create([
+            'muestras_id' => $muestra->id,
+            'user_id' => $user->id,
+            'type' => MuestraEstadoType::APROVE_COORDINADOR,
+            'comment' => "Aprobado por Coordinador@: $user->name"
+        ]);
+        return $muestra->currentStatus;
+    }
+
+    public function aproveByJefeComercial(Muestras $muestra, User $user)
+    {
+        $this->verifyIsActive($muestra);
+
+        $this->assertValidTransition($muestra, MuestraEstadoType::APROVE_JEFE_COMERCIAL);
+
+        MuestrasEstado::create([
+            'muestras_id' => $muestra->id,
+            'user_id' => $user->id,
+            'type' => MuestraEstadoType::APROVE_JEFE_COMERCIAL,
+            'comment' => "Aprobado por Jefe Comercial: $user->name"
+        ]);
+        return $muestra->currentStatus;
+    }
+
+    public function aproveByJefeOperaciones(Muestras $muestra, User $user)
+    {
+        $this->verifyIsActive($muestra);
+
+        $this->assertValidTransition($muestra, MuestraEstadoType::APROVE_JEFE_OPERACIONES);
+
+        if (is_null($muestra->precio) || $muestra->precio <= 0)
+            throw new \LogicException("Contabilidad debe asignar precio a la muestra.");
+
+        MuestrasEstado::create([
+            'muestras_id' => $muestra->id,
+            'user_id' => $user->id,
+            'type' => MuestraEstadoType::APROVE_JEFE_OPERACIONES,
+            'comment' => "Aprobado por Jefe de Operaciones: $user->name"
+        ]);
+        return $muestra->currentStatus;
+    }
+
+    /* ------------- Estados para Muestras ------------- */
+
     /* Status Flow:
             Coordinador@ de lineas → Jef@ Comercial → Contador@ → Jef@ de Operaciones → Laboratorio lo produce
     */
@@ -132,279 +410,6 @@ class MuestrasService
         throw new \LogicException($errorMessage);
     }
 
-    public function getFilteredMuestras(array $filters, User $user): array
-    {
-        $query = Muestras::with(['clasificacion.unidadMedida', 'tipoMuestra', 'doctor', 'clasificacionPresentacion'])
-            ->where('state', true);
-
-        $tiposMuestra = null;
-        // === Filtros por rol del usuario ===
-        if (in_array($user->role->name, ['admin', 'coordinador-lineas', 'supervisor'])) {
-            $tiposMuestra = TipoMuestra::get();
-        } else {
-            if ($user->hasRole('visitador')) {
-                $query->where('created_by', $user->id);
-            } elseif ($user->hasRole('jefe-comercial')) {
-                $query->withEvent(MuestraEstadoType::APROVE_COORDINADOR);
-            } elseif ($user->hasRole('laboratorio')) {
-                $query->withEvent(MuestraEstadoType::APROVE_JEFE_OPERACIONES);
-            } elseif ($user->hasRole('jefe-operaciones')) {
-                $restrictedRange = $this->getLimitMuestrasShowed();
-
-                if ($restrictedRange) {
-                    [$start, $end] = $restrictedRange;
-                    $query->where(function ($q) use ($start, $end) {
-                        $q->where('created_at', '<', $start)
-                            ->orWhere('created_at', '>=', $end);
-                    });
-                }
-
-                $query->withEvent(MuestraEstadoType::APROVE_JEFE_COMERCIAL);
-            } else {
-                $query->withEvent(MuestraEstadoType::APROVE_JEFE_COMERCIAL);
-            }
-        }
-
-        // === Filtros de búsqueda ===
-        if (!empty($filters['search'])) {
-            $search = $filters['search'];
-            $query->where(function ($q) use ($search) {
-                $q->where('nombre_muestra', 'like', "%{$search}%")
-                    ->orWhereHas('doctor', function ($q2) use ($search) {
-                        $q2->where(DB::raw("CONCAT_WS(' ', name, first_lastname, second_lastname)"), 'like', "%{$search}%");
-                    });
-            });
-        }
-
-        // === Filtro por rango de fechas ===
-        $query->whereBetween(
-            $filters['filter_by_date_field'],
-            [$filters['date_since'], $filters['date_to']]
-        );
-
-        // === Filtro por estado de laboratorio ===
-        if ($filters['lab_state'] !== null) {
-            if ($filters['lab_state']) {
-                $query->withEvent(MuestraEstadoType::PRODUCED);
-            } else {
-                $query->withoutEvent(MuestraEstadoType::PRODUCED);
-            }
-        }
-
-        // === Ordenamiento ===
-        if ($filters['order_by'] === 'datetime_scheduled') {
-            $query->orderByRaw('CASE WHEN datetime_scheduled IS NULL THEN 0 ELSE 1 END ASC')
-                ->orderBy('datetime_scheduled', 'desc');
-        } else {
-            $query->orderBy('created_at', 'desc');
-        }
-
-        // === Paginación ===
-        $muestras = $query->paginate(10);
-
-        // === Preparar respuesta ===
-        $data = compact('muestras');
-
-        if ($tiposMuestra) {
-            $data['tiposMuestra'] = $tiposMuestra;
-        }
-
-        return $data;
-    }
-
-    private function getLimitMuestrasShowed()
-    {
-        $now = Carbon::now();
-
-        $startRestriction = $now->copy()->startOfWeek()->addDays(2)->setTime(14, 0, 0);
-        $endRestriction = $now->copy()->startOfWeek()->addDays(4)->setTime(12, 0, 0);
-
-        if ($now->between($startRestriction, $endRestriction)) {
-            return [$startRestriction, $endRestriction];
-        }
-
-        return null;
-    }
-
-    public function create(array $data, $userId, $foto = null)
-    {
-        // Manejo de imagen
-        $fotoPath = $this->handleImageUpload($foto, $data['nombre_muestra'] ?? 'muestra');
-
-        $muestra = Muestras::create([
-            'nombre_muestra' => $data['nombre_muestra'],
-            'clasificacion_id' => $data['clasificacion_id'],
-            'cantidad_de_muestra' => $data['cantidad_de_muestra'],
-            'observacion' => $data['observacion'] ?? null,
-            'tipo_frasco' => $data['tipo_frasco'],
-            'id_doctor' => $data['id_doctor'],
-            'clasificacion_presentacion_id' => $data['clasificacion_presentacion_id'] ?? null,
-            'foto' => $fotoPath,
-            'created_by' => $userId,
-        ]);
-
-        return $muestra;
-    }
-
-    public function update(Muestras $muestra, array $data)
-    {
-        if (!$muestra->state) {
-            throw new \LogicException("No se puede editar una muestra inhabilitada.");
-        }
-        if ($muestra->hasEvent(MuestraEstadoType::APROVE_COORDINADOR)) {
-            throw new \LogicException("No se puede editar una muestra ya aprobada.");
-        }
-
-        if ($data['tipo_frasco'] === 'frasco muestra') {
-            $data['clasificacion_presentacion_id'] = null;
-        }
-
-        if (isset($data['foto']) && $data['foto'] instanceof \Illuminate\Http\UploadedFile) {
-            $this->deleteOldImage($muestra->foto);
-            $data['foto'] = $this->handleImageUpload($data['foto'], $data['nombre_muestra']);
-        } else {
-            unset($data['foto']); // no actualizar si no hay nueva imagen
-        }
-
-        $muestra->update($data);
-        return $muestra;
-    }
-
-    public function disable(Muestras $muestra, string $reason, int $userId)
-    {
-        if ($muestra->hasEvent(MuestraEstadoType::APROVE_JEFE_OPERACIONES)) {
-            throw new \LogicException("No se puede deshabilitar una muestra aprobada por Jefe de Operaciones.");
-        }
-
-        $muestra->update([
-            'state' => false,
-            'delete_reason' => $reason,
-            'updated_by' => $userId,
-        ]);
-
-        return $muestra;
-    }
-
-    public function updatePrice(Muestras $muestra, float $price)
-    {
-        if (!$muestra->state)
-            throw new \LogicException("No se puede realizar esta operación. La muestra esta inhabilitada.");
-
-        $this->assertValidTransition($muestra, MuestraEstadoType::SET_PRICE);
-
-        if ($muestra->precio === $price)
-            throw new \LogicException("El precio es el mismo al ya asignado.");
-
-        $muestra->precio = $price;
-        $muestra->save();
-
-        return $muestra;
-    }
-
-    public function updateTipoMuestra(Muestras $muestra, int $tipoMuestraId)
-    {
-        if (!$muestra->state)
-            throw new \LogicException("No se puede realizar esta operación. La muestra esta inhabilitada.");
-        if ($muestra->hasEvent(MuestraEstadoType::APROVE_COORDINADOR))
-            throw new \LogicException("No se puede cambiar el tipo de muestra una vez aprobada por la Supervisora.");
-
-        $muestra->id_tipo_muestra = $tipoMuestraId;
-        $muestra->save();
-        return $muestra;
-    }
-
-    public function updateDateTimeScheduled(Muestras $muestra, string $datetime)
-    {
-        if (!$muestra->state)
-            throw new \LogicException("No se puede realizar esta operación. La muestra esta inhabilitada.");
-        if ($muestra->hasEvent(MuestraEstadoType::APROVE_COORDINADOR))
-            throw new \LogicException("No se puede cambiar fecha tras aprobación.");
-
-        $muestra->datetime_scheduled = $datetime;
-        $muestra->save();
-        return $muestra;
-    }
-
-    public function updateComentarioLab(Muestras $muestra, string $comentario)
-    {
-        if (!$muestra->state)
-            throw new \LogicException("No se puede realizar esta operación. La muestra esta inhabilitada.");
-
-        $muestra->comentarios = $comentario;
-        $muestra->save();
-        return $muestra;
-    }
-
-    public function markAsElaborated(Muestras $muestra, User $user)
-    {
-        if (!$muestra->state)
-            throw new \LogicException("No se puede realizar esta operación. La muestra esta inhabilitada.");
-
-        $this->assertValidTransition($muestra, MuestraEstadoType::PRODUCED);
-
-        MuestrasEstado::create([
-            'muestra_id' => $muestra->id,
-            'user_id' => $user->id,
-            'type' => MuestraEstadoType::PRODUCED,
-            'comment' => "Marcada como producida por $user->name"
-        ]);
-        return $muestra->currentStatus;
-    }
-
-    public function aproveByCoordinadora(Muestras $muestra, User $user)
-    {
-        if (!$muestra->state)
-            throw new \LogicException("No se puede realizar esta operación. La muestra esta inhabilitada.");
-        if (!$muestra->id_tipo_muestra || $muestra->id_tipo_muestra < 1)
-            throw new \LogicException("Se requiere un tipo de muestra para aprobarse.");
-        if (!$muestra->datetime_scheduled)
-            throw new \LogicException("Se requiere una fecha y hora de entrega para aprobarse.");
-        $this->assertValidTransition($muestra, MuestraEstadoType::APROVE_COORDINADOR);
-
-        MuestrasEstado::create([
-            'muestra_id' => $muestra->id,
-            'user_id' => $user->id,
-            'type' => MuestraEstadoType::APROVE_COORDINADOR,
-            'comment' => "Aprobado por Coordinador@: $user->name"
-        ]);
-        return $muestra->currentStatus;
-    }
-
-    public function aproveByJefeComercial(Muestras $muestra, User $user)
-    {
-        if (!$muestra->state)
-            throw new \LogicException("No se puede realizar esta operación. La muestra esta inhabilitada.");
-
-        $this->assertValidTransition($muestra, MuestraEstadoType::APROVE_JEFE_COMERCIAL);
-
-        MuestrasEstado::create([
-            'muestra_id' => $muestra->id,
-            'user_id' => $user->id,
-            'type' => MuestraEstadoType::APROVE_JEFE_COMERCIAL,
-            'comment' => "Aprobado por Jefe Comercial: $user->name"
-        ]);
-        return $muestra->currentStatus;
-    }
-
-    public function aproveByJefeOperaciones(Muestras $muestra, User $user)
-    {
-        if (!$muestra->state)
-            throw new \LogicException("No se puede realizar esta operación. La muestra esta inhabilitada.");
-
-        $this->assertValidTransition($muestra, MuestraEstadoType::APROVE_JEFE_OPERACIONES);
-
-        if (is_null($muestra->precio) || $muestra->precio <= 0)
-            throw new \LogicException("Contabilidad debe asignar precio a la muestra.");
-
-        MuestrasEstado::create([
-            'muestra_id' => $muestra->id,
-            'user_id' => $user->id,
-            'type' => MuestraEstadoType::APROVE_JEFE_OPERACIONES,
-            'comment' => "Aprobado por Jefe de Operaciones: $user->name"
-        ]);
-        return $muestra->currentStatus;
-    }
-
     // --- Métodos privados auxiliares ---
 
     private function handleImageUpload($file, string $nombreMuestra): ?string
@@ -430,6 +435,12 @@ class MuestrasService
         if ($oldPath && File::exists(public_path($oldPath))) {
             File::delete(public_path($oldPath));
         }
+    }
+
+    private function verifyIsActive(Muestras $muestra, ?string $message = null)
+    {
+        if (!$muestra->isActive())
+            throw new \LogicException($message ?? "No se puede realizar esta operación. La muestra con ID: {$muestra->id} esta inhabilitada.");
     }
 
 }

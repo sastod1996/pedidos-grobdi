@@ -12,8 +12,7 @@ use App\Models\Muestras;
 use Illuminate\Http\Request;
 use App\Models\Clasificacion;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+
 use Maatwebsite\Excel\Facades\Excel;
 
 class MuestrasController extends Controller
@@ -134,7 +133,7 @@ class MuestrasController extends Controller
             'price' => 'required|numeric|min:0'
         ]);
         try {
-            $result = $this->service->updatePrice($muestra, $validated['price']);
+            $result = $this->service->updatePrice($muestra, $validated['price'], auth()->user());
             return response()->json([
                 'success' => true,
                 'message' => 'Precio actualizado correctamente.',

@@ -74,9 +74,14 @@ class Muestras extends Model
         return $this->belongsTo(ClasificacionPresentacion::class, 'clasificacion_presentacion_id');
     }
 
+    public function isActive(): bool
+    {
+        return (bool) $this->state;
+    }
+
     /* -------------------------------- Metodos y Variables relevante a los Estados ↓ -------------------------------- */
 
-    // Lista de estados
+    // Status History List
     public function status()
     {
         return $this->hasMany(MuestrasEstado::class);
@@ -97,7 +102,7 @@ class Muestras extends Model
         return $query->whereExists(function ($q) use ($type) {
             $q->selectRaw(1)
                 ->from('muestras_estados')
-                ->whereColumn('muestras_estados.muestra_id', 'muestras.id')
+                ->whereColumn('muestras_estados.muestras_id', 'muestras.id')
                 ->where('type', $type);
         });
     }
@@ -107,7 +112,7 @@ class Muestras extends Model
         return $query->whereNotExists(function ($q) use ($type) {
             $q->selectRaw(1)
                 ->from('muestras_estados')
-                ->whereColumn('muestras_estados.muestra_id', 'muestras.id')
+                ->whereColumn('muestras_estados.muestras_id', 'muestras.id')
                 ->where('type', $type);
         });
     }

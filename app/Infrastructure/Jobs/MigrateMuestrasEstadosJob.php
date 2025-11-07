@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Infrastructure\Jobs;
 
 use App\Models\MuestrasEstado;
 use App\Models\User;
 use App\MuestraEstadoType;
+use Carbon\Carbon;
 use Exception;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
@@ -23,7 +24,9 @@ class MigrateMuestrasEstadosJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(public int $startId, public int $endId) {}
+    public function __construct(public int $startId, public int $endId)
+    {
+    }
 
     /**
      * Execute the job.
@@ -38,6 +41,7 @@ class MigrateMuestrasEstadosJob implements ShouldQueue
 
         $muestras = DB::table('muestras')
             ->whereBetween('id', [$this->startId, $this->endId])
+            ->where('state', true)
             ->select(
                 'id',
                 'aprobado_coordinadora',
@@ -92,12 +96,14 @@ class MigrateMuestrasEstadosJob implements ShouldQueue
 
     private function buildEvent($muestra, int $userId, MuestraEstadoType $type, ?int $minutesOffset = null): array
     {
-        $createdAt = $minutesOffset === null
-            ? $muestra->updated_at
-            : $muestra->updated_at->copy()->addMinutes($minutesOffset);
+        $baseTime = $muestra->updated_at instanceof \DateTimeInterface ? Carbon::instance($muestra->updated_at) : Carbon::parse($muestra->updated_at);
+
+        $createdAt = $minutesOffset !== null
+            ? $baseTime->copy()->addMinutes($minutesOffset)
+            : $baseTime;
 
         return [
-            'muestra_id' => $muestra->id,
+            'muestras_id' => $muestra->id,
             'user_id' => $userId,
             'type' => $type,
             'comment' => 'Migración inicial 04-11-2025.',
