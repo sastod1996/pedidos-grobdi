@@ -27,10 +27,15 @@ class MuestrasFactory extends Factory
 
         $tipoFrasco = fake()->randomElement(Muestras::TIPOS_FRASCO);
 
+        $isProducedByLaboratory = fake()->boolean();
         $isAprovedByJefeOperaciones = fake()->boolean();
         $isAprovedByCoordinadora = fake()->boolean();
         $isAprovedByJefeComercial = fake()->boolean();
         $price = null;
+
+        if ($isProducedByLaboratory) {
+            $isAprovedByJefeOperaciones = true;
+        }
 
         if ($isAprovedByJefeOperaciones) {
             $isAprovedByJefeComercial = true;
@@ -39,6 +44,7 @@ class MuestrasFactory extends Factory
 
         if ($isAprovedByJefeComercial) {
             $isAprovedByCoordinadora = true;
+
         }
 
         return [
@@ -46,7 +52,7 @@ class MuestrasFactory extends Factory
             'observacion' => fake()->sentence,
             'cantidad_de_muestra' => fake()->numberBetween(1, 100),
             'precio' => $price,
-            'lab_state' => false,
+            'lab_state' => $isProducedByLaboratory,
             'clasificacion_id' => Clasificacion::factory()->create()->id,
             'datetime_scheduled' => now()->addDays(2),
             'datetime_delivered' => null,
