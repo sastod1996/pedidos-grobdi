@@ -83,8 +83,8 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-4">
                                             <label for="turno" class="form-label"><i class="fa fa-clock"></i> Turno</label>
                                             <select name="turno" class="form-select shadow-sm" style="width: 100%;">
                                                 <option value="">Todos</option>
@@ -96,9 +96,38 @@
                                                 </option>
                                             </select>
                                         </div>
+                                        <div class="col-md-4">
+                                            <label for="delivery_status" class="form-label"><i class="fa fa-truck"></i> Estado de entrega</label>
+                                            <select name="delivery_status" id="delivery_status" class="form-select shadow-sm" style="width: 100%;">
+                                                <option value="">Todos</option>
+                                                @foreach (($deliveryStatuses ?? collect()) as $value => $label)
+                                                    <option value="{{ $value }}" {{ ($selectedDeliveryStatus ?? '') == $value ? 'selected' : '' }}>
+                                                        {{ $label }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="zone_id" class="form-label"><i class="fa fa-map-marker-alt"></i> Zona</label>
+                                            <select name="zone_id" id="zone_id" class="form-select shadow-sm" style="width: 100%;">
+                                                <option value="">Todas</option>
+                                                @foreach (($zoneOptions ?? collect()) as $zone)
+                                                    <option value="{{ $zone->id }}" {{ ($selectedZoneId ?? '') == $zone->id ? 'selected' : '' }}>
+                                                        {{ $zone->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                    </div>
+                                    <div class="row g-3">
                                         <div class="col-md-6 d-flex align-items-end">
                                             <button type="submit" class="btn btn-outline-danger w-100 shadow-sm">
                                                 <i class="fa fa-search"></i> Buscar</button>
+                                        </div>
+                                        <div class="col-md-6 d-flex align-items-end">
+                                            <a href="{{ route('cargarpedidos.index') }}" class="btn btn-outline-secondary w-100 shadow-sm">
+                                                <i class="fa fa-eraser"></i> Limpiar</a>
                                         </div>
                                     </div>
                                 </form>
