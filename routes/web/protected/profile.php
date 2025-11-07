@@ -5,4 +5,4 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/perfil', [ProfileController::class, 'show'])->name('profile.show');
 Route::put('/perfil', [ProfileController::class, 'update'])->name('profile.update');
-Route::put('/perfil/password', [ProfileController::class, 'updatePassword'])->name(' ');
+Route::put('/perfil/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
