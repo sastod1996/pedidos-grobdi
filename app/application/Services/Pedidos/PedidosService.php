@@ -16,7 +16,8 @@ class PedidosService
         ?int $month = null,
         ?int $year = null,
         ?string $startDate = null,
-        ?string $endDate = null
+        ?string $endDate = null,
+        ?int $visitadoraId = null
     ) {
         // Build date range based on either startDate/endDate or month/year
         if ($startDate !== null && $endDate !== null) {
@@ -34,10 +35,14 @@ class PedidosService
         // Start from doctors and left join pedidos and detail_pedidos so doctors with zero pedidos are returned
         $query = DB::table('doctor as dr')
             ->where('dr.tipo_medico', $tipoMedico)
-            ->leftJoin('pedidos as p', function ($join) use ($start, $end) {
+            ->leftJoin('pedidos as p', function ($join) use ($start, $end, $visitadoraId) {
                 $join->on('p.id_doctor', '=', 'dr.id')
                     ->where('p.status', true)
                     ->whereBetween('p.created_at', [$start, $end]);
+
+                if ($visitadoraId !== null) {
+                    $join->where('p.visitadora_id', $visitadoraId);
+                }
             })
             ->leftJoin('detail_pedidos as dp', function ($join) use ($excludedWords) {
                 $join->on('dp.pedidos_id', '=', 'p.id')

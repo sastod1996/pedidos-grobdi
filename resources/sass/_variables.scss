@@ -1,3 +1,7 @@
+// ==========================================
+// GROBDI COLOR SYSTEM - Variables SCSS
+// ==========================================
+
 // Body
 $body-bg: #f8fafc;
 
@@ -6,56 +10,150 @@ $font-family-sans-serif: 'Nunito', sans-serif;
 $font-size-base: 0.9rem;
 $line-height-base: 1.6;
 
-// Grobdi Color Palette
+// ==========================================
+// === COLORES DE MARCA (BRAND) ===
+// ==========================================
+// Rojo Grobdi - Color principal extraído del logo
+$grobdi-red-50: #fef2f2;
+$grobdi-red-100: #fee2e2;
+$grobdi-red-200: #fecaca;
+$grobdi-red-300: #fca5a5;
+$grobdi-red-400: #f87171;
+$grobdi-red-500: #ef4444;  // Rojo principal similar al logo
+$grobdi-red-600: #dc2626;  // Rojo más oscuro para hover
+$grobdi-red-700: #b91c1c;
+$grobdi-red-800: #991b1b;
+$grobdi-red-900: #7f1d1d;
+
+// ==========================================
+// === COLORES NEUTRALES (GRISES) ===
+// ==========================================
 $grobdi-navy-900: #1f2937;
 $grobdi-navy-700: #273449;
+$grobdi-slate-50: #f9fafb;
 $grobdi-slate-100: #f8fafc;
 $grobdi-slate-150: #eef2f7;
 $grobdi-slate-200: #e2e8f0;
 $grobdi-slate-300: #cbd5e1;
 $grobdi-slate-400: #94a3b8;
+$grobdi-slate-500: #64748b;
 $grobdi-slate-600: #475569;
 $grobdi-slate-700: #334155;
+$grobdi-slate-800: #1e293b;
+$grobdi-slate-900: #0f172a;
+
+// ==========================================
+// === COLORES DE TEXTO ===
+// ==========================================
 $grobdi-text-base: #0f172a;
 $grobdi-text-strong: #111827;
 $grobdi-text-muted: #64748b;
+$grobdi-text-white: #ffffff;
 
-// Brand Colors
-$grobdi-blue-400: #60a5fa;
-$grobdi-blue-500: #3b82f6;
-$grobdi-blue-600: #2563eb;
-$grobdi-blue-700: #1d4ed8;
+// ==========================================
+// === COLORES DE ESTADO ===
+// ==========================================
 
-// Backgrounds
+// Success (Verde) - para confirmaciones
+$grobdi-success-50: #ecfdf5;
+$grobdi-success-100: #d1fae5;
+$grobdi-success-200: #a7f3d0;
+$grobdi-success-300: #6ee7b7;
+$grobdi-success-400: #34d399;
+$grobdi-success-500: #10b981;
+$grobdi-success-600: #059669;
+$grobdi-success-700: #047857;
+$grobdi-success-800: #065f46;
+$grobdi-success-900: #064e3b;
+
+// Warning (Amarillo/Naranja) - para advertencias
+$grobdi-warning-50: #fffbeb;
+$grobdi-warning-100: #fef3c7;
+$grobdi-warning-200: #fde68a;
+$grobdi-warning-300: #fcd34d;
+$grobdi-warning-400: #fbbf24;
+$grobdi-warning-500: #f59e0b;
+$grobdi-warning-600: #d97706;
+$grobdi-warning-700: #b45309;
+$grobdi-warning-800: #92400e;
+$grobdi-warning-900: #78350f;
+
+// Info (Azul) - para información
+$grobdi-info-50: #eff6ff;
+$grobdi-info-100: #dbeafe;
+$grobdi-info-200: #bfdbfe;
+$grobdi-info-300: #93c5fd;
+$grobdi-info-400: #60a5fa;
+$grobdi-info-500: #3b82f6;
+$grobdi-info-600: #2563eb;
+$grobdi-info-700: #1d4ed8;
+$grobdi-info-800: #1e40af;
+$grobdi-info-900: #1e3a8a;
+
+// Danger (Rojo de marca)
+$grobdi-danger-50: $grobdi-red-50;
+$grobdi-danger-100: $grobdi-red-100;
+$grobdi-danger-200: $grobdi-red-200;
+$grobdi-danger-300: $grobdi-red-300;
+$grobdi-danger-400: $grobdi-red-400;
+$grobdi-danger-500: $grobdi-red-500;
+$grobdi-danger-600: $grobdi-red-600;
+$grobdi-danger-700: $grobdi-red-700;
+$grobdi-danger-800: $grobdi-red-800;
+$grobdi-danger-900: $grobdi-red-900;
+
+// ==========================================
+// === COLORES DE FONDO ===
+// ==========================================
 $grobdi-bg-white: #ffffff;
 $grobdi-bg-light: #fafbfc;
+$grobdi-bg-gray: #f9fafb;
 
-// ====== NUEVAS VARIABLES PARA MODALES ======
-// Success Colors
-$grobdi-success-50: #d1fae5;
-$grobdi-success-200: #6ee7b7;
-$grobdi-success-500: #10b981;
-$grobdi-success-700: #059669;
-$grobdi-success-900: #065f46;
+// ==========================================
+// === COLORES PARA MODALES ===
+// ==========================================
+$grobdi-modal-backdrop: rgba(15, 23, 42, 0.4);
+$grobdi-modal-backdrop-blur: 8px;
+$grobdi-modal-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 
-// Danger/Error Colors
-$grobdi-danger-50: #fee2e2;
-$grobdi-danger-200: #fca5a5;
-$grobdi-danger-500: #ef4444;
-$grobdi-danger-700: #dc2626;
-$grobdi-danger-900: #991b1b;
+// ==========================================
+// === SOMBRAS ===
+// ==========================================
+$grobdi-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$grobdi-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+$grobdi-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+$grobdi-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 
-// Warning Colors
-$grobdi-warning-50: #fef3c7;
-$grobdi-warning-200: #fcd34d;
-$grobdi-warning-500: #f59e0b;
-$grobdi-warning-900: #92400e;
+// ==========================================
+// === BORDER RADIUS ===
+// ==========================================
+$grobdi-radius-sm: 0.25rem;
+$grobdi-radius-md: 0.375rem;
+$grobdi-radius-lg: 0.5rem;
+$grobdi-radius-xl: 0.75rem;
+$grobdi-radius-2xl: 1rem;
+$grobdi-radius-full: 9999px;
 
-// Info Colors
-$grobdi-info-50: #dbeafe;
-$grobdi-info-200: #93c5fd;
-$grobdi-info-700: #1e40af;
+// ==========================================
+// === TIPOGRAFÍA ===
+// ==========================================
+$grobdi-font-family: 'Nunito', sans-serif;
+$grobdi-font-size-xs: 0.75rem;
+$grobdi-font-size-sm: 0.875rem;
+$grobdi-font-size-base: 0.95rem;
+$grobdi-font-size-lg: 1.125rem;
+$grobdi-font-size-xl: 1.25rem;
+$grobdi-font-size-2xl: 1.5rem;
+$grobdi-font-size-3xl: 1.875rem;
 
-// Modal Overlay
-$grobdi-modal-backdrop: rgba(255, 255, 255, 0.85);
-$grobdi-modal-backdrop-blur: 4px;
+$grobdi-font-weight-normal: 400;
+$grobdi-font-weight-medium: 500;
+$grobdi-font-weight-semibold: 600;
+$grobdi-font-weight-bold: 700;
+
+// ==========================================
+// === TRANSICIONES ===
+// ==========================================
+$grobdi-transition-fast: 0.15s ease;
+$grobdi-transition-base: 0.2s ease;
+$grobdi-transition-slow: 0.3s ease;

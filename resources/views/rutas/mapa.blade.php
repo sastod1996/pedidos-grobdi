@@ -154,6 +154,31 @@ return 'white';
         const fechaInput = $('#fecha-visita');
         fechaInput.prop('disabled', true);
         const btnSubmit = $('#submit-btn');
+        const dayCheckboxes = $('.doctor-day-checkbox');
+        const dayTurnoSelects = $('.doctor-turno-select');
+
+        const toggleTurnoContainer = (checkbox) => {
+            const $checkbox = $(checkbox);
+            const dayId = $checkbox.data('day-id');
+            const turnoContainer = $(`.turno-container[data-day-id="${dayId}"]`);
+            const turnoSelect = $(`#modal-turno-${dayId}`);
+
+            if ($checkbox.is(':checked')) {
+                turnoContainer.show();
+                turnoSelect.prop('disabled', false);
+            } else {
+                turnoContainer.hide();
+                turnoSelect.prop('disabled', true).val('');
+            }
+        };
+
+        dayCheckboxes.each(function() {
+            toggleTurnoContainer(this);
+        });
+
+        dayCheckboxes.on('change', function() {
+            toggleTurnoContainer(this);
+        });
 
         closePanel.on('click', () => {
             infoPanel.removeClass('active');
@@ -294,7 +319,7 @@ return 'white';
                                                     </div>
                                                 </td>
                                                 <td class="text-end">
-                                                    <button class="btn btn-sm btn-primary py-0 details-btn" data-id=${visita.id} 
+                                                    <button class="btn btn-sm btn-primary py-0 details-btn" data-id=${visita.id}
                                                         data-toggle="modal" data-target="#detailsModal">
                                                             Ver más
                                                     </button>
@@ -378,6 +403,28 @@ return 'white';
 
                     const visitaDetails = response.data;
 
+                    dayCheckboxes.each(function() {
+                        $(this).prop('checked', false);
+                        toggleTurnoContainer(this);
+                    });
+
+                    dayTurnoSelects.each(function() {
+                        $(this).val('');
+                    });
+
+                    if (Array.isArray(visitaDetails.doctor_days)) {
+                        visitaDetails.doctor_days.forEach((day) => {
+                            const checkbox = dayCheckboxes.filter((_, element) => $(element).data('day-id') === day.id);
+
+                            if (checkbox.length) {
+                                checkbox.prop('checked', true);
+                                toggleTurnoContainer(checkbox[0]);
+                                const turnoSelect = $(`#modal-turno-${day.id}`);
+                                turnoSelect.val(String(day.turno)).prop('disabled', false);
+                            }
+                        });
+                    }
+
                     $('#doctor-name').text(visitaDetails.doctor_name);
                     $('#doctor-cmp').text(visitaDetails.doctor_cmp);
                     $('#doctor-phone').text(visitaDetails.doctor_phone);
@@ -389,9 +436,11 @@ return 'white';
                         centroSalud.attr('href', `https://google.com/maps?q=${visitaDetails.centrosalud_lat},${visitaDetails.centrosalud_lng}`);
                     } else {
                         centroSalud.removeAttr('href')
-                        toastr.wargning("Este centro de salud no tiene coordenadas")
+                        toastr.warning("Este centro de salud no tiene coordenadas")
                     }
-                    const turnoText = visitaDetails.turno ? (visitaDetails.turno == 1 ? 'Tarde' : 'Mañana') : 'No asignado';
+                    const turnoText = (visitaDetails.turno !== null && visitaDetails.turno !== undefined)
+                        ? (Number(visitaDetails.turno) === 1 ? 'Tarde' : 'Mañana')
+                        : 'No asignado';
                     $('#doctor-turno').text(turnoText);
                     $('#state-badge').text(visitaDetails.estado).removeClass('text-bg-primary text-bg-warning').addClass(visitaDetails.estado == 'Asignado' ? 'text-bg-primary' : 'text-bg-warning');
                     $('#visita-id').text(`ID: ${visitaDetails.id}`)
@@ -433,16 +482,58 @@ return 'white';
             const observaciones = $('#observaciones').val();
             const fechaVisita = $('#fecha-visita').val();
 
-            const formData = {
-                _token: '{{ csrf_token() }}',
-                _method: 'PUT',
-                estado_visita: estadoVisita,
-                observaciones: observaciones,
-            };
+            if (!estadoVisita) {
+                toastr.error('Selecciona un estado de visita.');
+                btnSubmit.prop('disabled', false);
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('_token', '{{ csrf_token() }}');
+            formData.append('_method', 'PUT');
+            formData.append('estado_visita', estadoVisita);
+            formData.append('observaciones', observaciones || '');
+
+            const shouldUpdateDays = dayCheckboxes.length > 0;
+            let invalidTurno = false;
+            const selectedDays = [];
+
+            if (shouldUpdateDays) {
+                dayCheckboxes.filter(':checked').each(function() {
+                    const dayId = $(this).data('day-id');
+                    const turnoSelect = $(`#modal-turno-${dayId}`);
+                    const turnoValue = turnoSelect.val();
+
+                    selectedDays.push(dayId);
+
+                    if (turnoValue === null || turnoValue === undefined || turnoValue === '') {
+                        invalidTurno = true;
+                        return false;
+                    }
+
+                    formData.append(`turno_${dayId}`, turnoValue);
+                });
+
+                if (invalidTurno) {
+                    toastr.error('Selecciona un turno para cada día habilitado.');
+                    btnSubmit.prop('disabled', false);
+                    return;
+                }
+
+                selectedDays.forEach((dayId) => {
+                    formData.append('dias[]', String(dayId));
+                });
+
+                formData.append('update_days', '1');
+            }
 
             if (estadoVisita == 5 && fechaVisita) {
-                formData.fecha_visita_reprogramada = fechaVisita;
+                formData.append('fecha_visita_reprogramada', fechaVisita);
             }
+
+            const sendRequest = () => {
+                sendForm(visitaId, formData);
+            };
 
             if (estadoVisita == 4) {
                 if (navigator.geolocation) {
@@ -450,10 +541,10 @@ return 'white';
                         const latitude = position.coords.latitude;
                         const longitude = position.coords.longitude;
 
-                        formData.update_latitude = latitude;
-                        formData.update_longitude = longitude;
+                        formData.append('update_latitude', latitude);
+                        formData.append('update_longitude', longitude);
 
-                        sendForm(visitaId, formData);
+                        sendRequest();
                     }, function(error) {
                         toastr.error('No se pudo obtener la ubicación. Asegurate de habilitar los servicios de ubicación');
                         btnSubmit.prop('disabled', false);
@@ -463,12 +554,14 @@ return 'white';
                     btnSubmit.prop('disabled', false);
                 }
             } else {
-                sendForm(visitaId, formData);
+                sendRequest();
             }
         });
 
         function sendForm(visitaId, formData) {
-            $.ajax({
+            const isFormData = (typeof FormData !== 'undefined') && (formData instanceof FormData);
+
+            const ajaxOptions = {
                 url: `/update-visita-doctor/${visitaId}`,
                 method: 'POST',
                 data: formData,
@@ -480,6 +573,12 @@ return 'white';
                         $('button[data-dismiss="modal"]').click();
 
                         form.trigger("reset");
+                        dayCheckboxes.each(function() {
+                            toggleTurnoContainer(this);
+                        });
+                        dayTurnoSelects.val('');
+                        fechaInput.prop('disabled', true);
+                        fechaInput.prop('required', false);
                         btnSubmit.prop('disabled', false);
                     } else {
                         toastr.error(response.message || 'Ocurrió un error al guardar');
@@ -494,7 +593,14 @@ return 'white';
                     toastr.error(errorMsg);
                     btnSubmit.prop('disabled', false);
                 }
-            });
+            };
+
+            if (isFormData) {
+                ajaxOptions.processData = false;
+                ajaxOptions.contentType = false;
+            }
+
+            $.ajax(ajaxOptions);
         }
 
         $(document).on("click", ".route-btn", function() {

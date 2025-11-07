@@ -351,7 +351,7 @@
                                 } else {
                                     alert(
                                         'Error al reintentar la solicitud como JSON.'
-                                        );
+                                    );
                                 }
                                 return;
                             });

@@ -16,6 +16,8 @@
 	--grobdi-slate-300: #{$grobdi-slate-300};
 	--grobdi-text-base: #{$grobdi-text-base};
 	--grobdi-text-strong: #{$grobdi-text-strong};
+	--grobdi-red-500: #{$grobdi-red-500};
+	--grobdi-red-600: #{$grobdi-red-600};
 }
 
 .table-grobdi {
@@ -31,16 +33,19 @@
 		color: #f9fafb;
 		border-color: var(--grobdi-slate-300);
 		font-weight: 600;
+		font-size: 0.8rem;
 		text-transform: uppercase;
 		letter-spacing: 0.02em;
 		text-align: center;
 		vertical-align: middle;
+		padding: 0.75rem 0.5rem;
 	}
 
 	tbody td {
 		border-color: var(--grobdi-slate-300);
 		vertical-align: middle;
         text-align: center;
+		font-size: 0.9rem;
 	}
 
 	&.table-striped tbody tr:nth-of-type(odd) {
@@ -103,7 +108,7 @@
 		}
 
 		button, a.btn {
-			background-color: $grobdi-blue-500;
+			background-color: $grobdi-red-500;
 			border: none;
 			color: $grobdi-bg-white;
 			padding: 0.625rem 1.25rem;
@@ -112,14 +117,14 @@
 			border-radius: 0.5rem;
 			cursor: pointer;
 			transition: all 0.2s ease;
-			box-shadow: 0 0.125rem 0.25rem rgba(59, 130, 246, 0.2);
+			box-shadow: 0 0.125rem 0.25rem rgba(239, 68, 68, 0.2);
 			text-decoration: none;
 			display: inline-block;
 
 			&:hover {
-				background-color: $grobdi-blue-600;
+				background-color: $grobdi-red-600;
 				transform: translateY(-1px);
-				box-shadow: 0 0.25rem 0.5rem rgba(59, 130, 246, 0.3);
+				box-shadow: 0 0.25rem 0.5rem rgba(239, 68, 68, 0.3);
 				text-decoration: none;
 			}
 
@@ -158,8 +163,8 @@
 
 			&:focus {
 				outline: none;
-				border-color: $grobdi-blue-500;
-				box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+				border-color: $grobdi-red-500;
+				box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 			}
 
 			&::placeholder {
@@ -190,7 +195,7 @@
 				height: 0;
 
 				&:checked ~ .radio-custom {
-					border-color: $grobdi-blue-500;
+					border-color: $grobdi-red-500;
 					background-color: $grobdi-bg-white;
 
 					&::after {
@@ -200,7 +205,7 @@
 				}
 
 				&:focus ~ .radio-custom {
-					box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+					box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
 				}
 
 				&:disabled ~ .radio-custom {
@@ -234,7 +239,7 @@
 					width: 0.625rem;
 					height: 0.625rem;
 					border-radius: 50%;
-					background-color: $grobdi-blue-500;
+					background-color: $grobdi-red-500;
 					opacity: 0;
 					transition: all 0.2s ease;
 				}
@@ -249,7 +254,7 @@
 			}
 
 			&:hover input:not(:disabled) ~ .radio-custom {
-				border-color: $grobdi-blue-400;
+				border-color: $grobdi-red-400;
 			}
 		}
 
@@ -276,8 +281,8 @@
 				height: 0;
 
 				&:checked ~ .checkbox-custom {
-					background-color: $grobdi-blue-500;
-					border-color: $grobdi-blue-500;
+					background-color: $grobdi-red-500;
+					border-color: $grobdi-red-500;
 
 					&::after {
 						opacity: 1;
@@ -286,7 +291,7 @@
 				}
 
 				&:focus ~ .checkbox-custom {
-					box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+					box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
 				}
 
 				&:disabled ~ .checkbox-custom {
@@ -335,7 +340,7 @@
 			}
 
 			&:hover input:not(:disabled) ~ .checkbox-custom {
-				border-color: $grobdi-blue-400;
+				border-color: $grobdi-red-400;
 			}
 		}
 
@@ -355,7 +360,7 @@
 				height: 0;
 
 				&:checked ~ .switch-slider {
-					background-color: $grobdi-blue-500;
+					background-color: $grobdi-red-500;
 
 					&::before {
 						transform: translateX(1.25rem);
@@ -363,7 +368,7 @@
 				}
 
 				&:focus ~ .switch-slider {
-					box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+					box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
 				}
 
 				&:disabled ~ .switch-slider {
@@ -412,7 +417,7 @@
 			}
 
 			&:hover input:checked:not(:disabled) ~ .switch-slider {
-				background-color: $grobdi-blue-600;
+				background-color: $grobdi-red-600;
 			}
 		}
 
@@ -427,8 +432,8 @@
 				height: 0;
 
 				&:focus ~ .file-input-label {
-					border-color: $grobdi-blue-500;
-					box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+					border-color: $grobdi-red-500;
+					box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 				}
 			}
 
@@ -447,7 +452,7 @@
 				text-align: center;
 
 				&:hover {
-					border-color: $grobdi-blue-400;
+					border-color: $grobdi-red-400;
 					background-color: $grobdi-slate-100;
 				}
 
@@ -484,15 +489,15 @@
 				appearance: none;
 				width: 1.25rem;
 				height: 1.25rem;
-				background: $grobdi-blue-500;
+				background: $grobdi-red-500;
 				border-radius: 50%;
 				cursor: pointer;
 				transition: all 0.2s ease;
 				margin-top: -0.375rem;
-				box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+				box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
 
 				&:hover {
-					background: $grobdi-blue-600;
+					background: $grobdi-red-600;
 					transform: scale(1.1);
 				}
 			}
@@ -507,15 +512,15 @@
 			&::-moz-range-thumb {
 				width: 1.25rem;
 				height: 1.25rem;
-				background: $grobdi-blue-500;
+				background: $grobdi-red-500;
 				border: none;
 				border-radius: 50%;
 				cursor: pointer;
 				transition: all 0.2s ease;
-				box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+				box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
 
 				&:hover {
-					background: $grobdi-blue-600;
+					background: $grobdi-red-600;
 					transform: scale(1.1);
 				}
 			}
@@ -524,17 +529,17 @@
 				outline: none;
 
 				&::-webkit-slider-thumb {
-					box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+					box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
 				}
 
 				&::-moz-range-thumb {
-					box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+					box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
 				}
 			}
 		}
 
 		button, a.btn {
-			background-color: $grobdi-blue-500;
+			background-color: $grobdi-red-500;
 			border: none;
 			color: $grobdi-bg-white;
 			padding: 0.625rem 1.5rem;
@@ -549,9 +554,9 @@
 			text-align: center;
 
 			&:hover {
-				background-color: $grobdi-blue-600;
+				background-color: $grobdi-red-600;
 				transform: translateY(-1px);
-				box-shadow: 0 0.25rem 0.5rem rgba(59, 130, 246, 0.25);
+				box-shadow: 0 0.25rem 0.5rem rgba(239, 68, 68, 0.25);
 				text-decoration: none;
 			}
 
@@ -598,16 +603,13 @@
 // ============================================
 // ESTILOS PARA MODALES - SISTEMA GROBDI
 // ============================================
-// Todas las variables usadas deben estar definidas en _variables.scss
 
-// Overlay del modal (fondo claro)
 .modal-grobdi {
 	.modal-backdrop {
 		background-color: $grobdi-modal-backdrop;
 		backdrop-filter: blur($grobdi-modal-backdrop-blur);
 	}
 
-	// Contenedor del modal
 	.modal-dialog {
 		margin: 1.75rem auto;
 		max-width: 600px;
@@ -644,7 +646,6 @@
 		}
 	}
 
-	// Contenido del modal
 	.modal-content {
 		border: 1px solid $grobdi-slate-300;
 		border-radius: 0.75rem;
@@ -653,7 +654,6 @@
 		background-color: $grobdi-bg-white;
 	}
 
-	// Encabezado del modal
 	.modal-header {
 		background-color: $grobdi-navy-900;
 		color: $grobdi-bg-white;
@@ -691,7 +691,6 @@
 			margin-top: 0.25rem;
 		}
 
-		// Botón de cerrar
 		.btn-close {
 			background-color: transparent;
 			border: none;
@@ -722,13 +721,11 @@
 		}
 	}
 
-	// Cuerpo del modal
 	.modal-body {
 		padding: 1.5rem;
 		color: $grobdi-text-base;
 		background-color: $grobdi-bg-white;
 
-		// Estilos para formularios dentro del modal
 		.form-group {
 			margin-bottom: 1.25rem;
 
@@ -771,8 +768,8 @@
 
 				&:focus {
 					outline: none;
-					border-color: $grobdi-blue-500;
-					box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+					border-color: $grobdi-red-500;
+					box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 				}
 
 				&::placeholder {
@@ -867,14 +864,12 @@
 			}
 		}
 
-		// Separadores
 		hr {
 			border: none;
 			border-top: 1px solid $grobdi-slate-200;
 			margin: 1.25rem 0;
 		}
 
-		// Listas
 		ul, ol {
 			padding-left: 1.5rem;
 			margin-bottom: 1rem;
@@ -893,7 +888,6 @@
 			}
 		}
 
-		// Tablas pequeñas dentro del modal
 		.table-modal {
 			width: 100%;
 			margin-bottom: 1rem;
@@ -924,7 +918,6 @@
 			}
 		}
 
-		// Grid de dos columnas
 		.modal-grid {
 			display: grid;
 			grid-template-columns: repeat(2, 1fr);
@@ -935,12 +928,11 @@
 			}
 		}
 
-		// Sección de información
 		.info-section {
 			background-color: $grobdi-slate-100;
 			padding: 1rem;
 			border-radius: 0.5rem;
-			border-left: 4px solid $grobdi-blue-500;
+			border-left: 4px solid $grobdi-red-500;
 			margin-bottom: 1.25rem;
 
 			&:last-child {
@@ -961,7 +953,6 @@
 			}
 		}
 
-		// Estilos para input-group (con íconos al lado)
 		.input-group {
 			display: flex;
 			align-items: stretch;
@@ -1011,16 +1002,16 @@
 
 				&:focus {
 					z-index: 3;
-					border-color: $grobdi-blue-500;
+					border-color: $grobdi-red-500;
 
 					& ~ .input-group-text {
-						border-color: $grobdi-blue-500;
+						border-color: $grobdi-red-500;
 					}
 				}
 			}
 		}
 
-		// Radio buttons personalizados (ya incluidos del header)
+		// Radio buttons personalizados
 		.grobdi-radio-group {
 			display: flex;
 			flex-wrap: wrap;
@@ -1043,7 +1034,7 @@
 				height: 0;
 
 				&:checked ~ .radio-custom {
-					border-color: $grobdi-blue-500;
+					border-color: $grobdi-red-500;
 					background-color: $grobdi-bg-white;
 
 					&::after {
@@ -1053,7 +1044,7 @@
 				}
 
 				&:focus ~ .radio-custom {
-					box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+					box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
 				}
 
 				&:disabled ~ .radio-custom {
@@ -1087,7 +1078,7 @@
 					width: 0.625rem;
 					height: 0.625rem;
 					border-radius: 50%;
-					background-color: $grobdi-blue-500;
+					background-color: $grobdi-red-500;
 					opacity: 0;
 					transition: all 0.2s ease;
 				}
@@ -1102,11 +1093,11 @@
 			}
 
 			&:hover input:not(:disabled) ~ .radio-custom {
-				border-color: $grobdi-blue-400;
+				border-color: $grobdi-red-400;
 			}
 		}
 
-		// Checkboxes personalizados (ya incluidos del header)
+		// Checkboxes personalizados
 		.grobdi-checkbox-group {
 			display: flex;
 			flex-direction: column;
@@ -1129,8 +1120,8 @@
 				height: 0;
 
 				&:checked ~ .checkbox-custom {
-					background-color: $grobdi-blue-500;
-					border-color: $grobdi-blue-500;
+					background-color: $grobdi-red-500;
+					border-color: $grobdi-red-500;
 
 					&::after {
 						opacity: 1;
@@ -1139,7 +1130,7 @@
 				}
 
 				&:focus ~ .checkbox-custom {
-					box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+					box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
 				}
 
 				&:disabled ~ .checkbox-custom {
@@ -1188,11 +1179,11 @@
 			}
 
 			&:hover input:not(:disabled) ~ .checkbox-custom {
-				border-color: $grobdi-blue-400;
+				border-color: $grobdi-red-400;
 			}
 		}
 
-		// Switch/Toggle (ya incluido del header)
+		// Switch/Toggle
 		.grobdi-switch {
 			position: relative;
 			display: inline-flex;
@@ -1208,7 +1199,7 @@
 				height: 0;
 
 				&:checked ~ .switch-slider {
-					background-color: $grobdi-blue-500;
+					background-color: $grobdi-red-500;
 
 					&::before {
 						transform: translateX(1.25rem);
@@ -1216,7 +1207,7 @@
 				}
 
 				&:focus ~ .switch-slider {
-					box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+					box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
 				}
 
 				&:disabled ~ .switch-slider {
@@ -1265,7 +1256,7 @@
 			}
 
 			&:hover input:checked:not(:disabled) ~ .switch-slider {
-				background-color: $grobdi-blue-600;
+				background-color: $grobdi-red-600;
 			}
 		}
 	}
@@ -1295,14 +1286,14 @@
 			white-space: nowrap;
 
 			&.btn-primary {
-				background-color: $grobdi-blue-500;
+				background-color: $grobdi-red-500;
 				color: $grobdi-bg-white;
-				box-shadow: 0 0.125rem 0.25rem rgba(59, 130, 246, 0.2);
+				box-shadow: 0 0.125rem 0.25rem rgba(239, 68, 68, 0.2);
 
 				&:hover {
-					background-color: $grobdi-blue-600;
+					background-color: $grobdi-red-600;
 					transform: translateY(-1px);
-					box-shadow: 0 0.25rem 0.5rem rgba(59, 130, 246, 0.3);
+					box-shadow: 0 0.25rem 0.5rem rgba(239, 68, 68, 0.3);
 				}
 
 				&:active {
@@ -1378,12 +1369,12 @@
 
 			&.btn-link {
 				background-color: transparent;
-				color: $grobdi-blue-500;
+				color: $grobdi-red-500;
 				padding: 0.625rem 1rem;
 				box-shadow: none;
 
 				&:hover {
-					color: $grobdi-blue-600;
+					color: $grobdi-red-600;
 					text-decoration: underline;
 					transform: none;
 				}
@@ -1436,7 +1427,7 @@
 
 				&.icon-info {
 					background-color: $grobdi-info-50;
-					color: $grobdi-blue-500;
+					color: $grobdi-info-500;
 				}
 
 				&.icon-success {
@@ -1501,7 +1492,7 @@
 		width: 3rem;
 		height: 3rem;
 		border: 4px solid $grobdi-slate-200;
-		border-top-color: $grobdi-blue-500;
+		border-top-color: $grobdi-red-500;
 		border-radius: 50%;
 		animation: spin 0.8s linear infinite;
 	}
@@ -1509,6 +1500,197 @@
 	@keyframes spin {
 		to {
 			transform: rotate(360deg);
+		}
+	}
+}
+
+// ============================================
+// ESTILOS ADICIONALES PARA COMPONENTES
+// ============================================
+
+// Cards Grobdi
+.card-grobdi {
+	border: 1px solid $grobdi-slate-300;
+	border-radius: 0.75rem;
+	overflow: hidden;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+	background-color: $grobdi-bg-white;
+	margin-bottom: 1.5rem;
+
+	.card-header-grobdi {
+		background-color: $grobdi-navy-900;
+		color: $grobdi-bg-white;
+		padding: 1rem 1.25rem;
+		font-weight: 600;
+		border-bottom: 2px solid $grobdi-navy-700;
+	}
+
+	.card-body-grobdi {
+		padding: 1.25rem;
+		color: $grobdi-text-base;
+	}
+
+	.card-footer-grobdi {
+		background-color: $grobdi-bg-light;
+		padding: 1rem 1.25rem;
+		border-top: 1px solid $grobdi-slate-200;
+	}
+}
+
+// Badges Grobdi
+.badge-grobdi {
+	display: inline-block;
+	padding: 0.375rem 0.75rem;
+	border-radius: 9999px;
+	font-size: 0.8rem;
+	font-weight: 600;
+	line-height: 1;
+
+	&.badge-red {
+		background-color: $grobdi-red-100;
+		color: $grobdi-red-800;
+	}
+
+	&.badge-green {
+		background-color: $grobdi-success-100;
+		color: $grobdi-success-800;
+	}
+
+	&.badge-blue {
+		background-color: $grobdi-info-100;
+		color: $grobdi-info-800;
+	}
+
+	&.badge-yellow {
+		background-color: $grobdi-warning-100;
+		color: $grobdi-warning-800;
+	}
+
+	&.badge-gray {
+		background-color: $grobdi-slate-100;
+		color: $grobdi-slate-700;
+	}
+}
+
+// Alerts Grobdi (complemento a Bootstrap)
+.alert-grobdi {
+	padding: 0.875rem 1rem;
+	border-radius: 0.5rem;
+	border-left: 4px solid;
+	margin-bottom: 1rem;
+	font-size: 0.95rem;
+
+	&.alert-info-grobdi {
+		background-color: $grobdi-info-50;
+		border-color: $grobdi-info-500;
+		color: $grobdi-info-700;
+	}
+
+	&.alert-success-grobdi {
+		background-color: $grobdi-success-50;
+		border-color: $grobdi-success-500;
+		color: $grobdi-success-900;
+	}
+
+	&.alert-warning-grobdi {
+		background-color: $grobdi-warning-50;
+		border-color: $grobdi-warning-500;
+		color: $grobdi-warning-900;
+	}
+
+	&.alert-danger-grobdi {
+		background-color: $grobdi-danger-50;
+		border-color: $grobdi-danger-500;
+		color: $grobdi-danger-900;
+	}
+}
+
+// Botones Grobdi globales (fuera de modales y headers)
+.btn-grobdi {
+	padding: 0.625rem 1.5rem;
+	font-size: 0.95rem;
+	font-weight: 600;
+	border-radius: 0.5rem;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	border: none;
+	text-decoration: none;
+	display: inline-block;
+	text-align: center;
+
+	&.btn-primary-grobdi {
+		background-color: $grobdi-red-500;
+		color: $grobdi-bg-white;
+		box-shadow: 0 0.125rem 0.25rem rgba(239, 68, 68, 0.2);
+
+		&:hover {
+			background-color: $grobdi-red-600;
+			transform: translateY(-1px);
+			box-shadow: 0 0.25rem 0.5rem rgba(239, 68, 68, 0.3);
+			text-decoration: none;
+			color: $grobdi-bg-white;
+		}
+
+		&:active {
+			transform: translateY(0);
+		}
+	}
+
+	&.btn-secondary-grobdi {
+		background-color: $grobdi-slate-600;
+		color: $grobdi-bg-white;
+
+		&:hover {
+			background-color: $grobdi-slate-700;
+			transform: translateY(-1px);
+			color: $grobdi-bg-white;
+		}
+	}
+
+	&.btn-success-grobdi {
+		background-color: $grobdi-success-500;
+		color: $grobdi-bg-white;
+
+		&:hover {
+			background-color: $grobdi-success-600;
+			transform: translateY(-1px);
+			color: $grobdi-bg-white;
+		}
+	}
+
+	&.btn-warning-grobdi {
+		background-color: $grobdi-warning-500;
+		color: $grobdi-bg-white;
+
+		&:hover {
+			background-color: $grobdi-warning-600;
+			transform: translateY(-1px);
+			color: $grobdi-bg-white;
+		}
+	}
+
+	&.btn-danger-grobdi {
+		background-color: $grobdi-danger-500;
+		color: $grobdi-bg-white;
+
+		&:hover {
+			background-color: $grobdi-danger-600;
+			transform: translateY(-1px);
+			color: $grobdi-bg-white;
+		}
+	}
+
+	&.btn-outline-grobdi {
+		background-color: transparent;
+		border: 1px solid $grobdi-slate-300;
+		color: $grobdi-text-base;
+		box-shadow: none;
+
+		&:hover {
+			background-color: $grobdi-slate-100;
+			border-color: $grobdi-slate-400;
+			transform: translateY(-1px);
+			color: $grobdi-text-base;
 		}
 	}
 }
@@ -1546,4 +1728,1821 @@
 			}
 		}
 	}
+
+	.grobdi-header {
+		.grobdi-title {
+			padding: 1rem;
+
+			h1, h2, h3, h4, h5, h6 {
+				font-size: 1.25rem;
+			}
+		}
+
+		.grobdi-filter {
+			padding: 1rem;
+		}
+	}
 }
+
+// ============================================
+// ESTILOS MEJORADOS PARA FORMULARIOS GROBDI
+// ============================================
+
+// Contenedor principal de formularios
+.grobdi-form {
+	background-color: $grobdi-bg-white;
+	border: 1px solid $grobdi-slate-300;
+	border-radius: 0.75rem;
+	padding: 2rem;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+
+	@media (max-width: 768px) {
+		padding: 1.25rem;
+	}
+}
+
+// Grupos de formularios
+.form-group-grobdi {
+	margin-bottom: 1.75rem;
+	position: relative;
+
+	&:last-child {
+		margin-bottom: 0;
+	}
+
+	// Label mejorado
+	.grobdi-label {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-bottom: 0.625rem;
+		color: $grobdi-text-strong;
+		font-weight: 600;
+		font-size: 0.9rem;
+		letter-spacing: 0.01em;
+
+		.required-mark {
+			color: $grobdi-red-500;
+			font-weight: 700;
+		}
+
+		.label-icon {
+			color: $grobdi-red-500;
+			font-size: 1rem;
+		}
+
+		.label-badge {
+			display: inline-flex;
+			align-items: center;
+			padding: 0.125rem 0.5rem;
+			background-color: $grobdi-red-100;
+			color: $grobdi-red-700;
+			border-radius: 9999px;
+			font-size: 0.75rem;
+			font-weight: 600;
+			margin-left: auto;
+		}
+	}
+
+	// Descripción del campo
+	.field-description {
+		display: block;
+		margin-top: 0.5rem;
+		color: $grobdi-text-muted;
+		font-size: 0.85rem;
+		line-height: 1.5;
+
+		i {
+			margin-right: 0.375rem;
+			color: $grobdi-info-500;
+		}
+	}
+
+	// Mensajes de validación
+	.invalid-feedback {
+		display: flex;
+		align-items: center;
+		gap: 0.375rem;
+		margin-top: 0.5rem;
+		padding: 0.5rem 0.75rem;
+		background-color: $grobdi-red-50;
+		border-left: 3px solid $grobdi-red-500;
+		border-radius: 0.375rem;
+		color: $grobdi-red-700;
+		font-size: 0.85rem;
+		font-weight: 500;
+		animation: slideDown 0.2s ease;
+
+		i {
+			color: $grobdi-red-500;
+		}
+	}
+
+	.valid-feedback {
+		display: flex;
+		align-items: center;
+		gap: 0.375rem;
+		margin-top: 0.5rem;
+		padding: 0.5rem 0.75rem;
+		background-color: $grobdi-success-50;
+		border-left: 3px solid $grobdi-success-500;
+		border-radius: 0.375rem;
+		color: $grobdi-success-700;
+		font-size: 0.85rem;
+		font-weight: 500;
+		animation: slideDown 0.2s ease;
+
+		i {
+			color: $grobdi-success-500;
+		}
+	}
+}
+
+@keyframes slideDown {
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+// Inputs mejorados
+.grobdi-input,
+.form-control-grobdi {
+	width: 100%;
+	padding: 0.75rem 1rem;
+	border: 2px solid $grobdi-slate-300;
+	border-radius: 0.5rem;
+	font-size: 0.95rem;
+	color: $grobdi-text-base;
+	background-color: $grobdi-bg-white;
+	transition: all 0.2s ease;
+	font-family: $grobdi-font-family;
+	line-height: 1.5;
+
+	&:hover {
+		border-color: $grobdi-slate-400;
+	}
+
+	&:focus {
+		outline: none;
+		border-color: $grobdi-red-500;
+		box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+		background-color: $grobdi-bg-white;
+	}
+
+	&::placeholder {
+		color: $grobdi-slate-400;
+		font-style: italic;
+		opacity: 1;
+	}
+
+	&:disabled,
+	&[readonly] {
+		background-color: $grobdi-slate-100;
+		color: $grobdi-text-muted;
+		cursor: not-allowed;
+		opacity: 0.7;
+		border-color: $grobdi-slate-300;
+	}
+
+	&.is-invalid {
+		border-color: $grobdi-red-500;
+		background-color: $grobdi-red-50;
+		padding-right: 2.5rem;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23ef4444' viewBox='0 0 16 16'%3E%3Cpath d='M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z'/%3E%3Cpath d='M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z'/%3E%3C/svg%3E");
+		background-repeat: no-repeat;
+		background-position: right 0.75rem center;
+		background-size: 16px;
+
+		&:focus {
+			box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
+		}
+	}
+
+	&.is-valid {
+		border-color: $grobdi-success-500;
+		background-color: $grobdi-success-50;
+		padding-right: 2.5rem;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2310b981' viewBox='0 0 16 16'%3E%3Cpath d='M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z'/%3E%3C/svg%3E");
+		background-repeat: no-repeat;
+		background-position: right 0.75rem center;
+		background-size: 16px;
+
+		&:focus {
+			box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+		}
+	}
+}
+
+// Textarea específico
+textarea.grobdi-input,
+textarea.form-control-grobdi {
+	resize: vertical;
+	min-height: 120px;
+	font-family: $grobdi-font-family;
+	line-height: 1.6;
+}
+
+// Select mejorado
+select.grobdi-input,
+select.form-control-grobdi {
+	cursor: pointer;
+	appearance: none;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20' fill='%23475569'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 0.75rem center;
+	background-size: 20px;
+	padding-right: 2.75rem;
+
+	&:focus {
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20' fill='%23ef4444'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+	}
+
+	option {
+		padding: 0.5rem;
+		background-color: $grobdi-bg-white;
+		color: $grobdi-text-base;
+	}
+}
+
+// Input con icono
+.input-with-icon {
+	position: relative;
+
+	.input-icon {
+		position: absolute;
+		left: 1rem;
+		top: 50%;
+		transform: translateY(-50%);
+		color: $grobdi-slate-500;
+		font-size: 1rem;
+		pointer-events: none;
+		z-index: 2;
+	}
+
+	.grobdi-input,
+	.form-control-grobdi {
+		padding-left: 2.75rem;
+	}
+
+	&.icon-right {
+		.input-icon {
+			left: auto;
+			right: 1rem;
+		}
+
+		.grobdi-input,
+		.form-control-grobdi {
+			padding-left: 1rem;
+			padding-right: 2.75rem;
+		}
+	}
+}
+
+// Input con botón
+.input-with-button {
+	display: flex;
+	gap: 0.5rem;
+
+	.grobdi-input,
+	.form-control-grobdi {
+		flex: 1;
+	}
+
+	.btn-grobdi {
+		flex-shrink: 0;
+	}
+}
+
+// Input Group mejorado
+.input-group-grobdi {
+	display: flex;
+	align-items: stretch;
+	width: 100%;
+
+	.input-group-text {
+		display: flex;
+		align-items: center;
+		padding: 0.75rem 1rem;
+		background-color: $grobdi-slate-100;
+		border: 2px solid $grobdi-slate-300;
+		color: $grobdi-text-base;
+		font-weight: 600;
+		font-size: 0.95rem;
+		white-space: nowrap;
+		transition: all 0.2s ease;
+
+		i {
+			font-size: 1rem;
+		}
+
+		&:first-child {
+			border-radius: 0.5rem 0 0 0.5rem;
+			border-right: none;
+		}
+
+		&:last-child {
+			border-radius: 0 0.5rem 0.5rem 0;
+			border-left: none;
+		}
+	}
+
+	.grobdi-input,
+	.form-control-grobdi {
+		flex: 1;
+		min-width: 0;
+
+		&:first-child:not(:last-child) {
+			border-radius: 0.5rem 0 0 0.5rem;
+		}
+
+		&:last-child:not(:first-child) {
+			border-radius: 0 0.5rem 0.5rem 0;
+		}
+
+		&:not(:first-child):not(:last-child) {
+			border-radius: 0;
+		}
+
+		&:focus {
+			z-index: 3;
+
+			& ~ .input-group-text {
+				border-color: $grobdi-red-500;
+			}
+		}
+	}
+
+	&.has-validation {
+		.grobdi-input:invalid,
+		.form-control-grobdi:invalid {
+			border-right: 2px solid $grobdi-red-500;
+		}
+	}
+}
+
+// Checkbox formulario
+.grobdi-checkbox {
+	position: relative;
+	display: flex;
+	align-items: flex-start;
+	cursor: pointer;
+	user-select: none;
+	padding: 0.5rem 0;
+
+	input[type="checkbox"] {
+		position: absolute;
+		opacity: 0;
+		cursor: pointer;
+		width: 0;
+		height: 0;
+
+		&:checked ~ .checkbox-custom {
+			background-color: $grobdi-red-500;
+			border-color: $grobdi-red-500;
+
+			&::after {
+				opacity: 1;
+				transform: rotate(45deg) scale(1);
+			}
+		}
+
+		&:focus ~ .checkbox-custom {
+			box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
+		}
+
+		&:disabled ~ .checkbox-custom {
+			background-color: $grobdi-slate-200;
+			border-color: $grobdi-slate-300;
+			cursor: not-allowed;
+			opacity: 0.6;
+		}
+
+		&:disabled ~ .checkbox-label {
+			color: $grobdi-text-muted;
+			cursor: not-allowed;
+			opacity: 0.6;
+		}
+	}
+
+	.checkbox-custom {
+		position: relative;
+		width: 1.375rem;
+		height: 1.375rem;
+		border: 2px solid $grobdi-slate-300;
+		border-radius: 0.375rem;
+		background-color: $grobdi-bg-white;
+		transition: all 0.2s ease;
+		flex-shrink: 0;
+		margin-top: 0.125rem;
+
+		&::after {
+			content: '';
+			position: absolute;
+			left: 0.375rem;
+			top: 0.125rem;
+			width: 0.375rem;
+			height: 0.75rem;
+			border: solid white;
+			border-width: 0 2.5px 2.5px 0;
+			transform: rotate(45deg) scale(0);
+			opacity: 0;
+			transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+		}
+	}
+
+	.checkbox-label {
+		margin-left: 0.75rem;
+		color: $grobdi-text-base;
+		font-size: 0.95rem;
+		font-weight: 500;
+		line-height: 1.5;
+		flex: 1;
+
+		.label-description {
+			display: block;
+			margin-top: 0.25rem;
+			color: $grobdi-text-muted;
+			font-size: 0.85rem;
+			font-weight: 400;
+		}
+	}
+
+	&:hover input:not(:disabled) ~ .checkbox-custom {
+		border-color: $grobdi-red-400;
+		background-color: $grobdi-red-50;
+	}
+}
+
+// Radio button personalizado mejorado
+.grobdi-radio {
+	position: relative;
+	display: flex;
+	align-items: flex-start;
+	cursor: pointer;
+	user-select: none;
+	padding: 0.5rem 0;
+
+	input[type="radio"] {
+		position: absolute;
+		opacity: 0;
+		cursor: pointer;
+		width: 0;
+		height: 0;
+
+		&:checked ~ .radio-custom {
+			border-color: $grobdi-red-500;
+			background-color: $grobdi-bg-white;
+
+			&::after {
+				opacity: 1;
+				transform: translate(-50%, -50%) scale(1);
+			}
+		}
+
+		&:focus ~ .radio-custom {
+			box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
+		}
+
+		&:disabled ~ .radio-custom {
+			background-color: $grobdi-slate-200;
+			border-color: $grobdi-slate-300;
+			cursor: not-allowed;
+			opacity: 0.6;
+		}
+
+		&:disabled ~ .radio-label {
+			color: $grobdi-text-muted;
+			cursor: not-allowed;
+			opacity: 0.6;
+		}
+	}
+
+	.radio-custom {
+		position: relative;
+		width: 1.375rem;
+		height: 1.375rem;
+		border: 2px solid $grobdi-slate-300;
+		border-radius: 50%;
+		background-color: $grobdi-bg-white;
+		transition: all 0.2s ease;
+		flex-shrink: 0;
+		margin-top: 0.125rem;
+
+		&::after {
+			content: '';
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%) scale(0);
+			width: 0.75rem;
+			height: 0.75rem;
+			border-radius: 50%;
+			background-color: $grobdi-red-500;
+			opacity: 0;
+			transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+		}
+	}
+
+	.radio-label {
+		margin-left: 0.75rem;
+		color: $grobdi-text-base;
+		font-size: 0.95rem;
+		font-weight: 500;
+		line-height: 1.5;
+		flex: 1;
+
+		.label-description {
+			display: block;
+			margin-top: 0.25rem;
+			color: $grobdi-text-muted;
+			font-size: 0.85rem;
+			font-weight: 400;
+		}
+	}
+
+	&:hover input:not(:disabled) ~ .radio-custom {
+		border-color: $grobdi-red-400;
+		background-color: $grobdi-red-50;
+	}
+}
+
+// Grupos de radio y checkbox
+.grobdi-radio-group,
+.grobdi-checkbox-group {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	padding: 0.5rem 0;
+
+	&.inline {
+		flex-direction: row;
+		flex-wrap: wrap;
+		gap: 1.5rem;
+	}
+}
+
+// Switch mejorado
+.grobdi-switch {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	cursor: pointer;
+	user-select: none;
+	padding: 0.5rem 0;
+
+	input[type="checkbox"] {
+		position: absolute;
+		opacity: 0;
+		cursor: pointer;
+		width: 0;
+		height: 0;
+
+		&:checked ~ .switch-slider {
+			background-color: $grobdi-red-500;
+
+			&::before {
+				transform: translateX(1.5rem);
+			}
+
+			&::after {
+				opacity: 1;
+			}
+		}
+
+		&:focus ~ .switch-slider {
+			box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
+		}
+
+		&:disabled ~ .switch-slider {
+			background-color: $grobdi-slate-200;
+			cursor: not-allowed;
+			opacity: 0.6;
+
+			&::before {
+				background-color: $grobdi-slate-400;
+			}
+		}
+
+		&:disabled ~ .switch-label {
+			color: $grobdi-text-muted;
+			cursor: not-allowed;
+			opacity: 0.6;
+		}
+	}
+
+	.switch-slider {
+		position: relative;
+		width: 3rem;
+		height: 1.625rem;
+		background-color: $grobdi-slate-300;
+		border-radius: 9999px;
+		transition: all 0.3s ease;
+		flex-shrink: 0;
+
+		&::before {
+			content: '';
+			position: absolute;
+			height: 1.25rem;
+			width: 1.25rem;
+			left: 0.1875rem;
+			bottom: 0.1875rem;
+			background-color: white;
+			border-radius: 50%;
+			transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+		}
+
+		&::after {
+			content: '';
+			position: absolute;
+			top: 50%;
+			left: 0.5rem;
+			transform: translateY(-50%);
+			width: 0.625rem;
+			height: 0.625rem;
+			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='white'%3E%3Cpath d='M9.707 4.707L5.5 8.914 2.293 5.707l.707-.707L5.5 7.5 9 4z'/%3E%3C/svg%3E");
+			background-repeat: no-repeat;
+			background-position: center;
+			opacity: 0;
+			transition: opacity 0.3s ease;
+		}
+	}
+
+	.switch-label {
+		margin-left: 0.875rem;
+		color: $grobdi-text-base;
+		font-size: 0.95rem;
+		font-weight: 500;
+		line-height: 1.5;
+
+		.label-description {
+			display: block;
+			margin-top: 0.25rem;
+			color: $grobdi-text-muted;
+			font-size: 0.85rem;
+			font-weight: 400;
+		}
+	}
+
+	&:hover input:not(:disabled) ~ .switch-slider {
+		background-color: $grobdi-slate-400;
+	}
+
+	&:hover input:checked:not(:disabled) ~ .switch-slider {
+		background-color: $grobdi-red-600;
+	}
+}
+
+// File input mejorado
+.grobdi-file-input {
+	position: relative;
+
+	input[type="file"] {
+		position: absolute;
+		opacity: 0;
+		width: 0;
+		height: 0;
+		pointer-events: none;
+
+		&:focus ~ .file-input-label {
+			border-color: $grobdi-red-500;
+			box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+		}
+	}
+
+	.file-input-label {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.75rem;
+		padding: 2rem 1.5rem;
+		border: 2px dashed $grobdi-slate-300;
+		border-radius: 0.75rem;
+		background-color: $grobdi-slate-50;
+		color: $grobdi-text-base;
+		font-size: 0.95rem;
+		font-weight: 500;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		text-align: center;
+
+		.file-icon {
+			width: 3rem;
+			height: 3rem;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background-color: $grobdi-red-100;
+			color: $grobdi-red-500;
+			border-radius: 0.5rem;
+			font-size: 1.5rem;
+		}
+
+		.file-text {
+			flex: 1;
+			text-align: left;
+
+			.file-title {
+				display: block;
+				color: $grobdi-text-strong;
+				font-weight: 600;
+				margin-bottom: 0.25rem;
+			}
+
+			.file-subtitle {
+				display: block;
+				color: $grobdi-text-muted;
+				font-size: 0.85rem;
+				font-weight: 400;
+			}
+		}
+
+		&:hover {
+			border-color: $grobdi-red-400;
+			background-color: $grobdi-red-50;
+
+			.file-icon {
+				background-color: $grobdi-red-500;
+				color: white;
+				transform: scale(1.05);
+			}
+		}
+	}
+
+	.file-preview {
+		margin-top: 1rem;
+		padding: 1rem;
+		background-color: $grobdi-slate-100;
+		border-radius: 0.5rem;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+
+		.file-info {
+			display: flex;
+			align-items: center;
+			gap: 0.75rem;
+			flex: 1;
+
+			.file-icon-small {
+				width: 2.5rem;
+				height: 2.5rem;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				background-color: $grobdi-red-100;
+				color: $grobdi-red-500;
+				border-radius: 0.375rem;
+				font-size: 1.25rem;
+				flex-shrink: 0;
+			}
+
+			.file-details {
+				flex: 1;
+				min-width: 0;
+
+				.file-name {
+					display: block;
+					color: $grobdi-text-strong;
+					font-weight: 600;
+					font-size: 0.9rem;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
+				}
+
+				.file-size {
+					display: block;
+					color: $grobdi-text-muted;
+					font-size: 0.8rem;
+					margin-top: 0.125rem;
+				}
+			}
+		}
+
+		.file-remove {
+			background: none;
+			border: none;
+			color: $grobdi-red-500;
+			cursor: pointer;
+			padding: 0.5rem;
+			font-size: 1.25rem;
+			transition: all 0.2s ease;
+			border-radius: 0.375rem;
+			flex-shrink: 0;
+
+			&:hover {
+				background-color: $grobdi-red-50;
+				color: $grobdi-red-600;
+			}
+		}
+	}
+}
+
+// Range slider mejorado
+.grobdi-range {
+	.range-input {
+		width: 100%;
+		height: 0.5rem;
+		background: transparent;
+		appearance: none;
+		padding: 0;
+		margin: 0.5rem 0;
+
+		&::-webkit-slider-track {
+			width: 100%;
+			height: 0.5rem;
+			background: linear-gradient(to right,
+				$grobdi-red-500 0%,
+				$grobdi-red-500 var(--value, 50%),
+				$grobdi-slate-200 var(--value, 50%),
+				$grobdi-slate-200 100%
+			);
+			border-radius: 0.25rem;
+		}
+
+		&::-webkit-slider-thumb {
+			appearance: none;
+			width: 1.5rem;
+			height: 1.5rem;
+			background: $grobdi-red-500;
+			border: 3px solid white;
+			border-radius: 50%;
+			cursor: pointer;
+			transition: all 0.2s ease;
+			margin-top: -0.5rem;
+			box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+
+			&:hover {
+				background: $grobdi-red-600;
+				transform: scale(1.15);
+				box-shadow: 0 4px 12px rgba(239, 68, 68, 0.5);
+			}
+
+			&:active {
+				transform: scale(1.05);
+			}
+		}
+
+		&::-moz-range-track {
+			width: 100%;
+			height: 0.5rem;
+			background: $grobdi-slate-200;
+			border-radius: 0.25rem;
+		}
+
+		&::-moz-range-progress {
+			background: $grobdi-red-500;
+			height: 0.5rem;
+			border-radius: 0.25rem;
+		}
+
+		&::-moz-range-thumb {
+			width: 1.5rem;
+			height: 1.5rem;
+			background: $grobdi-red-500;
+			border: 3px solid white;
+			border-radius: 50%;
+			cursor: pointer;
+			transition: all 0.2s ease;
+			box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+
+			&:hover {
+				background: $grobdi-red-600;
+				transform: scale(1.15);
+				box-shadow: 0 4px 12px rgba(239, 68, 68, 0.5);
+			}
+
+			&:active {
+				transform: scale(1.05);
+			}
+		}
+
+		&:focus {
+			outline: none;
+
+			&::-webkit-slider-thumb {
+				box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15), 0 2px 8px rgba(239, 68, 68, 0.4);
+			}
+
+			&::-moz-range-thumb {
+				box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15), 0 2px 8px rgba(239, 68, 68, 0.4);
+			}
+		}
+	}
+
+	.range-labels {
+		display: flex;
+		justify-content: space-between;
+		margin-top: 0.5rem;
+		font-size: 0.85rem;
+		color: $grobdi-text-muted;
+		font-weight: 500;
+	}
+
+	.range-value {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		margin-top: 0.75rem;
+		padding: 0.5rem 1rem;
+		background-color: $grobdi-red-500;
+		color: white;
+		border-radius: 0.5rem;
+		font-size: 0.95rem;
+		font-weight: 600;
+		box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+	}
+}
+
+// ============================================
+// BOTONES MEJORADOS GROBDI
+// ============================================
+
+.btn-grobdi {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1.5rem;
+	font-size: 0.95rem;
+	font-weight: 600;
+	line-height: 1.5;
+	border-radius: 0.5rem;
+	border: 2px solid transparent;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	text-decoration: none;
+	text-align: center;
+	white-space: nowrap;
+	user-select: none;
+	font-family: $grobdi-font-family;
+	position: relative;
+	overflow: hidden;
+
+	i {
+		font-size: 1rem;
+		transition: transform 0.2s ease;
+	}
+
+	&::before {
+		content: '';
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		width: 0;
+		height: 0;
+		border-radius: 50%;
+		background: rgba(255, 255, 255, 0.3);
+		transform: translate(-50%, -50%);
+		transition: width 0.6s, height 0.6s;
+	}
+
+	&:active::before {
+		width: 300px;
+		height: 300px;
+	}
+
+	&:focus {
+		outline: none;
+		box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.1);
+	}
+
+	// Botón Primario (Rojo Grobdi)
+	&.btn-primary-grobdi {
+		background: linear-gradient(135deg, $grobdi-red-500 0%, $grobdi-red-600 100%);
+		color: white;
+		box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);
+
+		&:hover {
+			background: linear-gradient(135deg, $grobdi-red-600 0%, $grobdi-red-700 100%);
+			transform: translateY(-2px);
+			box-shadow: 0 6px 12px rgba(239, 68, 68, 0.3);
+
+			i {
+				transform: translateX(2px);
+			}
+		}
+
+		&:active {
+			transform: translateY(0);
+			box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+		}
+
+		&:focus {
+			box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2), 0 4px 6px rgba(239, 68, 68, 0.2);
+		}
+	}
+
+	// Botón Secundario
+	&.btn-secondary-grobdi {
+		background: linear-gradient(135deg, $grobdi-slate-600 0%, $grobdi-slate-700 100%);
+		color: white;
+		box-shadow: 0 4px 6px rgba(71, 85, 105, 0.2);
+
+		&:hover {
+			background: linear-gradient(135deg, $grobdi-slate-700 0%, $grobdi-slate-800 100%);
+			transform: translateY(-2px);
+			box-shadow: 0 6px 12px rgba(71, 85, 105, 0.3);
+		}
+
+		&:active {
+			transform: translateY(0);
+		}
+
+		&:focus {
+			box-shadow: 0 0 0 4px rgba(71, 85, 105, 0.2);
+		}
+	}
+
+	// Botón Success
+	&.btn-success-grobdi {
+		background: linear-gradient(135deg, $grobdi-success-500 0%, $grobdi-success-600 100%);
+		color: white;
+		box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+
+		&:hover {
+			background: linear-gradient(135deg, $grobdi-success-600 0%, $grobdi-success-700 100%);
+			transform: translateY(-2px);
+			box-shadow: 0 6px 12px rgba(16, 185, 129, 0.3);
+		}
+
+		&:active {
+			transform: translateY(0);
+		}
+
+		&:focus {
+			box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+		}
+	}
+
+	// Botón Warning
+	&.btn-warning-grobdi {
+		background: linear-gradient(135deg, $grobdi-warning-500 0%, $grobdi-warning-600 100%);
+		color: white;
+		box-shadow: 0 4px 6px rgba(245, 158, 11, 0.2);
+
+		&:hover {
+			background: linear-gradient(135deg, $grobdi-warning-600 0%, $grobdi-warning-700 100%);
+			transform: translateY(-2px);
+			box-shadow: 0 6px 12px rgba(245, 158, 11, 0.3);
+		}
+
+		&:active {
+			transform: translateY(0);
+		}
+
+		&:focus {
+			box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2);
+		}
+	}
+
+	// Botón Danger
+	&.btn-danger-grobdi {
+		background: linear-gradient(135deg, $grobdi-danger-500 0%, $grobdi-danger-600 100%);
+		color: white;
+		box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);
+
+		&:hover {
+			background: linear-gradient(135deg, $grobdi-danger-600 0%, $grobdi-danger-700 100%);
+			transform: translateY(-2px);
+			box-shadow: 0 6px 12px rgba(239, 68, 68, 0.3);
+		}
+
+		&:active {
+			transform: translateY(0);
+		}
+
+		&:focus {
+			box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
+		}
+	}
+
+	// Botón Info
+	&.btn-info-grobdi {
+		background: linear-gradient(135deg, $grobdi-info-500 0%, $grobdi-info-600 100%);
+		color: white;
+		box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
+
+		&:hover {
+			background: linear-gradient(135deg, $grobdi-info-600 0%, $grobdi-info-700 100%);
+			transform: translateY(-2px);
+			box-shadow: 0 6px 12px rgba(59, 130, 246, 0.3);
+		}
+
+		&:active {
+			transform: translateY(0);
+		}
+
+		&:focus {
+			box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+		}
+	}
+
+	// Botón Outline
+	&.btn-outline-grobdi {
+		background-color: transparent;
+		border: 2px solid $grobdi-slate-300;
+		color: $grobdi-text-base;
+		box-shadow: none;
+
+		&:hover {
+			background-color: $grobdi-slate-100;
+			border-color: $grobdi-slate-400;
+			transform: translateY(-2px);
+			box-shadow: 0 4px 8px rgba(15, 23, 42, 0.1);
+		}
+
+		&:active {
+			transform: translateY(0);
+		}
+
+		&:focus {
+			box-shadow: 0 0 0 4px rgba(148, 163, 184, 0.2);
+		}
+	}
+
+	// Botón Outline Primary
+	&.btn-outline-primary-grobdi {
+		background-color: transparent;
+		border: 2px solid $grobdi-red-500;
+		color: $grobdi-red-500;
+		box-shadow: none;
+
+		&:hover {
+			background-color: $grobdi-red-500;
+			border-color: $grobdi-red-500;
+			color: white;
+			transform: translateY(-2px);
+			box-shadow: 0 4px 8px rgba(239, 68, 68, 0.2);
+		}
+
+		&:active {
+			transform: translateY(0);
+		}
+
+		&:focus {
+			box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
+		}
+	}
+
+	// Botón Ghost
+	&.btn-ghost-grobdi {
+		background-color: transparent;
+		border: none;
+		color: $grobdi-text-base;
+		box-shadow: none;
+
+		&:hover {
+			background-color: $grobdi-slate-100;
+			transform: translateY(-1px);
+		}
+
+		&:active {
+			transform: translateY(0);
+		}
+
+		&:focus {
+			box-shadow: 0 0 0 4px rgba(148, 163, 184, 0.15);
+		}
+	}
+
+	// Botón Link
+	&.btn-link-grobdi {
+		background-color: transparent;
+		border: none;
+		color: $grobdi-red-500;
+		padding: 0.5rem 0.75rem;
+		box-shadow: none;
+		text-decoration: underline;
+		text-decoration-color: transparent;
+		transition: all 0.2s ease;
+
+		&:hover {
+			color: $grobdi-red-600;
+			text-decoration-color: $grobdi-red-600;
+			transform: none;
+		}
+
+		&:active {
+			color: $grobdi-red-700;
+		}
+
+		&:focus {
+			box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
+		}
+	}
+
+	// Tamaños
+	&.btn-sm {
+		padding: 0.5rem 1rem;
+		font-size: 0.875rem;
+
+		i {
+			font-size: 0.875rem;
+		}
+	}
+
+	&.btn-lg {
+		padding: 1rem 2rem;
+		font-size: 1.125rem;
+		border-radius: 0.625rem;
+
+		i {
+			font-size: 1.25rem;
+		}
+	}
+
+	&.btn-xl {
+		padding: 1.25rem 2.5rem;
+		font-size: 1.25rem;
+		border-radius: 0.75rem;
+
+		i {
+			font-size: 1.5rem;
+		}
+	}
+
+	// Botón de ancho completo
+	&.btn-block {
+		width: 100%;
+		display: flex;
+	}
+
+	// Botón con icono solamente
+	&.btn-icon {
+		padding: 0.75rem;
+		aspect-ratio: 1/1;
+
+		i {
+			margin: 0;
+		}
+
+		&.btn-sm {
+			padding: 0.5rem;
+		}
+
+		&.btn-lg {
+			padding: 1rem;
+		}
+	}
+
+	// Estado deshabilitado
+	&:disabled,
+	&.disabled {
+		background: $grobdi-slate-300;
+		border-color: $grobdi-slate-300;
+		color: $grobdi-slate-500;
+		cursor: not-allowed;
+		opacity: 0.65;
+		transform: none;
+		box-shadow: none;
+
+		&:hover {
+			transform: none;
+			box-shadow: none;
+		}
+	}
+
+	// Estado de carga
+	&.btn-loading {
+		position: relative;
+		color: transparent;
+		pointer-events: none;
+
+		&::after {
+			content: '';
+			position: absolute;
+			width: 1rem;
+			height: 1rem;
+			top: 50%;
+			left: 50%;
+			margin-left: -0.5rem;
+			margin-top: -0.5rem;
+			border: 2px solid rgba(255, 255, 255, 0.3);
+			border-radius: 50%;
+			border-top-color: white;
+			animation: spinner 0.6s linear infinite;
+		}
+	}
+}
+
+@keyframes spinner {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+// Grupo de botones
+.btn-group-grobdi {
+	display: inline-flex;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+
+	&.btn-group-vertical {
+		flex-direction: column;
+
+		.btn-grobdi {
+			width: 100%;
+		}
+	}
+
+	&.btn-group-justified {
+		display: flex;
+
+		.btn-grobdi {
+			flex: 1;
+		}
+	}
+}
+
+// Acciones de formulario
+.form-actions {
+	display: flex;
+	gap: 0.75rem;
+	padding-top: 1.5rem;
+	margin-top: 1.5rem;
+	border-top: 1px solid $grobdi-slate-200;
+
+	&.justify-start {
+		justify-content: flex-start;
+	}
+
+	&.justify-center {
+		justify-content: center;
+	}
+
+	&.justify-end {
+		justify-content: flex-end;
+	}
+
+	&.justify-between {
+		justify-content: space-between;
+	}
+
+	@media (max-width: 576px) {
+		flex-direction: column;
+
+		.btn-grobdi {
+			width: 100%;
+		}
+	}
+}
+
+// ============================================
+// COMPONENTES ADICIONALES DE FORMULARIO
+// ============================================
+
+// Alert dentro de formularios
+.form-alert {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
+	padding: 1rem 1.25rem;
+	border-radius: 0.5rem;
+	border-left: 4px solid;
+	margin-bottom: 1.5rem;
+	font-size: 0.95rem;
+	line-height: 1.6;
+
+	.alert-icon {
+		font-size: 1.25rem;
+		flex-shrink: 0;
+		margin-top: 0.125rem;
+	}
+
+	.alert-content {
+		flex: 1;
+
+		.alert-title {
+			font-weight: 600;
+			margin-bottom: 0.25rem;
+		}
+
+		.alert-message {
+			font-weight: 400;
+		}
+	}
+
+	&.alert-info {
+		background-color: $grobdi-info-50;
+		border-color: $grobdi-info-500;
+		color: $grobdi-info-800;
+
+		.alert-icon {
+			color: $grobdi-info-500;
+		}
+	}
+
+	&.alert-success {
+		background-color: $grobdi-success-50;
+		border-color: $grobdi-success-500;
+		color: $grobdi-success-800;
+
+		.alert-icon {
+			color: $grobdi-success-500;
+		}
+	}
+
+	&.alert-warning {
+		background-color: $grobdi-warning-50;
+		border-color: $grobdi-warning-500;
+		color: $grobdi-warning-800;
+
+		.alert-icon {
+			color: $grobdi-warning-500;
+		}
+	}
+
+	&.alert-danger {
+		background-color: $grobdi-danger-50;
+		border-color: $grobdi-danger-500;
+		color: $grobdi-danger-800;
+
+		.alert-icon {
+			color: $grobdi-danger-500;
+		}
+	}
+}
+
+// Divider de formulario
+.form-divider {
+	display: flex;
+	align-items: center;
+	margin: 2rem 0;
+	font-size: 0.9rem;
+	color: $grobdi-text-muted;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+
+	&::before,
+	&::after {
+		content: '';
+		flex: 1;
+		height: 1px;
+		background-color: $grobdi-slate-200;
+	}
+
+	&::before {
+		margin-right: 1rem;
+	}
+
+	&::after {
+		margin-left: 1rem;
+	}
+}
+
+// Grid de formulario
+.form-grid {
+	display: grid;
+	gap: 1.5rem;
+
+	&.grid-cols-2 {
+		grid-template-columns: repeat(2, 1fr);
+
+		@media (max-width: 768px) {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	&.grid-cols-3 {
+		grid-template-columns: repeat(3, 1fr);
+
+		@media (max-width: 992px) {
+			grid-template-columns: repeat(2, 1fr);
+		}
+
+		@media (max-width: 576px) {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	&.grid-cols-4 {
+		grid-template-columns: repeat(4, 1fr);
+
+		@media (max-width: 1200px) {
+			grid-template-columns: repeat(3, 1fr);
+		}
+
+		@media (max-width: 768px) {
+			grid-template-columns: repeat(2, 1fr);
+		}
+
+		@media (max-width: 576px) {
+			grid-template-columns: 1fr;
+		}
+	}
+}
+
+// Sección de formulario
+.form-section {
+	margin-bottom: 2.5rem;
+
+	&:last-child {
+		margin-bottom: 0;
+	}
+
+	.section-header {
+		margin-bottom: 1.5rem;
+		padding-bottom: 0.75rem;
+		border-bottom: 2px solid $grobdi-slate-200;
+
+		.section-title {
+			display: flex;
+			align-items: center;
+			gap: 0.75rem;
+			color: $grobdi-text-strong;
+			font-size: 1.25rem;
+			font-weight: 700;
+			margin-bottom: 0.375rem;
+
+			i {
+				color: $grobdi-red-500;
+				font-size: 1.5rem;
+			}
+		}
+
+		.section-description {
+			color: $grobdi-text-muted;
+			font-size: 0.9rem;
+			line-height: 1.6;
+		}
+	}
+}
+
+// Tooltip para formularios
+.form-tooltip {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.25rem;
+	height: 1.25rem;
+	background-color: $grobdi-slate-300;
+	color: $grobdi-text-strong;
+	border-radius: 50%;
+	font-size: 0.75rem;
+	font-weight: 700;
+	cursor: help;
+	margin-left: 0.375rem;
+	transition: all 0.2s ease;
+
+	&:hover {
+		background-color: $grobdi-red-500;
+		color: white;
+
+		.tooltip-content {
+			opacity: 1;
+			visibility: visible;
+			transform: translateX(-50%) translateY(-8px);
+		}
+	}
+
+	.tooltip-content {
+		position: absolute;
+		bottom: 100%;
+		left: 50%;
+		transform: translateX(-50%) translateY(-4px);
+		padding: 0.625rem 0.875rem;
+		background-color: $grobdi-navy-900;
+		color: white;
+		border-radius: 0.375rem;
+		font-size: 0.85rem;
+		font-weight: 400;
+		white-space: nowrap;
+		opacity: 0;
+		visibility: hidden;
+		transition: all 0.2s ease;
+		pointer-events: none;
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+		z-index: 1000;
+
+		&::after {
+			content: '';
+			position: absolute;
+			top: 100%;
+			left: 50%;
+			transform: translateX(-50%);
+			border: 5px solid transparent;
+			border-top-color: $grobdi-navy-900;
+		}
+	}
+}
+
+// Contador de caracteres
+.char-counter {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 0.375rem;
+	font-size: 0.8rem;
+	color: $grobdi-text-muted;
+
+	&.limit-reached {
+		color: $grobdi-red-500;
+		font-weight: 600;
+	}
+
+	&.limit-near {
+		color: $grobdi-warning-600;
+		font-weight: 600;
+	}
+}
+
+// Responsive
+@media (max-width: 576px) {
+	.grobdi-form {
+		padding: 1rem;
+	}
+
+	.form-group-grobdi {
+		margin-bottom: 1.25rem;
+	}
+
+	.grobdi-input,
+	.form-control-grobdi {
+		font-size: 16px; // Previene zoom en iOS
+	}
+
+	.btn-grobdi {
+		padding: 0.625rem 1.25rem;
+		font-size: 0.9rem;
+
+		&.btn-sm {
+			padding: 0.5rem 1rem;
+			font-size: 0.85rem;
+		}
+
+		&.btn-lg {
+			padding: 0.875rem 1.75rem;
+			font-size: 1rem;
+		}
+	}
+}
+
+// ============================================
+// BOTONES DE ACCIÓN PARA TABLAS
+// ============================================
+
+.btn-action {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	padding: 0.5rem 0.875rem;
+	font-size: 0.875rem;
+	font-weight: 600;
+	border-radius: 0.375rem;
+	border: none;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	text-decoration: none;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	line-height: 1;
+
+	i {
+		font-size: 0.875rem;
+	}
+
+	&:focus {
+		outline: none;
+		box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+	}
+
+	// Botón Editar (Warning/Amarillo)
+	&.btn-edit {
+		background-color: $grobdi-warning-500;
+		color: $grobdi-bg-white;
+
+		&:hover {
+			background-color: $grobdi-warning-600;
+			transform: translateY(-1px);
+			box-shadow: 0 4px 6px rgba(245, 158, 11, 0.3);
+			color: $grobdi-bg-white;
+		}
+
+		&:active {
+			transform: translateY(0);
+			box-shadow: 0 1px 2px rgba(245, 158, 11, 0.3);
+		}
+	}
+
+	// Botón Eliminar (Danger/Rojo)
+	&.btn-delete {
+		background-color: $grobdi-red-500;
+		color: $grobdi-bg-white;
+
+		&:hover {
+			background-color: $grobdi-red-600;
+			transform: translateY(-1px);
+			box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3);
+		}
+
+		&:active {
+			transform: translateY(0);
+			box-shadow: 0 1px 2px rgba(239, 68, 68, 0.3);
+		}
+	}
+
+	// Botón Ver/Info (Azul)
+	&.btn-view {
+		background-color: $grobdi-info-500;
+		color: $grobdi-bg-white;
+
+		&:hover {
+			background-color: $grobdi-info-600;
+			transform: translateY(-1px);
+			box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
+			color: $grobdi-bg-white;
+		}
+
+		&:active {
+			transform: translateY(0);
+			box-shadow: 0 1px 2px rgba(59, 130, 246, 0.3);
+		}
+	}
+
+	// Botón Aprobar (Success/Verde)
+	&.btn-approve {
+		background-color: $grobdi-success-500;
+		color: $grobdi-bg-white;
+
+		&:hover {
+			background-color: $grobdi-success-600;
+			transform: translateY(-1px);
+			box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
+		}
+
+		&:active {
+			transform: translateY(0);
+			box-shadow: 0 1px 2px rgba(16, 185, 129, 0.3);
+		}
+	}
+
+	// Botón deshabilitado
+	&:disabled,
+	&.disabled {
+		background-color: $grobdi-slate-300;
+		color: $grobdi-slate-500;
+		cursor: not-allowed;
+		opacity: 0.6;
+
+		&:hover {
+			transform: none;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+		}
+	}
+
+	// Versión pequeña
+	&.btn-action-sm {
+		padding: 0.375rem 0.625rem;
+		font-size: 0.8rem;
+
+		i {
+			font-size: 0.8rem;
+		}
+	}
+
+	// Versión grande
+	&.btn-action-lg {
+		padding: 0.625rem 1.125rem;
+		font-size: 1rem;
+
+		i {
+			font-size: 1rem;
+		}
+	}
+
+	@media (max-width: 768px) {
+		padding: 0.4rem 0.7rem;
+		font-size: 0.8rem;
+
+		i {
+			font-size: 0.8rem;
+		}
+	}
+}
+
+// Contenedor de botones de acción en tablas
+.table-actions {
+	display: flex;
+	gap: 0.5rem;
+	justify-content: center;
+	flex-wrap: wrap;
+	align-items: center;
+
+	@media (max-width: 576px) {
+		flex-direction: column;
+
+		.btn-action {
+			width: 100%;
+		}
+	}
+}
+
+

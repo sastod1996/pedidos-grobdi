@@ -29,6 +29,25 @@
                             action="{{ route('visitadoras.metas.not-reached-config.store') }}" method="POST">
                             @csrf
 
+                            <div class="form-group mb-4">
+                                <label class="grobdi-label">
+                                    <i class="fas fa-tag text-danger"></i> Nombre de la configuración <span
+                                        class="text-danger">*</span>
+                                </label>
+                                <input type="text" id="configName" name="name" class="form-control grobdi-input"
+                                    placeholder="Ej: Configuración Enero 2025" required maxlength="255">
+                                <small class="form-text text-muted">
+                                    <i class="fas fa-info-circle"></i> Ingresa un nombre descriptivo para identificar
+                                    esta configuración
+                                </small>
+                            </div>
+
+                            <hr style="border-top: 1px solid #e2e8f0; margin: 1.5rem 0;">
+
+                            <h6 class="mb-3" style="color: #1f2937; font-weight: 600;">
+                                <i class="fas fa-sliders-h text-danger"></i> Rangos de Bonificación
+                            </h6>
+
                             <div id="rangeFields" class="d-flex flex-column gap-3">
                                 <div class="bonificaciones-range-group p-3 border rounded" data-index="0">
                                     <div class="row g-3 align-items-end">
@@ -323,9 +342,17 @@
                         console.debug('configModal: loadActiveConfig response', json);
                         var tbody = $modal.find('#configTableBody');
                         tbody.empty();
-                        if (json && json.details && Array.isArray(json.details) && json.details
-                            .length) {
-                            json.details.forEach(function(d) {
+
+                        // Manejar diferentes estructuras de respuesta
+                        var details = null;
+                        if (json && json.data && json.data.details) {
+                            details = json.data.details;
+                        } else if (json && json.details) {
+                            details = json.details;
+                        }
+
+                        if (details && Array.isArray(details) && details.length) {
+                            details.forEach(function(d) {
                                 var $tr = $('<tr />');
                                 $tr.append('<td>' + (d.initial_percentage ?? '-') + '</td>');
                                 $tr.append('<td>' + (d.final_percentage ?? '-') + '</td>');
@@ -334,11 +361,16 @@
                             });
                         } else {
                             tbody.append(
-                                '<tr class="text-center"><td colspan="4">No hay configuración activa.</td></tr>'
+                                '<tr class="text-center"><td colspan="3">No hay configuración activa.</td></tr>'
                             );
                         }
                     }).catch(function(err) {
                         console.error('Error loading active config', err);
+                        var tbody = $modal.find('#configTableBody');
+                        tbody.empty();
+                        tbody.append(
+                            '<tr class="text-center"><td colspan="3">Error al cargar configuración.</td></tr>'
+                        );
                     });
             }
 
@@ -346,6 +378,23 @@
             $modal.on('submit', '#configuracionRangoForm', function(e) {
                 e.preventDefault();
                 var $form = $(this);
+
+                // Validar nombre
+                var configName = $form.find('#configName').val().trim();
+                if (!configName) {
+                    if (window.Swal) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Campo obligatorio',
+                            text: 'Debes ingresar un nombre para la configuración.'
+                        });
+                    } else {
+                        alert('Debes ingresar un nombre para la configuración.');
+                    }
+                    $form.find('#configName').focus();
+                    return;
+                }
+
                 var ranges = collectRanges();
                 var errors = validateRanges(ranges);
                 if (errors.length) {
@@ -371,6 +420,7 @@
                     };
                 });
                 var payload = {
+                    name: configName,
                     details: details
                 };
 
@@ -416,6 +466,8 @@
                         setTimeout(function() {
                             loadActiveConfig();
                             $('#table-tab').trigger('click');
+                            // Limpiar el formulario
+                            $form.find('#configName').val('');
                         }, 400);
                     } else if (result.status === 422 && result.data && result.data.errors) {
                         var messages = [];

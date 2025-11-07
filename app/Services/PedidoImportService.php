@@ -6,6 +6,7 @@ use App\Imports\DetailPedidosImport;
 use App\Imports\DetailPedidosPreviewImport;
 use App\Imports\PedidosImport;
 use App\Imports\PedidosPreviewImport;
+use App\Imports\PedidosPreviewAnalyzerImport;
 use App\Imports\SimpleArrayImport;
 use App\Models\DetailPedidos;
 use App\Models\Doctor;
@@ -48,8 +49,7 @@ class PedidoImportService
         }
 
         $filePath = Storage::path('temp/' . $fileName);
-        $data = Excel::toArray(new SimpleArrayImport, $filePath)[0] ?? [];
-        $changes = $this->analyzeChanges($data);
+    $changes = $this->analyzeChangesFromFile($filePath);
 
         return view('pedidos.counter.cargar_pedido.preview', compact('changes', 'fileName'));
     }
@@ -61,11 +61,34 @@ class PedidoImportService
         }
 
         $filePath = Storage::path('temp/' . $fileName);
+    $changes = $this->analyzeChangesFromFile($filePath);
+
         $pedidoImport = new PedidosPreviewImport;
         Excel::import($pedidoImport, $filePath);
         Storage::delete('temp/' . $fileName);
+        $this->cleanupTempFiles();
 
-        return redirect()->route('cargarpedidos.index')->with($pedidoImport->key, $pedidoImport->data);
+        $summaryCounts = [
+            'total' => $changes['stats']['total_count'] ?? 0,
+            'new' => $changes['stats']['new_count'] ?? 0,
+            'modified' => $changes['stats']['modified_count'] ?? 0,
+        ];
+        $summaryCounts['unchanged'] = max(0, ($summaryCounts['total'] - $summaryCounts['new'] - $summaryCounts['modified']));
+
+        $stats = $changes['stats'] ?? [];
+        $summarySnapshot = [
+            'total' => $summaryCounts['total'],
+            'new' => $summaryCounts['new'],
+            'modified' => $summaryCounts['modified'],
+            'unchanged' => $summaryCounts['unchanged'],
+            'inactive' => $stats['inactive_count'] ?? 0,
+            'status_changes' => $stats['status_changes'] ?? 0,
+        ];
+
+        return redirect()->route('cargarpedidos.create')
+            ->with($pedidoImport->key, $pedidoImport->data)
+            ->with('processed_summary', $summarySnapshot)
+            ->with('processed_summary_generated_at', now()->format('Y-m-d H:i:s'));
     }
 
     public function cancelChanges($fileName)
@@ -89,70 +112,126 @@ class PedidoImportService
         }
     }
 
-    private function analyzeChanges($data)
+    private function analyzeChangesFromFile(string $filePath): array
     {
-        $changes = [
-            'new' => [],
-            'modified' => [],
-            'stats' => ['new_count' => 0, 'modified_count' => 0, 'total_count' => 0]
-        ];
+        $changes = $this->initializeChangesSummary();
 
-        foreach ($data as $index => $row) {
-            if (!is_array($row) || count($row) < 5) continue;
-            $col2 = isset($row[2]) ? strtoupper(trim((string)$row[2])) : '';
-            $col16 = isset($row[16]) ? strtoupper(trim((string)$row[16])) : '';
-            if ($col16 === 'ARTICULO' || $col2 !== 'PEDIDO') continue;
-
-            $changes['stats']['total_count']++;
-            $orderIdRaw = isset($row[3]) ? trim((string)$row[3]) : '';
-            $existingOrder = Pedidos::where('orderId', $orderIdRaw)->first();
-
-            if (!$existingOrder) {
-                $changes['new'][] = [
-                    'row_index' => $index + 1,
-                    'data' => $this->formatRowData($row),
-                    'type' => 'new'
-                ];
-                $changes['stats']['new_count']++;
-            } else {
-                $modifications = $this->compareOrderData($existingOrder, $row);
-                if (!empty($modifications)) {
-                    $changes['modified'][] = [
-                        'row_index' => $index + 1,
-                        'existing' => $this->formatExistingOrderData($existingOrder),
-                        'new' => $this->formatRowData($row),
-                        'modifications' => $modifications,
-                        'type' => 'modified'
-                    ];
-                    $changes['stats']['modified_count']++;
-                }
-            }
-        }
+        Excel::import(new PedidosPreviewAnalyzerImport(function (array $row, int $rowIndex) use (&$changes) {
+            $this->applyRowToChanges($row, $rowIndex, $changes);
+        }), $filePath);
 
         return $changes;
     }
 
-    private function formatRowData($row)
+    private function initializeChangesSummary(): array
     {
-        $zoneId = Distritos_zonas::zonificar($row[16]);
+        return [
+            'new' => [],
+            'modified' => [],
+            'stats' => [
+                'new_count' => 0,
+                'modified_count' => 0,
+                'total_count' => 0,
+                'inactive_count' => 0,
+                'status_changes' => 0,
+            ],
+        ];
+    }
+
+    private function applyRowToChanges(array $row, int $rowIndex, array &$changes): void
+    {
+        if (!is_array($row) || count($row) < 5) {
+            return;
+        }
+
+        $col2 = isset($row[2]) ? strtoupper(trim((string) $row[2])) : '';
+        $col16 = isset($row[16]) ? strtoupper(trim((string) $row[16])) : '';
+        if ($col16 === 'ARTICULO' || $col2 !== 'PEDIDO') {
+            return;
+        }
+
+        $changes['stats']['total_count']++;
+        $orderIdRaw = isset($row[3]) ? trim((string) $row[3]) : '';
+        if ($orderIdRaw === '') {
+            return;
+        }
+
+        $existingOrder = Pedidos::where('orderId', $orderIdRaw)->first();
+
+        if (!$existingOrder) {
+            $changes['new'][] = [
+                'row_index' => $rowIndex,
+                'data' => $this->formatRowData($row, null),
+                'type' => 'new',
+            ];
+            $changes['stats']['new_count']++;
+
+            return;
+        }
+
+        $modifications = $this->compareOrderData($existingOrder, $row);
+        if (!empty($modifications)) {
+            $changes['modified'][] = [
+                'row_index' => $rowIndex,
+                'existing' => $this->formatExistingOrderData($existingOrder),
+                'new' => $this->formatRowData($row, $existingOrder),
+                'modifications' => $modifications,
+                'type' => 'modified',
+            ];
+            $changes['stats']['modified_count']++;
+        }
+    }
+
+    private function formatRowData($row, ?Pedidos $existingOrder = null)
+    {
+        $districtRaw = $row[16] ?? null;
+        $existingAddress = $existingOrder ? $existingOrder->address : '';
+        $existingReference = $existingOrder ? $existingOrder->reference : '';
+        $existingDistrict = $existingOrder ? $existingOrder->district : '';
+        $existingDeliveryDate = $existingOrder ? $existingOrder->deliveryDate : null;
+        $existingCreatedAt = $existingOrder ? $existingOrder->created_at : null;
+        $existingUserName = ($existingOrder && $existingOrder->user) ? $existingOrder->user->name : null;
+        $existingDoctorName = $existingOrder ? $existingOrder->doctorName : null;
+
+        $existingDeliveryDateString = ($existingDeliveryDate instanceof Carbon)
+            ? $existingDeliveryDate->format('Y-m-d')
+            : (is_string($existingDeliveryDate) ? $existingDeliveryDate : '');
+        $existingCreatedAtString = ($existingCreatedAt instanceof Carbon)
+            ? $existingCreatedAt->format('Y-m-d H:i:s')
+            : (is_string($existingCreatedAt) ? $existingCreatedAt : null);
+
+        $districtValue = $this->valueOrFallback($districtRaw, $existingDistrict);
+        $zoneId = Distritos_zonas::zonificar($districtValue);
         $zone = Zone::find($zoneId);
+
+        $deliveryDate = $this->resolveExcelDate($row[13] ?? null, $existingDeliveryDate);
+        $createdAt = $this->resolveExcelDate($row[20] ?? null, $existingCreatedAt);
+        $userNameRaw = $row[19] ?? null;
+        $resolvedUser = null;
+        if ($userNameRaw) {
+            $resolvedUser = optional(User::where('name', $userNameRaw)->first())->name;
+        }
 
         return [
             'nroOrder' => '',
             'orderId' => $row[3],
             'customerName' => $row[4],
             'customerNumber' => $row[5],
-            'doctorName' => $row[15],
-            'address' => $row[17],
-            'reference' => $row[18],
-            'district' => $row[16],
+            'doctorName' => $this->normalizeDoctorName($row[15] ?? null, $existingDoctorName),
+            'address' => $this->valueOrFallback($row[17] ?? null, $existingAddress),
+            'reference' => $this->valueOrFallback($row[18] ?? null, $existingReference),
+            'district' => $districtValue,
             'prize' => $row[8],
             'paymentMethod' => $row[10],
-            'deliveryDate' => $row[13] ? Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[13]))->format('Y-m-d') : '',
+            'deliveryDate' => $deliveryDate
+                ? $deliveryDate->format('Y-m-d')
+                : $existingDeliveryDateString,
             'productionStatus' => $row[12] !== 'PENDIENTE' ? 'Completado' : 'Pendiente',
-            'created_at' => $row[20] ? Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row[20]))->format('Y-m-d H:i:s') : '',
+            'created_at' => $createdAt
+                ? $createdAt->format('Y-m-d H:i:s')
+                : ($existingCreatedAtString ?? now()->format('Y-m-d H:i:s')),
             'zone_name' => $zone ? $zone->name : 'Sin zona',
-            'user_name' => $row[19] ? (User::where('name', $row[19])->first()->name ?? Auth::user()->name) : Auth::user()->name,
+            'user_name' => $resolvedUser ?: ($existingUserName ?? Auth::user()->name),
             'last_data_update' => now()->format('Y-m-d H:i:s')
         ];
     }
@@ -182,7 +261,7 @@ class PedidoImportService
     private function compareOrderData($existingOrder, $row)
     {
         $modifications = [];
-        $newData = $this->formatRowData($row);
+        $newData = $this->formatRowData($row, $existingOrder);
         $existingData = $this->formatExistingOrderData($existingOrder);
 
         $fieldsToCompare = [
@@ -199,29 +278,104 @@ class PedidoImportService
 
         foreach ($fieldsToCompare as $field => $label) {
             if ($field === 'deliveryDate') {
-                $existingDate = Carbon::parse($existingData[$field])->format('Y-m-d');
-                $newDate = Carbon::parse($newData[$field])->format('Y-m-d');
-                if ($existingDate != $newDate) {
+                $existingDate = $existingData[$field] ?? null;
+                $newDate = $newData[$field] ?? null;
+
+                if ($existingDate && $newDate && Carbon::parse($existingDate)->format('Y-m-d') !== Carbon::parse($newDate)->format('Y-m-d')) {
                     $modifications[] = [
                         'field' => $field,
                         'label' => $label,
-                        'old_value' => $existingDate,
-                        'new_value' => $newDate
+                        'old_value' => Carbon::parse($existingDate)->format('Y-m-d'),
+                        'new_value' => Carbon::parse($newDate)->format('Y-m-d')
                     ];
                 }
             } else {
-                if ($existingData[$field] != $newData[$field]) {
+                if (($existingData[$field] ?? null) != ($newData[$field] ?? null)) {
                     $modifications[] = [
                         'field' => $field,
                         'label' => $label,
-                        'old_value' => $existingData[$field],
-                        'new_value' => $newData[$field]
+                        'old_value' => $existingData[$field] ?? '',
+                        'new_value' => $newData[$field] ?? ''
                     ];
                 }
             }
         }
 
         return $modifications;
+    }
+
+    private function normalizeDoctorName($rawName, ?string $fallback = null): string
+    {
+        $value = is_string($rawName) ? trim($rawName) : trim((string)($rawName ?? ''));
+
+        if ($value !== '') {
+            return $value;
+        }
+
+        if ($fallback !== null && trim($fallback) !== '') {
+            return trim($fallback);
+        }
+
+        return 'Sin doctor';
+    }
+
+    private function resolveExcelDate($value, $fallback = null): ?Carbon
+    {
+        if ($value === null || $value === '') {
+            if ($fallback instanceof Carbon) {
+                return $fallback->copy();
+            }
+
+            if (is_string($fallback) && trim($fallback) !== '') {
+                try {
+                    return Carbon::parse($fallback);
+                } catch (\Throwable $th) {
+                    return null;
+                }
+            }
+
+            return null;
+        }
+
+        try {
+            if ($value instanceof Carbon) {
+                return $value->copy();
+            }
+
+            if (is_numeric($value)) {
+                return Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($value));
+            }
+
+            return Carbon::parse($value);
+        } catch (\Throwable $th) {
+            if ($fallback instanceof Carbon) {
+                return $fallback->copy();
+            }
+
+            if (is_string($fallback) && trim($fallback) !== '') {
+                try {
+                    return Carbon::parse($fallback);
+                } catch (\Throwable $e) {
+                    return null;
+                }
+            }
+
+            return null;
+        }
+    }
+
+    private function valueOrFallback($value, $fallback = '')
+    {
+        if ($value === null) {
+            return $fallback;
+        }
+
+        if (is_string($value)) {
+            $trimmed = trim($value);
+            return $trimmed === '' ? $fallback : $trimmed;
+        }
+
+        return $value;
     }
 
     public function updatePedido($request, $id)
@@ -252,7 +406,7 @@ class PedidoImportService
                 'deliveryStatus' => 'No es posible modificar el estado de un pedido marcado como entregado.',
             ]);
         }
-        
+
         // Access validated payload
         $address = $request->address ?? ($request['address'] ?? null);
         $district = $request->district ?? ($request['district'] ?? null);
@@ -267,7 +421,7 @@ class PedidoImportService
         $pedidos->customerNumber = $customerNumber;
         $pedidos->id_doctor = $idDoctor;
         $pedidos->doctorName = $doctorName;
-        
+
         $deliveryDateChanged = $existingDeliveryDate !== $deliveryDateNew;
 
         if($deliveryDateChanged){
@@ -284,7 +438,7 @@ class PedidoImportService
                 $pedidos->turno = 0;
             }
         }
-        
+
         if ($currentStatusNormalized !== 'entregado' && !$deliveryDateChanged) {
             $pedidos->deliveryStatus = $newStatusNormalized === 'entregado' ? 'Entregado' : 'Pendiente';
         }
@@ -292,7 +446,7 @@ class PedidoImportService
         $pedidos->zone_id = $zoneId;
         $pedidos->user_id = Auth::user()->id;
         $pedidos->save();
-        
+
         return $fecha;
     }
 
@@ -309,12 +463,12 @@ class PedidoImportService
             'paymentStatus' => 'required',
             'paymentMethod' => 'required',
         ]);
-        
+
         $pedidos = Pedidos::find($id);
         $pedidos->paymentStatus = $request->paymentStatus;
         $pedidos->paymentMethod = $request->paymentMethod;
         $pedidos->save();
-        
+
         return true;
     }
 

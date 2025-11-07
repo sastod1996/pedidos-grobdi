@@ -3,14 +3,71 @@
 @section('title', 'Ver bonificaciones de visitadoras')
 
 @section('content')
+	@php
+		$metaData = $meta ?? [];
+		$periodLabel = $metaData['period_label'] ?? null;
+		if (! $periodLabel) {
+			$monthInfo = $metaData['month'] ?? null;
+			if (is_array($monthInfo) && (($monthInfo['type'] ?? null) === 'month')) {
+				$monthYear = $monthInfo['year'] ?? now()->year;
+				$monthValue = $monthInfo['value'] ?? now()->month;
+				$periodLabel = \Carbon\Carbon::createFromDate($monthYear, $monthValue, 1)
+					->locale('es')
+					->translatedFormat('F, Y');
+			} elseif (! empty($metaData['start_date']) && ! empty($metaData['end_date'])) {
+				$periodLabel = \Carbon\Carbon::parse($metaData['start_date'])->format('d/m/Y') . ' - '
+					. \Carbon\Carbon::parse($metaData['end_date'])->format('d/m/Y');
+			}
+		}
+		$tipoMedicoLabel = $metaData['tipo_medico_label'] ?? null;
+		$tipoMedicoSlug = $metaData['tipo_medico_slug'] ?? ($metaData['tipo_medico'] ?? null);
+		if (! $tipoMedicoLabel && $tipoMedicoSlug) {
+			$tipoMedicoLabel = ucfirst($tipoMedicoSlug);
+		}
+		$titleSegments = [];
+		if ($periodLabel) {
+			$titleSegments[] = $periodLabel;
+		}
+		$titleSegments[] = 'Bonificación de médicos ' . ($tipoMedicoLabel ?? '');
+		$heroTitle = trim(implode(' - ', array_filter($titleSegments)));
+		$formatCurrency = static function ($value) {
+			if ($value === null || $value === '') {
+				return '-';
+			}
+			if (is_numeric($value)) {
+				return 'S/ ' . number_format((float) $value, 2, '.', ',');
+			}
+			// try to extract numeric amount from string, fallback to original text
+			if (is_string($value)) {
+				$numeric = preg_replace('/[^0-9\\.\-]/', '', $value);
+				if ($numeric !== '' && is_numeric($numeric)) {
+					return 'S/ ' . number_format((float) $numeric, 2, '.', ',');
+				}
+			}
+			return (string) $value;
+		};
+		$formatPercentage = static function ($value, int $decimals = 2, bool $clampTo100 = false) {
+			if ($value === null || $value === '') {
+				return '-';
+			}
+			if (! is_numeric($value)) {
+				return $value;
+			}
+			$numeric = (float) $value;
+			if ($clampTo100) {
+				$numeric = max(0, min(100, $numeric));
+			}
+			return number_format($numeric, $decimals, '.', ',') . '%';
+		};
+	@endphp
 	<div class="bonificaciones-wrapper">
         <div class="card bonificaciones-hero-card shadow-sm border-0 mb-4">
             <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
                 <div class="d-flex align-items-start gap-3">
-                    <div>
-                        <h1 class="h3 text-dark mb-1">Octubre, 2025 - Bonificación de médicos prescriptores</h1>
-                        <p class="text-muted mb-0">Resumen del cumplimiento, comisiones y desembolsos para las visitadoras durante el mes.</p>
-                    </div>
+				<div>
+					<h1 class="h3 text-dark mb-1">{{ $heroTitle !== '' ? $heroTitle : 'Bonificación de médicos prescriptores' }}</h1>
+					<p class="text-muted mb-0">Resumen del cumplimiento, comisiones y desembolsos para las visitadoras durante el periodo seleccionado.</p>
+				</div>
                 </div>
                  <div class="align-items-end d-flex mt-2 mt-md-0 ms-auto"></div>
                     <a href="{{ route('bonificaciones.index') }}" class="btn btn-secondary align-items-end">
@@ -43,26 +100,27 @@
 							</tr>
 						</thead>
 						<tbody>
-							@forelse($data as $vg)
+							@forelse($visitorGoals as $vg)
 								<tr data-pedidos="{{ $vg['total_sub_total_sin_igv'] ?? '' }}" data-visitor-goal-id="{{ $vg['id'] }}">
 									<td class="fw-semibold">{{ $vg['visitadora']['name'] ?? '-' }}</td>
-									<td>{{ $vg['commission_percentage'] ?? '-' }}</td>
-									<td>{{ $vg['goal_amount'] ?? '-' }}</td>
-									@php
-										$__pct = isset($vg['porcentaje_actual']) ? floatval($vg['porcentaje_actual']) : null;
-										$__pct_clamped = $__pct !== null ? max(0, min(100, $__pct)) : null;
-									@endphp
+									<td>{{ $formatPercentage($vg['commission_percentage'] ?? null) }}</td>
+									<td>{{ $formatCurrency($vg['goal_amount'] ?? null) }}</td>
+								@php
+									$__pct = isset($vg['porcentaje_actual']) ? (float) $vg['porcentaje_actual'] : null;
+									$__pct_clamped = $formatPercentage($__pct, 2, true);
+									$__pct_value = isset($vg['porcentaje_actual']) ? max(0, min(100, (float) $vg['porcentaje_actual'])) : null;
+								@endphp
 									<td>
 										<div class="d-flex align-items-center gap-2">
-											<div class="me-2 fw-semibold">{{ $__pct !== null ? number_format($__pct, 2) . '%' : '-' }}</div>
-											<div class="progress flex-grow-1">
-												<div class="progress-bar bg-success" role="progressbar" style="width: {{ $__pct_clamped !== null ? $__pct_clamped.'%' : '0%' }};" aria-valuenow="{{ $__pct_clamped ?? 0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+										<div class="me-2 fw-semibold">{{ $__pct_clamped }}</div>
+										<div class="progress flex-grow-1">
+											<div class="progress-bar bg-success" role="progressbar" style="width: {{ $__pct_value !== null ? $__pct_value.'%' : '0%' }};" aria-valuenow="{{ $__pct_value ?? 0 }}" aria-valuemin="0" aria-valuemax="100"></div>
 											</div>
 										</div>
 									</td>
-									<td>{{ $vg['comision_actual'] ?? '-' }}</td>
-									<td>{{ $vg['total_sub_total_sin_igv'] ?? '-' }}</td>
-									<td>{{ $vg['monto_comisionado'] ?? '-' }}</td>
+									<td>{{ $formatPercentage($vg['comision_actual'] ?? null) }}</td>
+									<td>{{ $formatCurrency($vg['total_sub_total_sin_igv'] ?? null) }}</td>
+									<td>{{ $formatCurrency($vg['monto_comisionado'] ?? null) }}</td>
 									<td>
 										@php
 											$debited = $vg['debited_amount'] ?? null;
@@ -98,7 +156,7 @@
 										@php
 											$debitedAt = $vg['debited_datetime'] ?? null;
 											$debitedAtFormatted = null;
-											if (!empty($debitedAt) && $debitedAt !== 'No se ha debitado aún') {
+											if (! empty($debitedAt) && $debitedAt !== 'No se ha debitado aún') {
 												try {
 													$debitedAtFormatted = \Carbon\Carbon::parse($debitedAt)->format('d/m/Y H:i');
 												} catch (\Throwable $e) {
@@ -297,16 +355,51 @@
 @stop
 
 @section('js')
+	<script>
+		window.bonificacionesMetaContext = {
+			periodLabel: @json($periodLabel),
+			tipoMedicoLabel: @json($tipoMedicoLabel ?? null),
+			tipoMedico: @json($tipoMedicoSlug ?? null),
+			tipoMedicoSlug: @json($tipoMedicoSlug ?? null)
+		};
+	</script>
 	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 	<script>
 		$(document).ready(function() {
 			var avanceChartInstance = null;
 			var doctorsChartInstance = null;
+			var metaContext = window.bonificacionesMetaContext || {};
 			var currencyFormatter = new Intl.NumberFormat('es-PE', {
 				style: 'currency',
 				currency: 'PEN',
 				minimumFractionDigits: 2
 			});
+
+			function resolveMetaLabel(overrideMeta) {
+				var meta = overrideMeta || metaContext || {};
+				var period = meta.period_label || meta.periodLabel || '';
+				var tipoLabel = meta.tipo_medico_label || meta.tipoMedicoLabel || '';
+				if (!tipoLabel) {
+					var slug = meta.tipo_medico_slug || meta.tipoMedicoSlug || meta.tipo_medico || meta.tipoMedico || '';
+					if (slug) {
+						tipoLabel = slug;
+					}
+				}
+				if (tipoLabel) {
+					tipoLabel = tipoLabel.toString();
+					tipoLabel = tipoLabel.charAt(0).toUpperCase() + tipoLabel.slice(1);
+				}
+
+				var pieces = [];
+				if (period) {
+					pieces.push(period);
+				}
+				if (tipoLabel) {
+					pieces.push('Médicos ' + tipoLabel);
+				}
+
+				return pieces.join(', ');
+			}
 
 			function parseCurrency(value) {
 				if (!value) {
@@ -369,14 +462,19 @@
 			}
 
 			// Update modal summary using API response data
-			function updateSummaryFromApi(apiData, nombre) {
+			function updateSummaryFromApi(apiData, nombre, metaData) {
 				var pedidos = apiData.total_pedidos ?? 'N/D';
 				var sinIgv = parseFloat(apiData.total_amount_without_igv) || 0;
 				var comisionado = parseFloat(apiData.commissioned_amount) || 0;
 				var faltante = parseFloat(apiData.faltante_para_meta) || 0;
 				var porcentaje = parseFloat(apiData.avance_meta_general) || 0;
 
-				$('#avanceModalLabel').text(nombre + ' - Octubre, 2025, Médico Prescriptor');
+				var metaLabel = resolveMetaLabel(metaData);
+				if (metaLabel) {
+					$('#avanceModalLabel').text(nombre + ' - ' + metaLabel);
+				} else {
+					$('#avanceModalLabel').text(nombre);
+				}
 				$('#modal-pedidos-total').text(pedidos);
 				$('#modal-monto-sinigv').text(currencyFormatter.format(sinIgv));
 				$('#modal-comisionado').text(currencyFormatter.format(comisionado));
@@ -439,7 +537,7 @@
 						faltante_para_meta: 0,
 						avance_meta_general: parseFloat(row.find('td').eq(3).text().replace('%','')) || 0,
 						commissioned_amount: row.find('td').eq(6).text().replace(/[^0-9.-]+/g, '')
-					}, nombre);
+					}, nombre, metaContext);
 					$('#avanceModal').modal('show');
 					return;
 				}
@@ -462,7 +560,11 @@
 					if (json && json.success) {
 						var chartData = json['chart-data'] || {};
 						var doctorsData = json['doctors-data'] || [];
-						updateSummaryFromApi(chartData, nombre);
+						if (json.meta) {
+							metaContext = json.meta;
+							window.bonificacionesMetaContext = metaContext;
+						}
+						updateSummaryFromApi(chartData, nombre, metaContext);
 						updateDoctorsFromApi(doctorsData);
 						$('#avanceModal').modal('show');
 					} else {
@@ -504,6 +606,9 @@
 					const name = d.doctor_name || d.name || d.nombre || d.doctor || ('Doctor ' + (idx+1));
 					const pedidos = d.total_pedidos ?? d.pedidos ?? d.count ?? 0;
 					const monto = parseFloat(d.total_amount_without_igv ?? d.monto_sin_igv ?? d.amount ?? 0) || 0;
+					if (!pedidos && monto <= 0) {
+						return;
+					}
 					labels.push(name);
 					values.push(monto);
 					const color = 'hsl(' + ((idx * 47) % 360) + ' 70% 50%)';

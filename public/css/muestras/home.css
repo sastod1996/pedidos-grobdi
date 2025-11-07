@@ -26,14 +26,14 @@ label {
 
 .btn_add:hover {
     opacity: 0.8;
-} 
+}
 .btn-success {
     border: 1px solid #06c046 !important;
     background-color: #06c046 !important;
 }
 .btn_crear {
     border: 1px solid#fe495f !important;
-    background-color:rgb(255, 113, 130); 
+    background-color:rgb(255, 113, 130);
     color: white;
     margin: 0 auto;
 }
@@ -58,11 +58,11 @@ h1{
 
 /* Estilos específicos para las observaciones */
 .list-group-item strong {
-    word-wrap: break-word; 
+    word-wrap: break-word;
     word-break: break-word;
     overflow-wrap: break-word;
     white-space: normal; /* Asegura que el texto no se quede en una sola línea */
-    padding-right: 10px; 
+    padding-right: 10px;
 }
 
 .btn:hover {
@@ -71,33 +71,33 @@ h1{
 }
 
 .list-group-item {
-    padding: 10px 15px; 
+    padding: 10px 15px;
 }
 .pagination {
     justify-content: center;
     flex-wrap: wrap;
 }
 .table-responsive {
-    -webkit-overflow-scrolling: touch; 
+    -webkit-overflow-scrolling: touch;
 }
- 
+
 table th, table td {
-    word-wrap: break-word;  
-    word-break: break-word; 
-    white-space: nowrap; 
+    word-wrap: break-word;
+    word-break: break-word;
+    white-space: nowrap;
 }
 
 table td.observaciones {
-    max-width: 100px; 
-    overflow: hidden; 
-    text-overflow: ellipsis; 
-    white-space: nowrap; 
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .precio-input {
-    min-width: 120px; 
-    width: 100%; 
-    box-sizing: border-box; 
+    min-width: 120px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 table td, table th {
@@ -137,7 +137,7 @@ input[type="checkbox"] {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
     }
-    
+
     .table {
         display: block;
         width: 100%;
@@ -216,11 +216,11 @@ label {
 }
 
 .btn-sm {
-    font-size: 1rem; 
-    padding: 8px 14px; 
+    font-size: 1rem;
+    padding: 8px 14px;
     border-radius: 8px;
-    display: flex; 
-    align-items: center; 
+    display: flex;
+    align-items: center;
 }
 
 .btn-sm i {
@@ -255,8 +255,8 @@ table th, table td {
     text-align: center;
 }
 td {
-    width: 1%;  
-    white-space: nowrap; 
+    width: 1%;
+    white-space: nowrap;
 }
 .select2-results__option {
     white-space: normal !important;

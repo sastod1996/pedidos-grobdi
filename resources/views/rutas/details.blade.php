@@ -63,6 +63,41 @@
                                     <input type="text" id="fecha-visita" name="fecha-visita" class="form-control" placeholder="Selecciona una fecha" required>
                                 </div>
                             </div>
+                            <div class="row mb-2">
+                                <div class="col-12">
+                                    <label class="form-label">Días disponibles:</label>
+                                    <div class="row gy-2" id="doctor-days-container">
+                                        @isset($days)
+                                            @foreach ($days as $day)
+                                                <div class="col-12 col-md-6">
+                                                    <div class="form-check form-switch">
+                                                        <input
+                                                            class="form-check-input doctor-day-checkbox"
+                                                            type="checkbox"
+                                                            id="modal-dia-{{ $day->id }}"
+                                                            name="dias[]"
+                                                            value="{{ $day->id }}"
+                                                            data-day-id="{{ $day->id }}">
+                                                        <label class="form-check-label" for="modal-dia-{{ $day->id }}">{{ $day->name }}</label>
+                                                    </div>
+                                                    <div class="mt-2 turno-container" data-day-id="{{ $day->id }}" style="display: none;">
+                                                        <label class="form-label" for="modal-turno-{{ $day->id }}">Turno</label>
+                                                        <select
+                                                            class="form-select doctor-turno-select"
+                                                            id="modal-turno-{{ $day->id }}"
+                                                            name="turno_{{ $day->id }}"
+                                                            disabled>
+                                                            <option value="" selected disabled>Seleccione</option>
+                                                            <option value="0">Turno Mañana</option>
+                                                            <option value="1">Turno Tarde</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        @endisset
+                                    </div>
+                                </div>
+                            </div>
                             <div class="row">
                                 <div class="col">
                                     <label for="observaciones" class="form-label">Observaciones</label>
