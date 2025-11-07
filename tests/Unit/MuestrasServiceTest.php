@@ -5,7 +5,7 @@ use App\Models\Muestras;
 use App\Models\MuestrasEstado;
 use App\Models\Role;
 use App\Models\User;
-use App\MuestraEstadoType;
+use App\Models\Enums\MuestraEstadoType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 

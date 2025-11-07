@@ -4,7 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Muestras;
 use App\Models\User;
-use App\MuestraEstadoType;
+use App\Models\Enums\MuestraEstadoType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

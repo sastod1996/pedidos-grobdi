@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\MuestraEstadoType;
+use App\Models\Enums\MuestraEstadoType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 

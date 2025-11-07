@@ -4,7 +4,7 @@ namespace App\Infrastructure\Jobs;
 
 use App\Models\MuestrasEstado;
 use App\Models\User;
-use App\MuestraEstadoType;
+use App\Models\Enums\MuestraEstadoType;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Bus\Queueable;

@@ -6,6 +6,7 @@ use App\Domain\Interfaces\ReportsRepositoryInterface;
 use App\Models\Departamento;
 use App\Models\Distrito;
 use App\Models\Doctor;
+use App\Models\Enums\MuestraEstadoType;
 use App\Models\Muestras;
 use App\Models\Pedidos;
 use App\Models\Provincia;
@@ -386,7 +387,7 @@ class ReportsRepository implements ReportsRepositoryInterface
                     'created_at'
                 ])->whereBetween('created_at', [$startDate, $endDate])
             ->where('state', true)
-            ->where('lab_state', true)
+            ->withEvent(MuestraEstadoType::PRODUCED)
             ->orderBy('created_at', 'desc')
             ->get();
     }
@@ -413,7 +414,7 @@ class ReportsRepository implements ReportsRepositoryInterface
                 ])
             ->whereBetween('created_at', [$startDate, $endDate])
             ->where('state', true)
-            ->where('lab_state', true)
+            ->withEvent(MuestraEstadoType::PRODUCED)
             ->where('id_doctor', $idDoctor)
             ->orderBy('created_at', 'desc')
             ->get();
