@@ -2,11 +2,17 @@
 
 @section('title', 'Nuevo Rol')
 
-@section('content_header')
-    <h1>Crear Rol</h1>
-@stop
 
 @section('content')
+
+    <div class="grobdi-header">
+        <div class="grobdi-title">
+            <div>
+                <h2>Crear Nuevo Rol</h2>
+                <p>Completa el formulario para agregar un nuevo rol</p>
+            </div>
+        </div>
+    </div>
     @if ($errors->any())
         <div class="alert alert-danger">
             <ul class="mb-0">
@@ -19,14 +25,16 @@
     <form action="{{ route('roles.store') }}" method="POST">
         @csrf
         <div class="form-group">
-            <label>Nombre</label>
-            <input type="text" name="name" class="form-control" required>
+            <div class="form-group">
+                <label class="grobdi-label">Nombre</label>
+                <input type="text" name="name" class="form-control grobdi-input" required>
+            </div>
+            <div class="form-group">
+                <label class="grobdi-label">Descripción</label>
+                <input type="text" name="description" class="form-control grobdi-input">
+            </div>
         </div>
-        <div class="form-group">
-            <label>descripcion</label>
-            <input type="text" name="description" class="form-control">
-        </div>
-        <button class="btn btn-success">Guardar</button>
+        <button class="btn btn-grobdi btn-primary-grobdi">Guardar</button>
         <a href="{{ route('roles.index') }}" class="btn btn-secondary">Cancelar</a>
     </form>
 @stop

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\pedidos\comercial;
 
+use App\Models\Doctor;
 use Illuminate\Foundation\Http\FormRequest;
 
 class PedidosComercialFilterRequest extends FormRequest
@@ -24,7 +25,16 @@ class PedidosComercialFilterRequest extends FormRequest
         return [
             'fecha_inicio' => ['nullable', 'date'],
             'fecha_fin' => ['nullable', 'date', 'after_or_equal:fecha_inicio'],
-            'doctor' => ['nullable', 'integer', 'exists:doctor,id'],
+            'doctor' => [
+                'nullable',
+                'string',
+                'max:255',
+                function (string $attribute, mixed $value, callable $fail): void {
+                    if (is_numeric($value) && ! Doctor::whereKey((int) $value)->exists()) {
+                        $fail('El doctor seleccionado no existe.');
+                    }
+                },
+            ],
             'visitadora' => ['nullable', 'string', 'max:255'],
             'cliente' => ['nullable', 'string', 'max:255'],
             'order_id' => ['nullable', 'string', 'max:255'],
