@@ -51,7 +51,8 @@
                         <div class="row">
                             <div class="col-md-3">
                                 <label for="search">Buscar por nombre</label>
-                                <input type="text" id="search" name="search" value="{{ request('search') }}" placeholder="Buscar por nombre...">
+                                <input type="text" id="search" name="search" value="{{ request('search') }}"
+                                    placeholder="Buscar por nombre...">
                             </div>
                             <div class="col-md-3">
                                 <label for="filter_by_date">Filtrar por fecha</label>
@@ -100,7 +101,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label>Estado de Laboratorio</label>
-                                <div class="grobdi-radio-group d-flex flex-row flex-wrap align-items-center" >
+                                <div class="grobdi-radio-group d-flex flex-row flex-wrap align-items-center">
                                     <label class="grobdi-radio mb-0">
                                         <input type="radio" name="lab_state" value="Pendiente"
                                             onchange="document.getElementById('filterForm').submit();"
@@ -176,13 +177,13 @@
                                 <td>{{ $muestra->tipo_frasco ?? 'No asignado' }}</td>
                                 <td>
                                     @if (in_array($role, ['admin', 'coordinador-lineas', 'supervisor']) &&
-                                            !$muestra->aprobado_coordinadora &&
-                                            $muestra->state)
+                                            !$muestra->isAprovedByCoordinadora() &&
+                                            $muestra->isActive())
                                         <div class="d-flex">
                                             <select class="custom-select rounded-0 mr-2" name="tipo_muestra"
                                                 data-id="{{ $muestra->id }}"
                                                 data-original="{{ $muestra->tipoMuestra ? $muestra->tipoMuestra->id : '' }}"
-                                                {{ $muestra->aprobado_coordinadora ? 'disabled' : '' }}>
+                                                {{ $muestra->isAprovedByCoordinadora() ? 'disabled' : '' }}>
                                                 <option disabled {{ !$muestra->tipoMuestra ? 'selected' : '' }} value="0">
                                                     Seleccione un tipo de muestra</option>
                                                 @foreach ($tiposMuestra as $tipo)
@@ -207,8 +208,8 @@
                                         $isPrecioNotSetted = empty($muestra->precio);
                                     @endphp
                                     <td>
-                                        @php $puedeEditarPrecio = !$muestra->aprobado_jefe_operaciones && in_array($role, ['admin', 'contabilidad']); @endphp
-                                        @if ($puedeEditarPrecio && $muestra->state)
+                                        @php $puedeEditarPrecio = !$muestra->isAprovedByJefeOperaciones() && in_array($role, ['admin', 'contabilidad']); @endphp
+                                        @if ($puedeEditarPrecio && $muestra->isActive())
                                             <div class="d-flex align-items-center">
                                                 <input type="number" name="price-input" class="form-control precio-input mr-2"
                                                     data-id="{{ $muestra->id }}" value="{{ $muestra->precio }}"
@@ -233,29 +234,31 @@
                                         @php
                                             $approvalConfigs = [
                                                 'supervisor' => [
-                                                    'field' => 'aprobado_coordinadora',
+                                                    'method' => 'isAprovedByCoordinadora',
                                                     'url' => route('muestras.aproveCoordinadora', [
                                                         'muestra' => $muestra->id,
                                                     ]),
                                                     'canApprove' =>
-                                                        in_array($role, ['admin', 'supervisor']) && $muestra->state,
+                                                        in_array($role, ['admin', 'supervisor']) &&
+                                                        $muestra->isActive(),
                                                 ],
                                                 'jefe-comercial' => [
-                                                    'field' => 'aprobado_jefe_comercial',
+                                                    'method' => 'isAprovedByJefeComercial',
                                                     'url' => route('muestras.aproveJefeComercial', [
                                                         'muestra' => $muestra->id,
                                                     ]),
                                                     'canApprove' =>
-                                                        in_array($role, ['admin', 'jefe-comercial']) && $muestra->state,
+                                                        in_array($role, ['admin', 'jefe-comercial']) &&
+                                                        $muestra->isActive(),
                                                 ],
                                                 'jefe-operaciones' => [
-                                                    'field' => 'aprobado_jefe_operaciones',
+                                                    'method' => 'isAprovedByJefeOperaciones',
                                                     'url' => route('muestras.aproveJefeOperaciones', [
                                                         'muestra' => $muestra->id,
                                                     ]),
                                                     'canApprove' =>
                                                         in_array($role, ['admin', 'jefe-operaciones']) &&
-                                                        $muestra->state,
+                                                        $muestra->isActive(),
                                                 ],
                                             ];
                                         @endphp
@@ -266,7 +269,7 @@
                                                     style="width: 1.3em; height: 1.3em;" data-id="{{ $muestra->id }}"
                                                     data-url="{{ $config['url'] }}"
                                                     {{ $muestra->tipoMuestra === null ? 'disabled' : '' }}
-                                                    {{ $muestra->{$config['field']} ? 'checked disabled' : '' }}
+                                                    {{ $muestra->{$config['method']}() ? 'checked disabled' : '' }}
                                                     {{ $config['canApprove'] ? '' : 'disabled' }}>
                                             @endif
                                         @endforeach
@@ -276,9 +279,11 @@
                                     <td>
                                         <select class="custom-select rounded-0 mr-2" name="lab_state"
                                             data-id="{{ $muestra->id }}"
-                                            {{ $muestra->lab_state || !$muestra->state ? 'disabled' : '' }}>
-                                            <option value="0" {{ $muestra->lab_state ? 'selected' : '' }}>Pendiente</option>
-                                            <option value="1" {{ $muestra->lab_state ? 'selected disabled' : '' }}>Elaborada
+                                            {{ $muestra->isProduced() || !$muestra->isActive() ? 'disabled' : '' }}>
+                                            <option value="0" {{ $muestra->isProduced() ? 'selected' : '' }}>
+                                                Pendiente</option>
+                                            <option value="1" {{ $muestra->isProduced() ? 'selected disabled' : '' }}>
+                                                Elaborada
                                             </option>
                                         </select>
                                     </td>
@@ -286,7 +291,7 @@
                                 <td>{{ $muestra->creator ? $muestra->creator->name : 'Desconocido' }}</td>
                                 <td>{{ optional($muestra->doctor)->name ?? ($muestra->name_doctor ?? 'No asignado') }}</td>
                                 <td>
-                                    @if (!$muestra->aprobado_coordinadora)
+                                    @if (!$muestra->isAprovedByCoordinadora())
                                         @can('muestras.updateDateTimeScheduled')
                                             <form action="{{ route('muestras.updateDateTimeScheduled', $muestra->id) }}"
                                                 method="POST" class="d-flex flex-column" id="fecha_form_{{ $muestra->id }}">
@@ -387,7 +392,14 @@
                     url: `{{ url(path: 'muestras') }}/${muestraId}`,
                     type: 'GET',
                     success: function(response) {
+                        console.log(response);
                         const muestra = response.data;
+
+                        const hasStatus = (type) => {
+                            return Array.isArray(muestra.status) && muestra.status.some(
+                                event => event.type === type);
+                        }
+
                         if (!muestra.state) {
                             $('#modal_title').text('Detalles de la Muestra - DESHABILITADA');
                         } else {
@@ -421,7 +433,7 @@
                             .name_doctor ?? 'No asignado'));
                         $('#creado_por').text(muestra.creator?.name ?? 'Desconocido');
                         const coordinadoraBadge = $('#coordinadora-badge')
-                        if (muestra.aprobado_coordinadora) {
+                        if (hasStatus('aprobado_coordinador')) {
                             coordinadoraBadge.removeClass('bg-warning');
                             coordinadoraBadge.addClass('bg-success').text('Aprobada');
                         } else {
@@ -429,7 +441,7 @@
                             coordinadoraBadge.addClass('bg-warning').text('Pendiente');
                         }
                         const jComercialBadge = $('#jComercial-badge')
-                        if (muestra.aprobado_jefe_comercial) {
+                        if (hasStatus('aprobado_jefe_comercial')) {
                             jComercialBadge.removeClass('bg-warning');
                             jComercialBadge.addClass('bg-success').text('Aprobada');
                         } else {
@@ -437,7 +449,7 @@
                             jComercialBadge.addClass('bg-warning').text('Pendiente');
                         }
                         const jOperacionesBadge = $('#jOperaciones-badge')
-                        if (muestra.aprobado_jefe_operaciones) {
+                        if (hasStatus('aprobado_jefe_operaciones')) {
                             jOperacionesBadge.removeClass('bg-warning');
                             jOperacionesBadge.addClass('bg-success').text('Aprobada');
                         } else {
@@ -445,7 +457,7 @@
                             jOperacionesBadge.addClass('bg-warning').text('Pendiente');
                         }
                         const labState = $('#lab-state-badge')
-                        if (muestra.lab_state) {
+                        if (hasStatus('producido')) {
                             labState.removeClass('bg-warning');
                             labState.addClass('bg-success').text('Elaborada');
                         } else {
@@ -703,6 +715,7 @@
                 success: function(response) {
                     if (response.success) {
                         toastr.success(response.message || 'Precio actualizado correctamente.');
+                        console.log(response);
                         precioTxt.data('original', precio);
                         precioTotalCol.removeClass('text-danger');
                         precioTotalCol.text('S/ ' + (parseFloat(response.precio_total)).toFixed(2));
