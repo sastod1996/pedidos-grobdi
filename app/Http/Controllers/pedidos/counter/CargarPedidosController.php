@@ -43,9 +43,64 @@ class CargarPedidosController extends Controller
         if ($turno !== null && $turno !== '') {
             $pedidos = $pedidos->where('turno', $turno);
         }
+
+        $selectedZoneId = $request->query('zone_id');
+        $zoneOptions = Zone::query()
+            ->whereIn('id', [1, 2, 3, 4, 5])
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        $validZoneIds = $zoneOptions->pluck('id')->all();
+        if ($selectedZoneId !== null && $selectedZoneId !== '' && in_array((int) $selectedZoneId, $validZoneIds, true)) {
+            $pedidos = $pedidos->where('zone_id', $selectedZoneId);
+        } else {
+            $selectedZoneId = '';
+        }
+
+        $statusesFromPedidos = Pedidos::query()
+            ->select('deliveryStatus')
+            ->whereNotNull('deliveryStatus')
+            ->distinct()
+            ->pluck('deliveryStatus')
+            ->map(function ($status) {
+                return trim($status);
+            })
+            ->filter(function ($status) {
+                return $status !== '';
+            })
+            ->unique(function ($status) {
+                return strtolower($status);
+            })
+            ->sortBy(function ($status) {
+                return strtolower($status);
+            })
+            ->values();
+
+        $selectedDeliveryStatus = strtolower(trim($request->query('delivery_status', '')));
+        if ($selectedDeliveryStatus !== '' && ! $statusesFromPedidos->contains(function ($status) use ($selectedDeliveryStatus) {
+            return strtolower($status) === $selectedDeliveryStatus;
+        })) {
+            $selectedDeliveryStatus = '';
+        }
+
+        if ($selectedDeliveryStatus !== '') {
+            $pedidos = $pedidos->whereRaw('LOWER(deliveryStatus) = ?', [$selectedDeliveryStatus]);
+        }
+
+        $deliveryStatuses = $statusesFromPedidos->mapWithKeys(function ($status) {
+            $normalized = strtolower($status);
+
+            return [$normalized => ucwords($normalized)];
+        });
         $pedidos = $pedidos->orderBy('nroOrder')->get();
 
-        return view('pedidos.counter.cargar_pedido.index', compact('pedidos'));
+        return view('pedidos.counter.cargar_pedido.index', compact(
+            'pedidos',
+            'deliveryStatuses',
+            'selectedDeliveryStatus',
+            'zoneOptions',
+            'selectedZoneId'
+        ));
     }
 
     public function create()
