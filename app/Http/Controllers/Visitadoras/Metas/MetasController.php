@@ -53,13 +53,13 @@ class MetasController extends Controller
     /**
      * Show the form for creating a new Meta (Month, Tipo_Medico, GeneralMeta).
      */
-    public function form()
-    {
-        $visitadoras = User::visitadoras()->get();
-        $tipoMedicoList = Doctor::distinct()->pluck('tipo_medico')->filter()->values()->all();
+    // public function form()
+    // {
+    //     $visitadoras = User::visitadoras()->get();
+    //     $tipoMedicoList = Doctor::distinct()->pluck('tipo_medico')->filter()->values()->all();
 
-        return view('visitadoras.metas.form', compact('visitadoras', 'tipoMedicoList'));
-    }
+    //     return view('visitadoras.metas.form', compact('visitadoras', 'tipoMedicoList'));
+    // }
 
     /**
      * Store a newly created resource in storage.

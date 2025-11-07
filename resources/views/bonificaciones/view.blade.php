@@ -547,7 +547,7 @@
 				var token = tokenEl ? tokenEl.getAttribute('content') : '';
 
 				// Use the bonificaciones route for details
-				fetch('{{ url('bonificaciones/metas/details') }}' + '/' + visitorGoalId, {
+				fetch('{{ url('/bonificaciones/metas/details/') }}' + '/' + visitorGoalId, {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
