@@ -54,7 +54,7 @@ Route::get('hoja-ruta-motorizado', [PedidosController::class, 'exportHojaDeRutaB
 Route::post('export-hoja-ruta-motorizado', [PedidosController::class, 'exportHojaDeRutaByMotorizadoExcel'])->name('motorizado.exportHojaDeRuta');
 Route::post('excelhojaruta', FormatosController::class . '@excelhojaruta')->name('formatos.excelhojaruta');
 Route::post('plantillaenvioolva', [PedidosController::class, 'exportPlantillaEnvioOlva'])->name('pedidos.plantillaenvioolva');
-Route::post('wordrutuladoenvio', [PedidosController::class, 'exportPlantillaEnvioOlvaWord'])->name('pedidos.wordrutuladoenvio');
+Route::post('wordrotuladoenvio', [PedidosController::class, 'exportPlantillaEnvioOlvaWord'])->name('pedidos.wordrotuladoenvio');
 
 Route::resource('pedidosmotorizado', PedidosMotoController::class);
 Route::put('/pedidosmotorizado/fotos/{id}', [PedidosMotoController::class, 'cargarFotos'])->name('pedidosmotorizado.cargarfotos');
