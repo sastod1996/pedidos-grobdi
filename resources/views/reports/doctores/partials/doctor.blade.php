@@ -47,15 +47,19 @@
     <div class="col-10">
         <div class="card card-outline card-dark">
             <div class="card-header">
-                <h3 class="card-title">
-                    <font dir="auto" style="vertical-align: inherit;">
-                        <font dir="auto" style="vertical-align: inherit;" id="doctor-name-label">
-                            {{ $doctorReport['doctor_info']['is_top_doctor'] ? 'Top Doctor:' : ' ' }}
-                            {{ $doctorReport['doctor_info']['doctor'] }} - Tipo:
-                            {{ $doctorReport['doctor_info']['tipo_doctor'] }}
-                        </font>
-                    </font>
-                </h3>
+                <div class="card-title mb-1 font-weight-bold" id="doctor-name-label" style="font-size: 1.1rem;">
+                    {{ $doctorReport['doctor_info']['is_top_doctor'] ? 'Top Doctor:' : 'Dr.' }}
+                    {{ $doctorReport['doctor_info']['doctor'] }}
+                </div>
+                <div class="text-muted" id="doctor-details-label" style="font-size: 0.95rem;">
+                    Tipo: {{ $doctorReport['doctor_info']['tipo_doctor'] ?? 'Sin registrar' }}
+                    <span class="mx-1">•</span>
+                    Especialidad: {{ $doctorReport['doctor_info']['especialidad'] ?? 'Sin registrar' }}
+                    <span class="mx-1">•</span>
+                    Distrito: {{ $doctorReport['doctor_info']['distrito'] ?? 'Sin registrar' }}
+                    <span class="mx-1">•</span>
+                    Centro de Salud: {{ $doctorReport['doctor_info']['centro_salud'] ?? 'Sin registrar' }}
+                </div>
             </div>
             <div class="card-body">
                 <font dir="auto" style="vertical-align: inherit;">
@@ -204,7 +208,8 @@
         const initialDoctorReport = @json($doctorReport);
         let fullMostConsumedProducts = initialDoctorReport.data.most_consumed_products_monthly;
         const doctorProductsDetailsTable = $('#doctor-products-details-table');
-        const doctorNameLabel = $('#doctor-name-label');
+    const doctorNameLabel = $('#doctor-name-label');
+    const doctorDetailsLabel = $('#doctor-details-label');
         const monthYearInput = $('#doctor-month-year');
         const doctorIdInput = $('#doctor-id-doctor');
         initAutocompleteInput({
@@ -369,10 +374,16 @@
         function doctorUpdateGraphics(response) {
             const doctorInfo = response.doctor_info;
             const data = response.data;
-            doctorNameLabel
-                .text(
-                    `${doctorInfo.is_top_doctor ? 'Top Doctor:': 'Dr.'} ${doctorInfo.doctor} - Tipo: ${doctorInfo.tipo_doctor}`
-                );
+            const prefix = doctorInfo.is_top_doctor ? 'Top Doctor:' : 'Dr.';
+            doctorNameLabel.text(`${prefix} ${doctorInfo.doctor}`);
+            const normalize = (value) => value ? value : 'Sin registrar';
+            const detailsText = [
+                `Tipo: ${normalize(doctorInfo.tipo_doctor)}`,
+                `Especialidad: ${normalize(doctorInfo.especialidad)}`,
+                `Distrito: ${normalize(doctorInfo.distrito)}`,
+                `Centro de Salud: ${normalize(doctorInfo.centro_salud)}`,
+            ].join(' • ');
+            doctorDetailsLabel.text(detailsText);
             doctorUpdateAmountSpentAnuallyChart(response.data.amount_spent_anually);
             doctorUpdateBarCharts(
                 doctorMostConsumedProductsChart,

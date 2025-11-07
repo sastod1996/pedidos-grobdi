@@ -10,6 +10,9 @@ class ReportDoctorsDto extends ReportBaseDto
         private bool $isTopDoctor,
         private string $doctor,
         private string $tipoDoctor,
+        private ?string $especialidad,
+        private ?string $distrito,
+        private ?string $centroSalud,
         array $data,
         array $filters = []
     ) {
@@ -21,7 +24,10 @@ class ReportDoctorsDto extends ReportBaseDto
             'doctor_info' => [
                 'is_top_doctor' => $this->isTopDoctor,
                 'doctor' => $this->doctor,
-                'tipo_doctor' => $this->tipoDoctor
+                'tipo_doctor' => $this->tipoDoctor,
+                'especialidad' => $this->especialidad,
+                'distrito' => $this->distrito,
+                'centro_salud' => $this->centroSalud,
             ],
         ];
     }
