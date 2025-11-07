@@ -1,6 +1,6 @@
 @php
     $showFrom = \Carbon\Carbon::createFromDate(\Carbon\Carbon::now()->year, 10, 24);
-    $showUntil = \Carbon\Carbon::createFromDate(\Carbon\Carbon::now()->year, 11, 10)->endOfDay();
+    $showUntil = \Carbon\Carbon::createFromDate(\Carbon\Carbon::now()->year, 11, 7)->endOfDay();
     $showDiaDeMuertos = \Carbon\Carbon::now()->between($showFrom, $showUntil);
 @endphp
 
