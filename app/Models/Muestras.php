@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\MuestraEstadoType;
+use App\Models\Enums\MuestraEstadoType;
 use App\Traits\Model\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -115,6 +115,27 @@ class Muestras extends Model
                 ->whereColumn('muestras_estados.muestras_id', 'muestras.id')
                 ->where('type', $type);
         });
+    }
+
+    public function isAprovedByCoordinadora(): bool
+    {
+        return $this->hasEvent(MuestraEstadoType::APROVE_COORDINADOR);
+    }
+    public function isAprovedByJefeComercial(): bool
+    {
+        return $this->hasEvent(MuestraEstadoType::APROVE_JEFE_COMERCIAL);
+    }
+    public function isPriceSetted(): bool
+    {
+        return $this->hasEvent(MuestraEstadoType::SET_PRICE);
+    }
+    public function isAprovedByJefeOperaciones(): bool
+    {
+        return $this->hasEvent(MuestraEstadoType::APROVE_JEFE_OPERACIONES);
+    }
+    public function isProduced(): bool
+    {
+        return $this->hasEvent(MuestraEstadoType::PRODUCED);
     }
 
 }
