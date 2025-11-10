@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ajustes\ConexionesController;
 use App\Http\Controllers\ajustes\ModuleController;
 use App\Http\Controllers\ajustes\RolesController;
 use App\Http\Controllers\ajustes\UbigeoController;
@@ -16,6 +17,8 @@ Route::put('roles/{role}/permissions', [RolesController::class, 'updatePermissio
 
 Route::resource('modules', ModuleController::class);
 Route::resource('views', ViewController::class);
+
+Route::get('conexiones', [ConexionesController::class, 'index'])->name('conexiones.index');
 
 Route::get('/distritoslimacallao', UbigeoController::class . '@ObtenerDistritosLimayCallao')
     ->name('distritoslimacallao');
