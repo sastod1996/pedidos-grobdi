@@ -78,6 +78,10 @@ class Muestras extends Model
     {
         return (bool) $this->state;
     }
+    public function scopeWhereActive($query, bool $state)
+    {
+        return $query->where('state', $state);
+    }
 
     /* -------------------------------- Metodos y Variables relevante a los Estados ↓ -------------------------------- */
 
