@@ -45,7 +45,6 @@
                     </div>
                 </div>
 
-                {{-- Filtros Grobdi --}}
                 <div class="grobdi-filter">
                     <form method="GET" action="{{ route('muestras.index') }}">
                         <div class="row">
@@ -80,7 +79,7 @@
                         </div>
                     </form>
 
-                    <hr style="border-color: var(--grobdi-slate-300); margin: 1.5rem 0;">
+                    <hr style="border-color: var(--grobdi-slate-300);" class="my-4">
 
                     <form id="orderForm" action="{{ route('muestras.index') }}" method="GET">
                         <div class="row">
@@ -297,7 +296,8 @@
                                                 method="POST" class="d-flex flex-column" id="fecha_form_{{ $muestra->id }}">
                                                 @csrf
                                                 @method('PUT')
-                                                <input type="datetime-local" name="datetime_scheduled" class="form-control mb-2"
+                                                <input type="datetime-local" name="datetime_scheduled"
+                                                    class="form-control mb-2 flatpickr-datetime"
                                                     value="{{ old('datetime_scheduled', $muestra->datetime_scheduled ? \Carbon\Carbon::parse($muestra->datetime_scheduled)->format('Y-m-d\TH:i') : '') }}"
                                                     id="fecha_{{ $muestra->id }}"
                                                     min="{{ \Carbon\Carbon::now()->format('Y-m-d\TH:i') }}">
@@ -312,19 +312,21 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <div>
-                                        <button class="btn btn-success btn-sm btn-show-details" data-id="{{ $muestra->id }}"
-                                            data-toggle="modal" data-target="#muestraDetailsModal">
+                                    <div class="row">
+                                        <button class="col-12 btn btn-success btn-sm btn-show-details"
+                                            data-id="{{ $muestra->id }}" data-toggle="modal"
+                                            data-target="#muestraDetailsModal">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                         @can('muestras.edit')
-                                            <a href="{{ route('muestras.edit', $muestra->id) }}" class="btn btn-primary btn-sm">
+                                            <a href="{{ route('muestras.edit', $muestra->id) }}"
+                                                class="btn btn-primary btn-sm col-12 mt-1">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                         @endcan
                                         @can('muestras.disable')
-                                            <button class="btn btn-danger btn-sm btn-show-delete" data-id="{{ $muestra->id }}"
-                                                data-toggle="modal" data-target="#deleteModal">
+                                            <button class="btn btn-danger btn-sm btn-show-delete col-12 mt-1"
+                                                data-id="{{ $muestra->id }}" data-toggle="modal" data-target="#deleteModal">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         @endcan
@@ -347,18 +349,41 @@
     @endcan
 @stop
 
-@section('css')
-    <link rel="stylesheet" href="{{ asset('css/muestras/labora.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
-@stop
-
+@section('plugins.Chartjs', true)
+@section('plugins.Sweetalert2', true)
 @section('js')
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script src="{{ asset('js/chart-helpers.js') }}"></script>
+    <script src="{{ asset('js/sweetalert2-factory.js') }}"></script>
     <script>
         $(document).ready(() => {
             const deleteModal = $('#deleteModal');
             const deleteReason = $('#delete_reason');
+            let currentTimeLineChart;
+
+            const dateSince = flatpickr('#date_since', {
+                altInput: true,
+                dateFormat: "Y-m-d",
+                altFormat: "d/m/Y",
+                locale: 'es',
+                maxDate: "today"
+            });
+            const dateTo = flatpickr('#date_to', {
+                altInput: true,
+                dateFormat: "Y-m-d",
+                altFormat: "d/m/Y",
+                locale: 'es',
+                maxDate: "today"
+            });
+
+            flatpickr('.flatpickr-datetime', {
+                enableTime: true,
+                altInput: true,
+                altFormat: "d/m/Y H:i",
+                dateFormat: "Y-m-d H:i",
+                time_24hr: true,
+                minDate: "today",
+                locale: "es",
+            });
 
             $(".save-precio-btn").prop('disabled', true);
 
@@ -392,13 +417,17 @@
                     url: `{{ url(path: 'muestras') }}/${muestraId}`,
                     type: 'GET',
                     success: function(response) {
-                        console.log(response);
+                        if (!response.success) {
+                            toast(response.message ||
+                                'No se pudieron cargar los detalles de la muestra',
+                                ToastIcon.ERROR);
+                            return;
+                        }
+
                         const muestra = response.data;
 
-                        const hasStatus = (type) => {
-                            return Array.isArray(muestra.status) && muestra.status.some(
-                                event => event.type === type);
-                        }
+                        createTimeLineChart(muestra.status, muestra.datetime_scheduled,
+                            muestra.created_at, muestra.creator);
 
                         if (!muestra.state) {
                             $('#modal_title').text('Detalles de la Muestra - DESHABILITADA');
@@ -432,53 +461,7 @@
                         $('#doctor').text(muestra.doctor ? muestra.doctor.name : (muestra
                             .name_doctor ?? 'No asignado'));
                         $('#creado_por').text(muestra.creator?.name ?? 'Desconocido');
-                        const coordinadoraBadge = $('#coordinadora-badge')
-                        if (hasStatus('aprobado_coordinador')) {
-                            coordinadoraBadge.removeClass('bg-warning');
-                            coordinadoraBadge.addClass('bg-success').text('Aprobada');
-                        } else {
-                            coordinadoraBadge.removeClass('bg-success');
-                            coordinadoraBadge.addClass('bg-warning').text('Pendiente');
-                        }
-                        const jComercialBadge = $('#jComercial-badge')
-                        if (hasStatus('aprobado_jefe_comercial')) {
-                            jComercialBadge.removeClass('bg-warning');
-                            jComercialBadge.addClass('bg-success').text('Aprobada');
-                        } else {
-                            jComercialBadge.removeClass('bg-success');
-                            jComercialBadge.addClass('bg-warning').text('Pendiente');
-                        }
-                        const jOperacionesBadge = $('#jOperaciones-badge')
-                        if (hasStatus('aprobado_jefe_operaciones')) {
-                            jOperacionesBadge.removeClass('bg-warning');
-                            jOperacionesBadge.addClass('bg-success').text('Aprobada');
-                        } else {
-                            jOperacionesBadge.removeClass('bg-success');
-                            jOperacionesBadge.addClass('bg-warning').text('Pendiente');
-                        }
-                        const labState = $('#lab-state-badge')
-                        if (hasStatus('producido')) {
-                            labState.removeClass('bg-warning');
-                            labState.addClass('bg-success').text('Elaborada');
-                        } else {
-                            labState.removeClass('bg-success');
-                            labState.addClass('bg-warning').text('Pendiente');
-                        }
-                        const dateTimeRegistered = formatDateTime(muestra.created_at);
-                        $('#date-registered').text(`${dateTimeRegistered.date},`);
-                        $('#time-registered').text(`a las ${dateTimeRegistered.time}.`);
-                        const dateTimeScheduled = formatDateTime(muestra.datetime_scheduled);
-                        $('#date-scheduled').text(muestra.datetime_scheduled ?
-                            `${dateTimeScheduled.date},` :
-                            'Aún no se ha programado una fecha de entrega.');
-                        $('#time-scheduled').text(muestra.datetime_scheduled ?
-                            `a las ${dateTimeScheduled.time}.` : '');
-                        const dateTimeDelivered = formatDateTime(muestra.datetime_delivered);
-                        $('#date-delivered').text(muestra.datetime_delivered ?
-                            `${dateTimeDelivered.date},` :
-                            'Esta muestra aún no ha sido elaborada.');
-                        $('#time-delivered').text(muestra.datetime_delivered ?
-                            `a las ${dateTimeDelivered.time}.` : '');
+
                         $('#comentarioForm').attr('action',
                             `/muestras/laboratorio/${muestra.id}/comentario`);
                         $('#comentarioForm textarea[name="comentario_lab"]').val(muestra
@@ -494,11 +477,147 @@
                             deleteReasonDiv.hide();
                         }
                     },
-                    error: function() {
-                        toastr.error('No se pudieron cargar los detalles de la muestra.');
+                    error: function(xhr) {
+                        const message = xhr.responseJSON?.message || xhr.statusText ||
+                            "Error desconocido";
+                        toast(message, ToastIcon.ERROR);
                     }
                 });
             });
+
+            const transformToCapitalizedArray = (text) => {
+                if (typeof text !== 'string' || text.length === 0) {
+                    return [];
+                }
+
+                const words = text.replace(/_/g, ' ').split(' ');
+
+                const capitalizedWords = words.map(word => {
+                    if (word.length === 0) {
+                        return ''; // Maneja el caso de múltiples guiones bajos consecutivos
+                    }
+                    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                });
+
+                return capitalizedWords;
+            };
+
+            function createTimeLineChart(statusEvents, datetime_scheduled, created_at, creator) {
+                if (currentTimeLineChart) {
+                    currentTimeLineChart.destroy();
+                    currentTimeLineChart = null;
+                }
+
+                const events = [];
+
+                events.push({
+                    label: 'Creada',
+                    timestamp: new Date(created_at),
+                    comment: `Creada por: ${creator.name}`
+                })
+
+                if (Array.isArray(statusEvents)) {
+                    statusEvents.forEach(ev => {
+                        let label = ev.type || 'Evento';
+                        events.push({
+                            label,
+                            timestamp: new Date(ev.created_at),
+                            comment: ev.comment || ''
+                        });
+                    });
+                }
+
+                if (datetime_scheduled) {
+                    events.push({
+                        label: 'Fecha de Entrega',
+                        timestamp: new Date(datetime_scheduled),
+                        comment: 'Fecha de Entrega'
+                    });
+                }
+
+                events.sort((a, b) => a.timestamp - b.timestamp);
+
+                const eventNames = events.map(e => transformToCapitalizedArray(e.label));
+                const timeLabels = events.map(e => {
+                    const d = new Date(e.timestamp);
+                    const datePart = d.toLocaleDateString('es-PE');
+                    const timePart = d.toLocaleTimeString('es-PE', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                    });
+                    return [datePart, timePart];
+                });
+                const comments = events.map(e => e.comment);
+                const mainData = events.map((_, i) => ({
+                    x: i,
+                    y: 0
+                }));
+
+
+                const mainDataset = [{
+                    label: 'Línea de Tiempo',
+                    data: mainData,
+                    borderColor: events.map((event, i) =>
+                        event.label === 'Fecha de Entrega' ?
+                        'rgba(0, 105, 217, 1)' :
+                        'rgba(33, 136, 56, 1)'
+                    ),
+                    backgroundColor: events.map((event, i) =>
+                        event.label === 'Fecha de Entrega' ?
+                        'rgba(0, 105, 217, 0.6)' :
+                        'rgba(25, 135, 84, 0.6)'
+                    ),
+                    borderWidth: 2,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    fill: false,
+                    showLine: true,
+                    spanGaps: true,
+                }];
+
+                const options = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'category',
+                            labels: timeLabels,
+                            position: 'bottom'
+                        },
+                        x2: {
+                            type: 'category',
+                            labels: eventNames,
+                            position: 'top',
+                        },
+                        y: {
+                            display: false,
+                            min: -0.5,
+                            max: 0.5,
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    const dataIndex = context.dataIndex;
+                                    return comments[dataIndex] || eventNames[dataIndex];
+                                }
+                            }
+                        },
+                        legend: {
+                            display: false
+                        }
+                    }
+                };
+                currentTimeLineChart = createChart('#muestra-status-timeline-chart', [], mainDataset, 'line',
+                    options);
+
+                if (currentTimeLineChart) {
+                    detectChartDataLength(currentTimeLineChart);
+                }
+            }
 
             $('.btn-show-delete').on('click', function(btn) {
                 const muestraId = $(this).data('id');
@@ -513,11 +632,11 @@
                 const delete_reason = deleteReason.val().trim();
 
                 if (!muestraId) {
-                    toastr.error('ID de muestra no encontrado.');
+                    toast(`ID de muestra no encontrado.`, ToastIcon.ERROR);
                     return;
                 }
                 if (!delete_reason) {
-                    toastr.error('Por favor ingrese el motivo de eliminación.');
+                    toast(`Por favor ingrese el motivo de eliminación.`, ToastIcon.WARNING);
                     return;
                 }
 
@@ -534,19 +653,20 @@
                     },
                     success: function(response) {
                         if (!response.success) {
-                            toastr.error(response.message ||
-                                'No fue posible eliminar el item.');
+                            toast(response.message ||
+                                'No fue posible eliminar el item.', ToastIcon.WARNING);
                             return;
                         }
 
-                        toastr.info(response.message || 'Item eliminado correcamente.');
+                        toast(response.message || 'Item eliminado correcamente.',
+                            ToastIcon.INFO);
                         $(`#muestra_${muestraId}`).fadeOut();
                         $('#close-modal').click();
                     },
                     error: function(xhr) {
                         const message = xhr.responseJSON?.message || xhr.statusText ||
                             "Error al eliminar el item";
-                        toastr.error(message);
+                        toast(message, ToastIcon.ERROR);
                     }
                 });
             })
@@ -575,21 +695,23 @@
                     },
                     success: function(response) {
                         if (response.success) {
-                            toastr.success(response.message ||
-                                'Muestra marcada como elaborada correctamente.');
+                            toast(response.message ||
+                                'Muestra marcada como elaborada correctamente.', ToastIcon.SUCCESS);
                             selectElement.prop('disabled', true);
                         } else {
-                            toastr.error(response.message ||
-                                'No fue posible marcar la muestra como elaborada.');
+                            toast(response.message ||
+                                'No fue posible marcar la muestra como elaborada.', ToastIcon
+                                .WARNING);
                             selectElement.prop('selectedIndex', 0);
                             selectElement.prop('disabled', false);
                         }
                     },
                     error: function(xhr) {
-                        toastr.error('Error al actualizar el estado de la muestra.');
+                        const message = xhr.responseJSON?.message || xhr.statusText ||
+                            "Error al actualizar el estado de la muestra.";
+                        toast(message, ToastIcon.ERROR);
                         selectElement.prop('selectedIndex', 0);
                         selectElement.prop('disabled', false);
-                        console.error(xhr.responseJSON);
                     }
                 });
             }
@@ -633,19 +755,20 @@
                         }
                         optionSelected.prop('disabled', true);
                         select.data('original', tipoMuestra);
-                        toastr.success(response.message ||
-                            'Tipo de muestra actualizado correctamente.');
+                        toast(response.message ||
+                            'Tipo de muestra actualizado correctamente.', ToastIcon.SUCCESS);
                         checkbox.prop('disabled', false);
                     } else {
-                        toastr.error(response.message ||
-                            'Ocurrió un error en la actualización del tipo de muestra.');
+                        toast(response.message ||
+                            'Ocurrió un error en la actualización del tipo de muestra.', ToastIcon
+                            .WARNING);
                         checkbox.prop('checked', false).prop('disabled', true);
-                        console.error(response);
                     }
                 },
                 error: function(xhr) {
-                    toastr.error('Error al actualizar el tipo de muestra.');
-                    console.error(xhr.responseJSON);
+                    const message = xhr.responseJSON?.message || xhr.statusText ||
+                        "Error al actualizar el tipo de muestra.";
+                    toast(message, ToastIcon.ERROR);
                     btn.prop('disabled', true);
                     checkbox.prop('disabled', true);
                 }
@@ -676,19 +799,22 @@
                 },
                 success: function(response) {
                     if (!response.success) {
-                        toastr.error(response.message || 'Aprobación realizada correctamente.');
+                        toast(response.message || 'Error al realizar la aprobación.',
+                            ToastIcon.WARNING);
                         checkbox.prop('checked', false).prop('disabled', false);
                         return;
                     }
-                    toastr.success(response.message || 'Aprobación realizada correctamente.');
+                    toast(response.message || 'Aprobación realizada correctamente.',
+                        ToastIcon.SUCCESS);
 
                     $(`select[name="tipo_muestra"][data-id="${muestraId}"]`).prop('disabled', true);
 
                     checkbox.prop('checked', true).prop('disabled', true);
                 },
                 error: function(xhr) {
-                    toastr.error('Error al procesar la aprobación.');
-                    console.error(xhr.responseJSON || xhr.responseText);
+                    const message = xhr.responseJSON?.message || xhr.statusText ||
+                        'Error al procesar la aprobación.';
+                    toast(message, ToastIcon.ERROR);
                     checkbox.prop('checked', false).prop('disabled', false);
                 }
             });
@@ -714,20 +840,21 @@
                 },
                 success: function(response) {
                     if (response.success) {
-                        toastr.success(response.message || 'Precio actualizado correctamente.');
-                        console.log(response);
+                        toast(response.message || 'Precio actualizado correctamente.',
+                            ToastIcon.SUCCESS);
                         precioTxt.data('original', precio);
                         precioTotalCol.removeClass('text-danger');
                         precioTotalCol.text('S/ ' + (parseFloat(response.precio_total)).toFixed(2));
                     } else {
-                        toastr.error(response.message ||
-                            'Ocurrió un error a la hora de colocar el precio.');
+                        toast(response.message ||
+                            'Ocurrió un error a la hora de colocar el precio.', ToastIcon.WARNING);
                         btn.prop('disabled', false);
                     }
                 },
                 error: function(xhr) {
-                    toastr.error('Error al colocar precio.');
-                    console.error(xhr.responseJSON);
+                    const message = xhr.responseJSON?.message || xhr.statusText ||
+                        'Error al colocar precio.';
+                    toast(message, ToastIcon.ERROR);
                     btn.prop('disabled', false);
                 }
             });

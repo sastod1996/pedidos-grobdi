@@ -183,7 +183,7 @@ class MuestrasService
                 'muestras_id' => $muestra->id,
                 'user_id' => $user->id,
                 'type' => MuestraEstadoType::SET_PRICE,
-                'comment' => "Precio actualizado {Precio: $price} por $user->name"
+                'comment' => "Precio actualizado {S/ $price} por: $user->name"
             ]);
         });
 
@@ -233,7 +233,7 @@ class MuestrasService
             'muestras_id' => $muestra->id,
             'user_id' => $user->id,
             'type' => MuestraEstadoType::PRODUCED,
-            'comment' => "Marcada como producida por $user->name"
+            'comment' => "Marcada como producida por: $user->name"
         ]);
         return $muestra->currentStatus;
     }
