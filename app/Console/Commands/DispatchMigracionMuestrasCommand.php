@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\MigrateMuestrasEstadosJob;
+use App\Infrastructure\Jobs\MigrateMuestrasEstadosJob;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
