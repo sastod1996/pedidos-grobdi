@@ -2,6 +2,7 @@
 
 namespace App\Repositories\PedidosComercial;
 
+use App\Models\Doctor;
 use App\Models\Pedidos;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -45,7 +46,27 @@ class PedidosComercialRepository
         }
 
         if (!empty($filters['doctor'])) {
-            $query->where('id_doctor', $filters['doctor']);
+            $doctorFilter = $filters['doctor'];
+
+            if (is_numeric($doctorFilter)) {
+                $doctorId = (int) $doctorFilter;
+                $doctorName = optional(Doctor::find($doctorId))->name;
+
+                $query->where(function (Builder $doctorQuery) use ($doctorId, $doctorName) {
+                    $doctorQuery->where('id_doctor', $doctorId);
+
+                    if (!empty($doctorName)) {
+                        $doctorQuery->orWhere('doctorName', 'like', '%'.$doctorName.'%');
+                    }
+                });
+            } else {
+                $query->where(function (Builder $doctorQuery) use ($doctorFilter) {
+                    $doctorQuery->where('doctorName', 'like', '%'.$doctorFilter.'%')
+                        ->orWhereHas('doctor', function (Builder $relatedDoctorQuery) use ($doctorFilter) {
+                            $relatedDoctorQuery->where('name', 'like', '%'.$doctorFilter.'%');
+                        });
+                });
+            }
         }
 
         $distritoIdFilter = $filters['distrito'] ?? null;

@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('bonificaciones')->group(function () {
     Route::get('/', [MetasController::class, 'index'])->name('bonificaciones.index');
-    Route::get('/metas/form', [MetasController::class, 'form'])->name('visitadoras.metas.form');
+    // Route::get('/metas/form', [MetasController::class, 'form'])->name('visitadoras.metas.form');
 
     Route::post('/metas/store', [MetasController::class, 'store'])->name('visitadoras.metas.store');
     Route::post('/metas/details/{visitorGoalId}', [MetasController::class, 'getDataForChartByVisitorGoal'])->name('visitadoras.metas.details');

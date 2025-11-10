@@ -9,52 +9,57 @@
 @section('content')
 @can('especialidad.edit')
 
-<div class="card mt-5">
-  <h2 class="card-header">Actualizar Especialidad</h2>
-  <div class="card-body">
-  
-    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-        <a class="btn btn-primary btn-sm" href="{{ url()->previous() }}"><i class="fa fa-arrow-left"></i> Atrás</a>
+<div class="grobdi-header">
+    <div class="grobdi-title">
+        <h1>Actualizar Especialidad</h1>
+        <a class="btn btn-outline-grobdi btn-sm" href="{{ url()->previous() }}"><i class="fa fa-arrow-left"></i> Atrás</a>
     </div>
-  
+</div>
+
+<div class="grobdi-form">
     <form action="{{ route('especialidad.update',$especialidad->id) }}" method="POST">
     @csrf
     @method('PUT')
         <div class="row">
 
             <div class="col-xs-6 col-sm-6 col-md-6">
-                <label for="inputName" class="form-label"><strong>Nombre:</strong></label>
-                <input 
-                    type="text" 
-                    name="name" 
-                    value="{{ $especialidad->name }}"
-                    class="form-control @error('name') is-invalid @enderror" 
-                    id="inputName" 
-                    placeholder="Ingresar nombre de la especialidad">
-                @error('name')
-                    <div class="form-text text-danger">{{ $message }}</div>
-                @enderror
+                <div class="form-group-grobdi">
+                    <label class="grobdi-label">Nombre:</label>
+                    <input
+                        type="text"
+                        name="name"
+                        value="{{ $especialidad->name }}"
+                        class="grobdi-input @error('name') is-invalid @enderror"
+                        id="inputName"
+                        placeholder="Ingresar nombre de la especialidad">
+                    @error('name')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
             </div>
             <div class="col-xs-6 col-sm-6 col-md-6">
-                <label for="description" class="form-label"><strong>Descripción:</strong></label>
-                <input 
-                    type="text" 
-                    name="description" 
-                    value="{{ $especialidad->description }}"
-                    class="form-control @error('description') is-invalid @enderror" 
-                    id="description" 
-                    placeholder="Descripción de la especialidad">
-                @error('description')
-                    <div class="form-text text-danger">{{ $message }}</div>
-                @enderror
+                <div class="form-group-grobdi">
+                    <label class="grobdi-label">Descripción:</label>
+                    <input
+                        type="text"
+                        name="description"
+                        value="{{ $especialidad->description }}"
+                        class="grobdi-input @error('description') is-invalid @enderror"
+                        id="description"
+                        placeholder="Descripción de la especialidad">
+                    @error('description')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
             </div>
         </div>
-        <br>
-        <button type="submit" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> Actualizar</button>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary-grobdi btn-lg"><i class="fa-solid fa-floppy-disk"></i> Actualizar</button>
+        </div>
     </form>
-  
-    </div>
 </div>
+
 @endcan
 
 @stop

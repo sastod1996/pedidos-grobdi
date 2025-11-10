@@ -7,7 +7,9 @@
                     <p class="modal-subtitle">Registra el monto debitado y agrega una observación para el seguimiento.
                     </p>
                 </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                <button type="button" class="close text-muted" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
 
             <div class="modal-body">
@@ -38,7 +40,7 @@
                 </div>
                 <div class="modal-footer border-0 pt-0 d-flex justify-content-between">
                     <button type="button" class="btn btn-secondary text-white"
-                        data-bs-dismiss="modal">Cancelar</button>
+                        data-dismiss="modal" data-bs-dismiss="modal">Cancelar</button>
                     {{-- Submit button targets the form via form attribute to avoid moving it inside the form markup --}}
                     <button type="submit" form="formDebitar" class="btn btn-primary fw-bold">Guardar</button>
                 </div>

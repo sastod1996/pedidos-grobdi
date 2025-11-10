@@ -10,7 +10,7 @@ $canUpdatePedido = $user?->can('pedidoscontabilidad.update');
 
 @section('content')
 @can('pedidoscontabilidad.index')
-<div class="container">
+<div class="container-fluid">
     <div class="grobdi-header">
         <div class="grobdi-title">
             <div>

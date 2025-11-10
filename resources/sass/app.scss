@@ -3390,6 +3390,12 @@ select.form-control-grobdi {
 // BOTONES DE ACCIÓN PARA TABLAS
 // ============================================
 
+.badge-stack {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+
 .btn-action {
 	display: inline-flex;
 	align-items: center;

@@ -14,8 +14,9 @@ $canEditPedido = $user?->can('pedidosmotorizado.edit');
 
 @section('content')
 @can('pedidosmotorizado.index')
-<div class="card mt-3">
-    <h2 class="card-header">
+<div class="grobdi-header">
+   <div class="grobdi-title">
+     <h2>
         Pedidos de la zona
         @if(Auth::user()->zones && Auth::user()->zones->count() > 0)
             {{ Auth::user()->zones[0]->name }}
@@ -23,20 +24,21 @@ $canEditPedido = $user?->can('pedidosmotorizado.edit');
             <span class="text-danger">Sin zona asignada</span>
         @endif
     </h2>
-    <div class="card-body">
-        <form action="{{ route('pedidosmotorizado.index') }}" method="GET">
-            <div class="row pb-4">
+   </div>
+    <div class="grobdi-filter">
+        <form action="{{ route('pedidosmotorizado.index') }}" method="GET" class="grobdi-form mb-4">
+            <div class="row form-group-grobdi">
                 <div class="col-xs-1 col-sm-1 col-md-1">
-                    <label for="fecha">Fecha:</label>
+                    <label class="grobdi-label" for="fecha">Fecha:</label>
                 </div>
                 <div class="col-xs-2 col-sm-2 col-md-2">
-                    <input class="form-control" type="date" name="fecha" id="fecha" value="{{ request()->get('fecha') }}" required>
+                    <input class="form-control grobdi-input" type="date" name="fecha" id="fecha" value="{{ request()->get('fecha') }}" required>
                 </div>
                 <div class="col-xs-3 col-sm-3 col-md-3">
                     <button type="submit" class="btn btn-outline-primary"><i class="fa fa-search"></i> Buscar</button>
                 </div>
                 <div class="col-xs-3 col-sm-3 col-md-3">
-                    <select class="form-control" aria-label="Default select example" id="filter" onchange="filterTable()">
+                    <select class="form-control form-control-grobdi" aria-label="Default select example" id="filter" onchange="filterTable()">
                         <option selected disabled>Selecciona un turno</option>
                         <option value="Mañana">Mañana</option>
                         <option value="Tarde">Tarde</option>

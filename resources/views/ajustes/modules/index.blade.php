@@ -2,19 +2,15 @@
 
 @section('title', 'Módulos')
 
-@section('content_header')
-    <h1>🧩 Gestión de Módulos</h1>
-@stop
-
 @section('content')
     <div class="grobdi-header">
         <div class="grobdi-title">
             <div>
-                <h2>Gestión de Roles</h2>
-                <p>Administra los roles del sistema</p>
+                <h2>🧩 Gestión de Modulos</h2>
+                <p>Administra los modulos del sistema</p>
             </div>
-            <a href="{{ route('roles.create') }}" class="btn">
-                <i class="fas fa-plus"></i> Nuevo Rol
+            <a href="{{ route('modules.create') }}" class="btn">
+                <i class="fas fa-plus"></i> Nuevo Modulo
             </a>
         </div>
     </div>

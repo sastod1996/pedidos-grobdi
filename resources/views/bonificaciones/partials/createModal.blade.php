@@ -1,5 +1,6 @@
 <!-- Modal partial: crear mes de bonificaciones -->
-<div class="modal fade modal-grobdi" id="createBonificacionModal" tabindex="-1" aria-labelledby="createBonificacionModalLabel" aria-hidden="true">
+<div class="modal fade modal-grobdi" id="createBonificacionModal" tabindex="-1"
+    aria-labelledby="createBonificacionModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -9,7 +10,8 @@
 
             <div class="modal-body">
                 <div class="alert alert-info">
-                    <p class="mb-0">Registra un nuevo periodo mensual y personaliza las bonificaciones para las visitadoras.</p>
+                    <p class="mb-0">Registra un nuevo periodo mensual y personaliza las bonificaciones para las
+                        visitadoras.</p>
                 </div>
 
                 <form id="formCrearBonificacion" action="{{ route('visitadoras.metas.store') }}" method="POST">
@@ -34,7 +36,8 @@
                     <div class="form-group">
                         <div id="doctorsForTipo">
                             <div class="info-section">
-                                <div class="info-content">Selecciona un tipo de médico para ver los doctores disponibles.</div>
+                                <div class="info-content">Selecciona un tipo de médico para ver los doctores
+                                    disponibles.</div>
                             </div>
                         </div>
                     </div>
@@ -44,13 +47,15 @@
                     <div class="form-group">
                         <div class="row align-items-center">
                             <div class="col-8">
-                                <label class="mb-0" for="aplicarGeneral" style="color: #1f2937; font-size: 0.95rem; font-weight: 500; cursor: pointer;">
+                                <label class="mb-0" for="aplicarGeneral"
+                                    style="color: #1f2937; font-size: 0.95rem; font-weight: 500; cursor: pointer;">
                                     ¿Aplicar porcentaje y monto de la meta para todas las visitadoras?
                                 </label>
                             </div>
                             <div class="col-4 text-end">
                                 <div class="grobdi-switch-wrapper">
-                                    <input type="checkbox" id="aplicarGeneral" data-trigger="generales" class="grobdi-switch-input" checked>
+                                    <input type="checkbox" id="aplicarGeneral" data-trigger="generales"
+                                        class="grobdi-switch-input" checked>
                                     <label for="aplicarGeneral" class="grobdi-switch-label">
                                         <span class="grobdi-switch-slider"></span>
                                     </label>
@@ -64,7 +69,9 @@
                         <div class="form-group">
                             <label for="porcentajeGeneral">Porcentaje comisión</label>
                             <div class="input-group">
-                                <input type="number" min="0" max="100" step="0.01" id="porcentajeGeneral" name="commission_percentage" class="form-control" placeholder="Ej. 3.5">
+                                <input type="number" min="0" max="100" step="0.01"
+                                    id="porcentajeGeneral" name="commission_percentage" class="form-control"
+                                    placeholder="Ej. 3.5">
                                 <span class="input-group-text">%</span>
                             </div>
                         </div>
@@ -73,13 +80,14 @@
                             <label for="montoGeneral">Monto meta</label>
                             <div class="input-group">
                                 <span class="input-group-text">S/</span>
-                                <input type="number" min="0" step="0.01" id="montoGeneral" name="goal_amount" class="form-control" placeholder="Ej. 15000.00">
+                                <input type="number" min="0" step="0.01" id="montoGeneral" name="goal_amount"
+                                    class="form-control" placeholder="Ej. 15000.00">
                             </div>
                         </div>
                     </div>
 
                     <div data-target="visitadoras" class="visitadoras-container">
-                        @if(isset($visitadoras) && $visitadoras->isNotEmpty())
+                        @if (isset($visitadoras) && $visitadoras->isNotEmpty())
                             <table class="table-modal">
                                 <thead>
                                     <tr>
@@ -89,17 +97,22 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($visitadoras as $index => $v)
+                                    @foreach ($visitadoras as $index => $v)
                                         <tr>
                                             <td>
                                                 {{ $v->name }}
-                                                <input type="hidden" name="visitor_goals[{{ $index }}][user_id]" value="{{ $v->id }}">
+                                                <input type="hidden" name="visitor_goals[{{ $index }}][user_id]"
+                                                    value="{{ $v->id }}">
                                             </td>
                                             <td>
-                                                <input type="number" step="0.01" min="0" name="visitor_goals[{{ $index }}][commission_percentage]" class="form-control" placeholder="3.50">
+                                                <input type="number" step="0.01" min="0"
+                                                    name="visitor_goals[{{ $index }}][commission_percentage]"
+                                                    class="form-control" placeholder="3.50">
                                             </td>
                                             <td>
-                                                <input type="number" step="0.01" min="0" name="visitor_goals[{{ $index }}][goal_amount]" class="form-control" placeholder="15000">
+                                                <input type="number" step="0.01" min="0"
+                                                    name="visitor_goals[{{ $index }}][goal_amount]"
+                                                    class="form-control" placeholder="15000">
                                             </td>
                                         </tr>
                                     @endforeach
@@ -121,12 +134,32 @@
 </div>
 
 @section('css')
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <style>
-        .bonificaciones-wrapper { background-color: #f7f7fb; border-radius: 12px; padding: 1rem; }
-        .bonificaciones-hero-card { background-color: #f8efef; border-radius: 12px; }
-        .bonificaciones-extra-fields { background-color: #fff8f3; border-radius: 10px; border: 1px dashed #f0c7a8; padding: .75rem; }
-        .switch-label { color: #1f2937; font-size: .95rem; font-weight: 500; }
+        .bonificaciones-wrapper {
+            background-color: #f7f7fb;
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .bonificaciones-hero-card {
+            background-color: #f8efef;
+            border-radius: 12px;
+        }
+
+        .bonificaciones-extra-fields {
+            background-color: #fff8f3;
+            border-radius: 10px;
+            border: 1px dashed #f0c7a8;
+            padding: .75rem;
+        }
+
+        .switch-label {
+            color: #1f2937;
+            font-size: .95rem;
+            font-weight: 500;
+        }
 
         /* Switch personalizado para modal */
         .grobdi-switch-wrapper {
@@ -170,16 +203,16 @@
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
         }
 
-        .grobdi-switch-input:checked + .grobdi-switch-label {
+        .grobdi-switch-input:checked+.grobdi-switch-label {
             background-color: #3b82f6;
             box-shadow: inset 0 1px 3px rgba(59, 130, 246, 0.3);
         }
 
-        .grobdi-switch-input:checked + .grobdi-switch-label .grobdi-switch-slider {
+        .grobdi-switch-input:checked+.grobdi-switch-label .grobdi-switch-slider {
             transform: translateX(28px);
         }
 
-        .grobdi-switch-input:focus + .grobdi-switch-label {
+        .grobdi-switch-input:focus+.grobdi-switch-label {
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
         }
 
@@ -187,11 +220,11 @@
             background-color: #94a3b8;
         }
 
-        .grobdi-switch-input:checked + .grobdi-switch-label:hover {
+        .grobdi-switch-input:checked+.grobdi-switch-label:hover {
             background-color: #2563eb;
         }
 
-        .grobdi-switch-input:active + .grobdi-switch-label .grobdi-switch-slider {
+        .grobdi-switch-input:active+.grobdi-switch-label .grobdi-switch-slider {
             width: 26px;
         }
     </style>
@@ -200,14 +233,16 @@
 @section('plugins.Sweetalert2', true)
 
 @section('js')
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous">
+    </script>
     <script src="{{ asset('js/sweetalert2-factory.js') }}"></script>
 
     <script>
-        (function($){
-            $(function(){
+        (function($) {
+            $(function() {
                 // Toggle campos generales y ocultar/mostrar visitadoras
-                $(document).on('change', '[data-trigger="generales"]', function(){
+                $(document).on('change', '[data-trigger="generales"]', function() {
                     const shouldShow = $(this).is(':checked');
                     // Mostrar/ocultar la sección de campos generales
                     $('[data-target="generales"]').toggleClass('d-none', !shouldShow);
@@ -222,17 +257,36 @@
                     generalToggle.trigger('change');
                 }
 
-                // Ejemplo: enviar formulario desde el modal (ajustar acción AJAX o submit real según necesidad)
-                $('#guardarBonificacionBtn').on('click', function(){
+                // Ejemplo: enviar formulario desde el modal< (ajustar acción AJAX o submit real según necesidad)
+                $('#guardarBonificacionBtn').on('click', function() {
                     // Aquí puedes serializar y enviar via AJAX o validar y hacer submit
                     $('#formCrearBonificacion').submit();
                 });
             });
         })(window.jQuery);
+
+        $('#guardarBonificacionBtn').on('click', function() {
+            const btn = $(this);
+            btn.prop('disabled', true).text('Guardando...');
+
+            $.ajax({
+                url: '/guardar',
+                method: 'POST',
+                data: {
+                    ...
+                },
+                success: function() {
+                    // Éxito (no vuelves a habilitar para evitar repetición)
+                },
+                error: function() {
+                    btn.prop('disabled', false).text('Guardar mes');
+                }
+            });
+        });
     </script>
     <script>
         // Render doctors list for selected tipo in the create modal
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const selectTipo = document.getElementById('bonificacionTipoMedico');
             const target = document.getElementById('doctorsForTipo');
             // doctors grouped by tipo injected from controller
@@ -242,19 +296,22 @@
                 if (!target) return;
                 target.innerHTML = '';
                 if (!tipo) {
-                    target.innerHTML = '<div class="small text-muted">Selecciona un tipo de médico para ver los doctores disponibles.</div>';
+                    target.innerHTML =
+                        '<div class="small text-muted">Selecciona un tipo de médico para ver los doctores disponibles.</div>';
                     return;
                 }
                 const list = doctorsByTipo[tipo] || [];
                 if (!list.length) {
-                    target.innerHTML = '<div class="small text-warning">No se encontraron doctores para este tipo.</div>';
+                    target.innerHTML =
+                        '<div class="small text-warning">No se encontraron doctores para este tipo.</div>';
                     return;
                 }
                 const ul = document.createElement('div');
                 ul.className = 'list-group list-group-flush';
-                list.forEach(function(d){
+                list.forEach(function(d) {
                     const item = document.createElement('div');
-                    item.className = 'list-group-item py-2 small d-flex justify-content-between align-items-center';
+                    item.className =
+                        'list-group-item py-2 small d-flex justify-content-between align-items-center';
                     item.innerHTML = '<div>' + (d.name || 'Doctor ' + d.id) + '</div>' +
                         '<div class="text-muted">ID: ' + d.id + '</div>';
                     ul.appendChild(item);
@@ -263,7 +320,7 @@
             }
 
             if (selectTipo) {
-                selectTipo.addEventListener('change', function () {
+                selectTipo.addEventListener('change', function() {
                     renderDoctors(this.value);
                 });
 
@@ -274,7 +331,7 @@
     </script>
     <script>
         // Vanilla JS fallback and AJAX submit for create modal.
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('formCrearBonificacion');
             const guardarBtn = document.getElementById('guardarBonificacionBtn');
             const modalEl = document.getElementById('createBonificacionModal');
@@ -285,9 +342,9 @@
                 // bootstrap not available
             }
 
-                // If jQuery wasn't present the previous handlers won't run; ensure the guardar button triggers form submit
+            // If jQuery wasn't present the previous handlers won't run; ensure the guardar button triggers form submit
             if (guardarBtn && form) {
-                guardarBtn.addEventListener('click', function () {
+                guardarBtn.addEventListener('click', function() {
                     // Use requestSubmit when available so HTML5 validation runs
                     if (typeof form.requestSubmit === 'function') {
                         form.requestSubmit();
@@ -311,14 +368,14 @@
 
             if (trigger) {
                 syncGoalSections(trigger.checked);
-                trigger.addEventListener('change', function () {
+                trigger.addEventListener('change', function() {
                     syncGoalSections(this.checked);
                 });
             }
 
             // AJAX submit to keep modal open/close controlled and show feedback
             if (form) {
-                form.addEventListener('submit', function (e) {
+                form.addEventListener('submit', function(e) {
                     e.preventDefault();
 
                     // remove old alerts
@@ -330,20 +387,23 @@
 
                     // Send request
                     fetch(url, {
-                        method: 'POST',
-                        body: fd,
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                    })
-                    .then(async (res) => {
-                        const contentType = res.headers.get('content-type') || '';
-                        let data = {};
-                        if (contentType.indexOf('application/json') !== -1) {
-                            data = await res.json();
-                        } else {
-                            data = { success: res.ok, message: await res.text() };
-                        }
+                            method: 'POST',
+                            body: fd,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                        })
+                        .then(async (res) => {
+                            const contentType = res.headers.get('content-type') || '';
+                            let data = {};
+                            if (contentType.indexOf('application/json') !== -1) {
+                                data = await res.json();
+                            } else {
+                                data = {
+                                    success: res.ok,
+                                    message: await res.text()
+                                };
+                            }
 
                             if (res.ok && data.success) {
                                 // Use SweetAlert2 to show success and then redirect to index
@@ -355,7 +415,8 @@
                                         timer: 1200,
                                         showConfirmButton: false
                                     }).then(() => {
-                                        window.location = '{{ route('bonificaciones.index') }}';
+                                        window.location =
+                                            '{{ route('bonificaciones.index') }}';
                                     });
                                 } else {
                                     // fallback: show inline alert then redirect
@@ -364,8 +425,10 @@
                                     success.textContent = data.message || 'Guardado correctamente.';
                                     form.querySelector('.bonificaciones-wrapper').prepend(success);
                                     setTimeout(() => {
-                                        if (bsModal && typeof bsModal.hide === 'function') bsModal.hide();
-                                        window.location = '{{ route('bonificaciones.index') }}';
+                                        if (bsModal && typeof bsModal.hide === 'function')
+                                            bsModal.hide();
+                                        window.location =
+                                            '{{ route('bonificaciones.index') }}';
                                     }, 900);
                                 }
                             } else if (res.status === 422 && data.errors) {
@@ -374,24 +437,36 @@
                                 for (const key in data.errors) {
                                     data.errors[key].forEach(msg => messages.push(msg));
                                 }
-                                const html = '<ul style="text-align:left;">' + messages.map(m => '<li>' + m + '</li>').join('') + '</ul>';
+                                const html = '<ul style="text-align:left;">' + messages.map(m =>
+                                    '<li>' + m + '</li>').join('') + '</ul>';
                                 if (window.Swal) {
-                                    Swal.fire({ icon: 'error', title: 'Errores de validación', html });
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Errores de validación',
+                                        html
+                                    });
                                 } else {
                                     const alertDiv = document.createElement('div');
                                     alertDiv.className = 'alert alert-danger bv-alert';
                                     const ul = document.createElement('ul');
                                     messages.forEach(msg => {
-                                        const li = document.createElement('li'); li.textContent = msg; ul.appendChild(li);
+                                        const li = document.createElement('li');
+                                        li.textContent = msg;
+                                        ul.appendChild(li);
                                     });
                                     alertDiv.appendChild(ul);
                                     form.querySelector('.bonificaciones-wrapper').prepend(alertDiv);
                                 }
                             } else {
                                 // General error
-                                const message = data.message || 'Ocurrió un error al procesar la solicitud.';
+                                const message = data.message ||
+                                    'Ocurrió un error al procesar la solicitud.';
                                 if (window.Swal) {
-                                    Swal.fire({ icon: 'error', title: 'Error', text: message });
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: message
+                                    });
                                 } else {
                                     const alertDiv = document.createElement('div');
                                     alertDiv.className = 'alert alert-danger bv-alert';
@@ -399,14 +474,14 @@
                                     form.querySelector('.bonificaciones-wrapper').prepend(alertDiv);
                                 }
                             }
-                    })
-                    .catch((err) => {
-                        console.error(err);
-                        const alertDiv = document.createElement('div');
-                        alertDiv.className = 'alert alert-danger bv-alert';
-                        alertDiv.textContent = 'Error de red al enviar el formulario.';
-                        form.querySelector('.bonificaciones-wrapper').prepend(alertDiv);
-                    });
+                        })
+                        .catch((err) => {
+                            console.error(err);
+                            const alertDiv = document.createElement('div');
+                            alertDiv.className = 'alert alert-danger bv-alert';
+                            alertDiv.textContent = 'Error de red al enviar el formulario.';
+                            form.querySelector('.bonificaciones-wrapper').prepend(alertDiv);
+                        });
                 });
             }
         });
