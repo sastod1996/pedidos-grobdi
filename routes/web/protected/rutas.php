@@ -32,6 +32,8 @@ Route::post('/visitadoctornuevo/{id}/rechazar', [VisitaDoctorController::class, 
 Route::resource('categoriadoctor', CategoriaDoctorController::class);
 
 Route::get('calendariovisitadora', [EnrutamientoController::class, 'calendariovisitadora'])->name('enrutamientolista.calendariovisitadora');
+Route::get('calendario-supervisora', [EnrutamientoController::class, 'calendarioSupervisora'])->name('enrutamientolista.calendariosupervisora');
+Route::get('calendario-supervisora/eventos', [EnrutamientoController::class, 'calendarioSupervisoraEventos'])->name('enrutamientolista.calendariosupervisora.eventos');
 Route::get('/rutasdoctor/{id}', [EnrutamientoController::class, 'DetalleDoctorRutas'])->name('rutas.detalledoctor');
 Route::get('/detalle-visita-doctor/{id}', [VisitaDoctorController::class, 'FindDetalleVisitaByID'])->name('rutasmapa.detallesdoctor');
 Route::put('/update-visita-doctor/{id}', [VisitaDoctorController::class, 'UpdateVisitaDoctor'])->name('rutasmapa.guardarvisita');

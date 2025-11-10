@@ -192,12 +192,39 @@
         } else {
             console.error("Geolocalización no es compatible con este navegador.");
         }
+
+        const mediaQueryMovil = window.matchMedia('(max-width: 768px)');
+
+        function obtenerVistaInicial() {
+            return mediaQueryMovil.matches ? 'listMonth' : 'dayGridMonth';
+        }
+
+        function aplicarVistaResponsiva() {
+            if (!calendar) {
+                return;
+            }
+            const vistaObjetivo = obtenerVistaInicial();
+            if (calendar.view.type !== vistaObjetivo) {
+                calendar.changeView(vistaObjetivo);
+            }
+        }
+
         const calendarEl = document.getElementById('calendar');
         calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
+            initialView: obtenerVistaInicial(),
             locale: 'es',
             editable: true,
             hiddenDays: [0, 6], // Oculta domingos (0) y sábados (6)
+            buttonText: {
+                today: 'Hoy',
+                month: 'Mes',
+                list: 'Lista'
+            },
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,listMonth'
+            },
             events: @json($eventos),
             eventOrder: "turno",
             eventClick: function(info) {
@@ -205,6 +232,13 @@
             }
         });
         calendar.render();
+
+        if (typeof mediaQueryMovil.addEventListener === 'function') {
+            mediaQueryMovil.addEventListener('change', aplicarVistaResponsiva);
+        } else if (typeof mediaQueryMovil.addListener === 'function') {
+            mediaQueryMovil.addListener(aplicarVistaResponsiva);
+        }
+        aplicarVistaResponsiva();
         // Para doctores sin fecha asignada
         // document.querySelectorAll('.detalle-doctor').forEach(el => {
         //     el.addEventListener('click', function(e) {

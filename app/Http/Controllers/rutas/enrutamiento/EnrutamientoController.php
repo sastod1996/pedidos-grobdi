@@ -8,11 +8,11 @@ use App\Models\Enrutamiento;
 use App\Models\EnrutamientoLista;
 use App\Models\EstadoVisita;
 use App\Models\Lista;
+use App\Models\User;
 use App\Models\VisitaDoctor;
 use App\Models\Zone;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
-use Illuminate\Container\Attributes\Log;
 use Illuminate\Http\Request;
 use Illuminate\Log\Logger;
 use Illuminate\Support\Facades\Auth;
@@ -23,8 +23,10 @@ class EnrutamientoController extends Controller
     public function index()
     {
         $rutas = Enrutamiento::orderBy('fecha', 'desc')->get();
+
         return view('rutas.enrutamiento.index', compact('rutas'));
     }
+
     public function store(Request $request)
     {
         // Validación
@@ -34,11 +36,11 @@ class EnrutamientoController extends Controller
         ]);
         // dd($request->fecha_mes.'-00');
         $zonas = Zone::whereNotIn('name', ['Recojo en tienda', 'Otros'])->get();
-        $existe_fecha = Enrutamiento::where('fecha', $request->fecha_mes . '-01')->first();
-        if (!$existe_fecha) {
+        $existe_fecha = Enrutamiento::where('fecha', $request->fecha_mes.'-01')->first();
+        if (! $existe_fecha) {
             foreach ($zonas as $zona) {
-                $enrutamiento = new Enrutamiento();
-                $enrutamiento->fecha = $request->fecha_mes . '-01';
+                $enrutamiento = new Enrutamiento;
+                $enrutamiento->fecha = $request->fecha_mes.'-01';
                 $enrutamiento->zone_id = $zona->id;
                 $enrutamiento->save();
 
@@ -51,6 +53,7 @@ class EnrutamientoController extends Controller
 
         return redirect()->route('enrutamiento.index')->with('success', 'Mes añadido correctamente');
     }
+
     public function agregarLista($id)
     {
         $enrutamiento = Enrutamiento::find($id);
@@ -74,8 +77,10 @@ class EnrutamientoController extends Controller
                 }
             }
         }
+
         return view('rutas.enrutamiento.enrutamientolista', compact('listas', 'enrutamiento', 'fechas_seleccionadas', 'visitas', 'fecha_fin'));
     }
+
     public function Enrutamientolistastore(Request $request)
     {
         $request->validate([
@@ -84,13 +89,13 @@ class EnrutamientoController extends Controller
         ]);
 
         $lista = Lista::findOrFail($request->lista_id);
-        $fechas = explode(" a ", $request->input('fechas'));
+        $fechas = explode(' a ', $request->input('fechas'));
         $startDate = Carbon::parse($fechas[0]);
         $endDate = Carbon::parse($fechas[1]);
         $period = CarbonPeriod::create($startDate, $endDate);
 
         // Crear registro de EnrutamientoLista
-        $enrutamiento_lista = new EnrutamientoLista();
+        $enrutamiento_lista = new EnrutamientoLista;
         $enrutamiento_lista->fecha_inicio = $startDate->toDateString();
         $enrutamiento_lista->fecha_fin = $endDate->toDateString();
         $enrutamiento_lista->lista_id = $request->lista_id;
@@ -132,7 +137,7 @@ class EnrutamientoController extends Controller
                 }
 
                 // Crear registro de VisitaDoctor
-                $visita_doctor = new VisitaDoctor();
+                $visita_doctor = new VisitaDoctor;
                 $visita_doctor->doctor_id = $doctor->id;
                 $visita_doctor->created_by = Auth::id();
                 $visita_doctor->updated_by = Auth::id();
@@ -140,7 +145,7 @@ class EnrutamientoController extends Controller
 
                 $fecha_asignada = false;
 
-                if (!empty($turnos)) {
+                if (! empty($turnos)) {
                     foreach ($period as $date) {
                         $nombre_dia = $date->translatedFormat('l');
                         $fechaStr = $date->toDateString();
@@ -168,7 +173,7 @@ class EnrutamientoController extends Controller
                 }
 
                 // Si no se encontró ningún día con espacio
-                if (!$fecha_asignada) {
+                if (! $fecha_asignada) {
                     $visita_doctor->estado_visita_id = 1; // Sin turno disponible
                 }
 
@@ -183,7 +188,7 @@ class EnrutamientoController extends Controller
     {
         $doctores = VisitaDoctor::where('enrutamientolista_id', $id)->whereNot('estado_visita_id', 'like', 6)->get();
         $enruta = VisitaDoctor::where('enrutamientolista_id', $id)->first();
-        if (!$enruta) {
+        if (! $enruta) {
             return redirect()->back()->with('danger', 'No hay doctores asignados a esta ruta, por favor asigne una lista');
         }
         $id = $enruta->enrutamientolista->enrutamiento->id;
@@ -194,12 +199,14 @@ class EnrutamientoController extends Controller
 
         return view('rutas.enrutamiento.doctoreslista', compact('doctores', 'id', 'dateRange'));
     }
+
     public function DoctoresListaUpdate(Request $request, $id)
     {
         $visita_doctor = VisitaDoctor::find($id);
         $visita_doctor->fecha = $request->fecha;
         $visita_doctor->estado_visita_id = $visita_doctor->estado_visita_id == 3 ? 5 : 2;
         $visita_doctor->save();
+
         return back()->with('success', 'Doctor Asignado exitosamente');
     }
 
@@ -228,14 +235,14 @@ class EnrutamientoController extends Controller
         $visitaDoctor = VisitaDoctor::where('doctor_id', $doctorId)
             ->where('enrutamientolista_id', $enrutamientoListaId)->first();
 
-        if (!$visitaDoctor) {
+        if (! $visitaDoctor) {
             $visitaDoctor = VisitaDoctor::create([
                 'doctor_id' => $doctorId,
                 'enrutamientolista_id' => $enrutamientoListaId,
                 'fecha' => $date,
                 'estado_visita_id' => 4,
-                'created_by' => auth()->id(),
-                'updated_by' => auth()->id(),
+                'created_by' => Auth::id(),
+                'updated_by' => Auth::id(),
             ]);
             $message = 'Visita registrada exitosamente.';
         } else {
@@ -251,7 +258,7 @@ class EnrutamientoController extends Controller
         return response()->json([
             'success' => true,
             'message' => $message,
-            'data' => $visitaDoctor
+            'data' => $visitaDoctor,
         ]);
     }
 
@@ -273,9 +280,10 @@ class EnrutamientoController extends Controller
             } else {
                 $categoriadoctor = $visita->doctor->categoriadoctor->name;
             }
+
             return [
                 'id' => $visita->id,
-                'title' => $categoriadoctor . ' - ' . $visita->doctor->name . ' ' . $visita->doctor->first_lastname . ' ' . $visita->doctor->second_lastname,
+                'title' => $categoriadoctor.' - '.$visita->doctor->name.' '.$visita->doctor->first_lastname.' '.$visita->doctor->second_lastname,
                 'start' => $visita->fecha,
                 'color' => $visita->estado_visita->color ?? '#cccccc',
             ];
@@ -289,6 +297,99 @@ class EnrutamientoController extends Controller
 
         return view('rutas.visita.calendario', compact('eventos', 'estados'));
     }
+
+    /**
+     * Muestra la vista principal del calendario de visitas, diseñada para el rol de supervisora.
+     *
+     * Esta función recupera la lista de visitadoras, selecciona una por defecto (o según el parámetro
+     * de la URL), y carga las visitas, los estados y las estadísticas iniciales para poblar el calendario.
+     *
+     * @param  \Illuminate\Http\Request  $request  La petición HTTP, utilizada para obtener el ID de la visitadora seleccionada.
+     * @return \Illuminate\View\View Retorna la vista con todos los datos necesarios para renderizar el calendario.
+     */
+    public function calendarioSupervisora(Request $request)
+    {
+        $visitadoras = User::visitadoras()->orderBy('name')->get(['id', 'name']);
+        $selectedVisitadoraId = $request->query('visitadora_id');
+
+        if (! $selectedVisitadoraId && $visitadoras->isNotEmpty()) {
+            $selectedVisitadoraId = (string) $visitadoras->first()->id;
+        }
+
+        $visitas = collect();
+
+        if ($selectedVisitadoraId) {
+            $visitas = $this->obtenerVisitasPorVisitadora((int) $selectedVisitadoraId);
+        }
+
+        $estados = EstadoVisita::all(['id', 'name', 'color']);
+        $estadisticasEstados = $estados->map(function ($estado) use ($visitas) {
+            return [
+                'id' => $estado->id,
+                'name' => $estado->name,
+                'color' => $estado->color,
+                'count' => $visitas->where('estado_visita_id', $estado->id)->count(),
+            ];
+        })->values();
+
+        $eventos = $this->formatearEventosCalendario($visitas);
+
+        return view('rutas.visita.calendario-supervisora', [
+            'visitadoras' => $visitadoras,
+            'selectedVisitadoraId' => $selectedVisitadoraId,
+            'eventos' => $eventos,
+            'estados' => $estados,
+            'estadisticasEstados' => $estadisticasEstados,
+            'totalVisitas' => $visitas->count(),
+            'estadoReprogramadoId' => optional($estados->firstWhere('name', 'Reprogramado'))->id ?? 5,
+        ]);
+    }
+
+    /**
+     * AJAX Endpoint: Retorna los eventos y métricas de las visitas en formato JSON para una visitadora específica.
+     *
+     * Este método se utiliza típicamente para cargar los datos de forma asíncrona (AJAX) después de que la página
+     * inicial ha cargado, o cuando la supervisora cambia la selección de la visitadora en un filtro.
+     *
+     * @param  \Illuminate\Http\Request  $request  La petición HTTP, debe incluir el parámetro 'visitadora_id'.
+     * @return \Illuminate\Http\JsonResponse Retorna una respuesta JSON que contiene la lista de eventos y las estadísticas.
+     */
+    public function calendarioSupervisoraEventos(Request $request)
+    {
+        $visitadoraId = $request->query('visitadora_id');
+
+        if (! $visitadoraId) {
+            return response()->json([
+                'events' => [],
+                'metrics' => [
+                    'total' => 0,
+                    'estados' => [],
+                ],
+            ]);
+        }
+
+        $visitas = $this->obtenerVisitasPorVisitadora((int) $visitadoraId);
+        $eventos = $this->formatearEventosCalendario($visitas);
+
+        $estados = EstadoVisita::all(['id', 'name', 'color']);
+        $estadisticasEstados = $estados->map(function ($estado) use ($visitas) {
+            return [
+                'id' => $estado->id,
+                'name' => $estado->name,
+                'color' => $estado->color,
+                'count' => $visitas->where('estado_visita_id', $estado->id)->count(),
+            ];
+        })->values();
+
+        return response()->json([
+            'events' => $eventos,
+            'metrics' => [
+                'total' => $visitas->count(),
+                'estados' => $estadisticasEstados,
+            ],
+        ]);
+    }
+
     public function DetalleDoctorRutas(Request $request, $id)
     {
         $visita = VisitaDoctor::findOrFail($id);
@@ -310,9 +411,10 @@ class EnrutamientoController extends Controller
 
         $turno = $visita->turno == 1 ? 'Tarde' : 'Mañana';
         // }
-        if (!$doctor) {
+        if (! $doctor) {
             return response()->json(['error' => 'Doctor no encontrado'], 404);
         }
+
         return response()->json([
             'doctor' => $doctor,
             'visita' => $visita,
@@ -321,9 +423,10 @@ class EnrutamientoController extends Controller
             'rango' => [
                 'fecha_inicio' => $fecha_inicio,
                 'fecha_fin' => $fecha_fin,
-            ]
+            ],
         ]);
     }
+
     public function GuardarVisita(Request $request)
     {
         $request->validate([
@@ -350,6 +453,7 @@ class EnrutamientoController extends Controller
         $visita->save();
 
         $doctor = Doctor::find($request['doctor_id']);
+
         // logger($visita); // Guarda en logs
         return response()->json([
             'success' => true,
@@ -360,6 +464,7 @@ class EnrutamientoController extends Controller
             'color' => $visita->estado_visita->color ?? '#ccc',
             'extendedProps' => [
                 'turno' => $visita->turno, // 0 = mañana, 1 = tarde
+                'estado' => $visita->estado_visita->name ?? null,
             ],
         ]);
     }
@@ -368,6 +473,59 @@ class EnrutamientoController extends Controller
     {
         $visitaDoctor = VisitaDoctor::findOrFail($id);
         $visitaDoctor->delete();
+
         return back()->with('success', 'Visita eliminada correctamente');
+    }
+
+    private function obtenerVisitasPorVisitadora(int $visitadoraId)
+    {
+        return VisitaDoctor::with([
+            'doctor.categoriadoctor',
+            'doctor.distrito',
+            'doctor.especialidad',
+            'doctor.centroSalud',
+            'estado_visita',
+            'enrutamientolista.enrutamiento.zone',
+        ])->whereHas('enrutamientolista.enrutamiento.zone.users', function ($query) use ($visitadoraId) {
+            $query->where('users.id', $visitadoraId);
+        })->orderBy('visita_doctor.fecha', 'asc')->get();
+    }
+
+    private function formatearEventosCalendario($visitas)
+    {
+        return $visitas->map(function ($visita) {
+            $categoria = $visita->doctor?->categoriadoctor?->name;
+            if ($categoria === 'AAA') {
+                $categoria = '★★★';
+            } elseif ($categoria === 'AA') {
+                $categoria = '★★';
+            } elseif ($categoria === 'A') {
+                $categoria = '★';
+            }
+
+            $nombreDoctor = trim(collect([
+                $visita->doctor?->name,
+                $visita->doctor?->first_lastname,
+                $visita->doctor?->second_lastname,
+            ])->filter()->implode(' '));
+
+            $titulo = $categoria ? $categoria.' - '.$nombreDoctor : $nombreDoctor;
+
+            return [
+                'id' => $visita->id,
+                'title' => $titulo,
+                'start' => $visita->fecha,
+                'color' => $visita->estado_visita->color ?? '#cccccc',
+                'extendedProps' => [
+                    'estado' => $visita->estado_visita->name ?? 'Sin estado',
+                    'turno' => $visita->turno == 1 ? 'Tarde' : 'Mañana',
+                    'doctor' => [
+                        'especialidad' => $visita->doctor?->especialidad?->name,
+                        'distrito' => $visita->doctor?->distrito?->name,
+                        'centro_salud' => $visita->doctor?->centroSalud?->name,
+                    ],
+                ],
+            ];
+        })->values();
     }
 }
