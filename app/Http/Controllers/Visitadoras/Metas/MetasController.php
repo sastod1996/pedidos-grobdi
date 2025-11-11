@@ -28,26 +28,26 @@ class MetasController extends Controller
             'tipo_medico' => $request->query('tipo_medico')
         ];
 
-    $listOfMetas = $this->service->getListOfMetas($filters);
+        $listOfMetas = $this->service->getListOfMetas($filters);
 
-    // Also fetch visitadoras so the create modal can render the list
-    $visitadoras = User::visitadoras()->get();
-    // Fetch doctors grouped by tipo_medico to allow frontend to show doctors by type when creating a month
-    $doctors = \App\Models\Doctor::select('id', 'name', 'first_lastname', 'second_lastname', 'tipo_medico')
-        ->get()
-        ->groupBy('tipo_medico')
-        ->map(function ($group) {
-            return $group->map(function ($d) {
-                $parts = array_filter([$d->name ?? '', $d->first_lastname ?? '', $d->second_lastname ?? ''], fn($p) => !empty(trim($p)));
-                return [
-                    'id' => $d->id,
-                    'name' => implode(' ', $parts),
-                ];
-            })->values();
-        })->toArray();
+        // Also fetch visitadoras so the create modal can render the list
+        $visitadoras = User::visitadoras()->get();
+        // Fetch doctors grouped by tipo_medico to allow frontend to show doctors by type when creating a month
+        $doctors = \App\Models\Doctor::select('id', 'name', 'first_lastname', 'second_lastname', 'tipo_medico')
+            ->get()
+            ->groupBy('tipo_medico')
+            ->map(function ($group) {
+                return $group->map(function ($d) {
+                    $parts = array_filter([$d->name ?? '', $d->first_lastname ?? '', $d->second_lastname ?? ''], fn($p) => !empty(trim($p)));
+                    return [
+                        'id' => $d->id,
+                        'name' => implode(' ', $parts),
+                    ];
+                })->values();
+            })->toArray();
 
-    // Mostrar la lista de metas en la vista del módulo de bonificaciones
-    return view('bonificaciones.index', compact('listOfMetas', 'visitadoras', 'doctors'));
+        // Mostrar la lista de metas en la vista del módulo de bonificaciones
+        return view('bonificaciones.index', compact('listOfMetas', 'visitadoras', 'doctors'));
     }
 
     /**

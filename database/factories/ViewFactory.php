@@ -18,10 +18,18 @@ class ViewFactory extends Factory
     public function definition(): array
     {
         return [
-            'description' => fake()->name(),
+            'name' => fake()->words(2, true),
             'state' => true,
-            'module_id' => Module::factory()->create(),
+            'module_id' => Module::factory(),
             'is_menu' => fake()->boolean(),
         ];
+    }
+
+    /**
+     * Define una vista con atributos específicos (útil para seeders).
+     */
+    public function withAttributes(array $attributes): static
+    {
+        return $this->state($attributes);
     }
 }

@@ -10,15 +10,18 @@
             border-radius: 0.75rem !important;
             box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.15) !important;
         }
+
         .swal2-title {
             color: #1f2937 !important;
             font-weight: 700 !important;
             font-size: 1.5rem !important;
         }
+
         .swal2-html-container {
             color: #0f172a !important;
             font-size: 1rem !important;
         }
+
         .swal2-confirm {
             background-color: #ef4444 !important;
             border-radius: 0.5rem !important;
@@ -28,10 +31,12 @@
             box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2) !important;
             margin-right: 0.5rem !important;
         }
+
         .swal2-confirm:hover {
             background-color: #dc2626 !important;
             box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3) !important;
         }
+
         .swal2-cancel {
             background-color: #475569 !important;
             border-radius: 0.5rem !important;
@@ -40,27 +45,34 @@
             font-size: 0.95rem !important;
             box-shadow: 0 2px 4px rgba(71, 85, 105, 0.2) !important;
         }
+
         .swal2-cancel:hover {
             background-color: #334155 !important;
             box-shadow: 0 4px 8px rgba(71, 85, 105, 0.3) !important;
         }
+
         .swal2-icon.swal2-success {
             border-color: #10b981 !important;
             color: #10b981 !important;
         }
+
         .swal2-icon.swal2-success [class^='swal2-success-line'] {
             background-color: #10b981 !important;
         }
+
         .swal2-icon.swal2-success .swal2-success-ring {
             border-color: rgba(16, 185, 129, 0.3) !important;
         }
+
         .swal2-icon.swal2-error {
             border-color: #ef4444 !important;
             color: #ef4444 !important;
         }
+
         .swal2-icon.swal2-error [class^='swal2-x-mark-line'] {
             background-color: #ef4444 !important;
         }
+
         .swal2-icon.swal2-warning {
             border-color: #f59e0b !important;
             color: #f59e0b !important;
@@ -184,21 +196,16 @@
                         </td>
                         <td>
                             <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
-                                <a href="{{ route('views.edit', $view) }}"
-                                   class="btn-action btn-edit"
-                                   title="Editar vista">
+                                <a href="{{ route('views.edit', $view) }}" class="btn-action btn-edit"
+                                    title="Editar vista">
                                     <i class="fas fa-edit"></i> Editar
                                 </a>
-                                <button type="button"
-                                        class="btn-action btn-delete"
-                                        onclick="confirmDelete({{ $view->id }})"
-                                        title="Eliminar vista">
+                                <button type="button" class="btn-action btn-delete"
+                                    onclick="confirmDelete({{ $view->id }})" title="Eliminar vista">
                                     <i class="fas fa-trash-alt"></i> Eliminar
                                 </button>
-                                <form id="delete-form-{{ $view->id }}"
-                                      action="{{ route('views.destroy', $view) }}"
-                                      method="POST"
-                                      style="display: none;">
+                                <form id="delete-form-{{ $view->id }}" action="{{ route('views.destroy', $view) }}"
+                                    method="POST" style="display: none;">
                                     @csrf
                                     @method('DELETE')
                                 </form>
@@ -243,7 +250,7 @@
         }
 
         // Mostrar alerta de éxito si existe mensaje en sesión
-        @if(session('success'))
+        @if (session('success'))
             Swal.fire({
                 icon: 'success',
                 title: '¡Éxito!',
@@ -261,7 +268,7 @@
         @endif
 
         // Mostrar alerta de error si existe mensaje en sesión
-        @if(session('error'))
+        @if (session('error'))
             Swal.fire({
                 icon: 'error',
                 title: 'Error',

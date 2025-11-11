@@ -31,17 +31,14 @@
 
                             <div class="form-group mb-4">
                                 <label class="grobdi-label">
-                                    <i class="fas fa-tag text-danger"></i> Nombre de la configuración <span class="text-danger">*</span>
+                                    <i class="fas fa-tag text-danger"></i> Nombre de la configuración <span
+                                        class="text-danger">*</span>
                                 </label>
-                                <input type="text"
-                                       id="configName"
-                                       name="name"
-                                       class="form-control grobdi-input"
-                                       placeholder="Ej: Configuración Enero 2025"
-                                       required
-                                       maxlength="255">
+                                <input type="text" id="configName" name="name" class="form-control grobdi-input"
+                                    placeholder="Ej: Configuración Enero 2025" required maxlength="255">
                                 <small class="form-text text-muted">
-                                    <i class="fas fa-info-circle"></i> Ingresa un nombre descriptivo para identificar esta configuración
+                                    <i class="fas fa-info-circle"></i> Ingresa un nombre descriptivo para identificar
+                                    esta configuración
                                 </small>
                             </div>
 
@@ -519,4 +516,4 @@
             });
         })();
     });
-    </script>
+</script>

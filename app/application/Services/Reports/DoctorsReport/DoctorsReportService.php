@@ -3,10 +3,14 @@
 namespace App\Application\Services\Reports\DoctorsReport;
 
 use App\Application\DTOs\Reports\Doctores\ReportDoctorsDto;
+use App\Application\DTOs\Reports\Doctores\ReportSeguimientoDto;
 use App\Application\DTOs\Reports\Doctores\ReportTipoDoctorDto;
 use App\Application\Services\Reports\ReportBaseService;
 use App\Infrastructure\Repository\ReportsRepository;
+use App\Models\Pedidos;
 use App\Shared\Helpers\GetPercentageHelper;
+use Brick\Math\RoundingMode;
+use Brick\Money\Money;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
@@ -23,6 +27,7 @@ class DoctorsReportService extends ReportBaseService
         return [
             'doctorReport' => $this->getDoctorReport()->toArray(),
             'tipoDoctorReport' => $this->getTipoDoctorReport()->toArray(),
+            'seguimientoReport' => $this->getSeguimientoReport()->toArray(),
         ];
     }
 
@@ -160,5 +165,119 @@ class DoctorsReportService extends ReportBaseService
         }
 
         return $data;
+    }
+
+    public function getSeguimientoReport(array $filters = []): ReportSeguimientoDto
+    {
+        $start_date_1 = Carbon::parse($filters['start_date_1'] ?? now()->subMonths(2)->startOfMonth())->startOfDay();
+        $start_date_2 = Carbon::parse($filters['start_date_2'] ?? now()->subMonths(1)->startOfMonth())->startOfDay();
+        $end_date_1 = Carbon::parse($filters['end_date_1'] ?? now()->subMonths(2)->endOfMonth())->endOfDay();
+        $end_date_2 = Carbon::parse($filters['end_date_2'] ?? now()->subMonths(1)->endOfMonth())->endOfDay();
+
+        $data1 = Pedidos::selectRaw('id_doctor, SUM(prize) as total_amount, COUNT(*) as total_quantity')
+            ->groupBy('id_doctor')
+            ->whereNotNull('id_doctor')->where('id_doctor', '!=', '')
+            ->whereBetween('created_at', [$start_date_1, $end_date_1])
+            ->get()
+            ->keyBy('id_doctor');
+
+        $data2 = Pedidos::selectRaw('id_doctor, SUM(prize) as total_amount, COUNT(*) as total_quantity')
+            ->groupBy('id_doctor')
+            ->whereNotNull('id_doctor')->where('id_doctor', '!=', '')
+            ->whereBetween('created_at', [$start_date_2, $end_date_2])
+            ->get()
+            ->keyBy('id_doctor');
+
+        $totalAmount1 = $data1->sum('total_amount');
+        $moneyTotal1 = Money::of($totalAmount1 ?: 0, 'PEN');
+        $avgAmount1 = $data1->isEmpty()
+            ? Money::of(0, 'PEN')
+            : $moneyTotal1->dividedBy($data1->count(), RoundingMode::HALF_UP);
+
+        // Monto total en período 2
+        $totalAmount2 = $data2->sum('total_amount');
+        $moneyTotal2 = Money::of($totalAmount2 ?: 0, 'PEN');
+        $avgAmount2 = $data2->isEmpty()
+            ? Money::of(0, 'PEN')
+            : $moneyTotal2->dividedBy($data2->count(), RoundingMode::HALF_UP);
+
+        // Promedios de cantidad (float)
+        $avgQuantity1 = $data1->isEmpty() ? 0.0 : ($data1->sum('total_quantity') / $data1->count());
+        $avgQuantity2 = $data2->isEmpty() ? 0.0 : ($data2->sum('total_quantity') / $data2->count());
+
+
+        $allDoctorIds = $data1->keys()->merge($data2->keys())->unique();
+
+        $comparison = $allDoctorIds->map(function ($id_doctor) use ($data1, $data2) {
+            $prev = $data1->get($id_doctor) ?? (object) ['total_amount' => 0, 'total_quantity' => 0];
+            $curr = $data2->get($id_doctor) ?? (object) ['total_amount' => 0, 'total_quantity' => 0];
+
+            $currTotalAmount = Money::of($curr->total_amount, 'PEN');
+            $prevTotalAmount = Money::of($prev->total_amount, 'PEN');
+
+            $amountFluctuation = $currTotalAmount->minus($prevTotalAmount);
+            $quantityFluctuation = $curr->total_quantity - $prev->total_quantity;
+
+            // Opcional: porcentaje de crecimiento (evita división por cero)
+            $amountFluctuationRate = $prevTotalAmount->isGreaterThan(0) ?
+                ($amountFluctuation->getAmount()->toFloat() / $prevTotalAmount->getAmount()->toFloat()) * 100 :
+                ($currTotalAmount->isGreaterThan(0) ? 100 : 0);
+
+            $quantityFluctuationRate = $prev->total_quantity > 0
+                ? ($quantityFluctuation / $prev->total_quantity) * 100
+                : ($curr->total_quantity > 0 ? 100 : 0);
+
+            return [
+                'id_doctor' => $id_doctor,
+                'prev_amount' => $prev->total_amount,
+                'curr_amount' => $curr->total_amount,
+                'amount_fluctuation' => $amountFluctuation->getAmount()->toFloat(),
+                'amount_fluctuation_rate' => number_format($amountFluctuationRate, 2),
+                'prev_quantity' => $prev->total_quantity,
+                'curr_quantity' => $curr->total_quantity,
+                'quantity_fluctuation' => $quantityFluctuation,
+                'quantity_fluctuation_rate' => number_format($quantityFluctuationRate, 2),
+            ];
+        });
+
+        $topAmountIncrease = $comparison
+            ->filter(fn($item) => $item['amount_fluctuation'] > 0)
+            ->sortByDesc('amount_fluctuation')
+            ->take(10)
+            ->values();
+
+        // 2. Top 10: mayor disminución en MONTO (solo negativos, orden ascendente → más negativo primero)
+        $topAmountDecrease = $comparison
+            ->filter(fn($item) => $item['amount_fluctuation'] < 0)
+            ->sortBy('amount_fluctuation') // más negativo primero
+            ->take(10)
+            ->values();
+
+        // 3. Top 10: mayor aumento en CANTIDAD (solo positivos)
+        $topQuantityIncrease = $comparison
+            ->filter(fn($item) => $item['quantity_fluctuation'] > 0)
+            ->sortByDesc('quantity_fluctuation')
+            ->take(10)
+            ->values();
+
+        // 4. Top 10: mayor disminución en CANTIDAD (solo negativos)
+        $topQuantityDecrease = $comparison
+            ->filter(fn($item) => $item['quantity_fluctuation'] < 0)
+            ->sortBy('quantity_fluctuation') // más negativo primero
+            ->take(10)
+            ->values();
+
+        return new ReportSeguimientoDto(
+            $topAmountIncrease->toArray(),
+            $topAmountDecrease->toArray(),
+            $topQuantityIncrease->toArray(),
+            $topQuantityDecrease->toArray(),
+            $avgAmount1,
+            $avgAmount2,
+            $avgQuantity1,
+            $avgQuantity2,
+            $comparison->toArray(),
+            compact('start_date_1', 'end_date_1', 'start_date_2', 'end_date_2')
+        );
     }
 }

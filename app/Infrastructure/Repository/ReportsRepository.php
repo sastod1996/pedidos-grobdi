@@ -6,6 +6,7 @@ use App\Domain\Interfaces\ReportsRepositoryInterface;
 use App\Models\Departamento;
 use App\Models\Distrito;
 use App\Models\Doctor;
+use App\Models\Enums\MuestraEstadoType;
 use App\Models\Muestras;
 use App\Models\Pedidos;
 use App\Models\Provincia;
@@ -247,59 +248,6 @@ class ReportsRepository implements ReportsRepositoryInterface
         ];
     }
 
-    public function muestrasGetTopDoctorByAmountInfo(string $startDate, string $endDate): mixed
-    {
-        $topDoctor = Muestras::selectRaw(
-            'dr.id as doctor_id,
-            dr.name,
-            dr.tipo_medico,
-            esp.name as especialidad,
-            dist.name as distrito,
-            cs.name as centro_salud,
-            SUM(muestras.precio) as total_amount'
-        )
-            ->join('doctor as dr', 'muestras.id_doctor', '=', 'dr.id')
-            ->leftJoin('especialidad as esp', 'dr.especialidad_id', '=', 'esp.id')
-            ->leftJoin('distritos as dist', 'dr.distrito_id', '=', 'dist.id')
-            ->leftJoin('centrosalud as cs', 'dr.centrosalud_id', '=', 'cs.id')
-            ->whereBetween('muestras.created_at', [$startDate, $endDate])
-            ->groupBy('dr.id', 'dr.name', 'dr.tipo_medico', 'esp.name', 'dist.name', 'cs.name')
-            ->orderByDesc('total_amount')
-            ->first();
-
-        if (!$topDoctor) {
-            $doctor = Doctor::with([
-                'especialidad:id,name',
-                'distrito:id,name',
-                'centrosalud:id,name',
-            ])->select('id', 'name', 'tipo_medico', 'especialidad_id', 'distrito_id', 'centrosalud_id')->inRandomOrder()->first();
-
-            if (!$doctor) {
-                return null;
-            }
-
-            return [
-                'id' => $doctor->id,
-                'name' => $doctor->name,
-                'tipo_medico' => $doctor->tipo_medico,
-                'especialidad' => $doctor->especialidad->name ?? null,
-                'distrito' => $doctor->distrito->name ?? null,
-                'centro_salud' => $doctor->centrosalud->name ?? null,
-                'is_top_doctor' => false,
-            ];
-        }
-
-        return [
-            'id' => $topDoctor->doctor_id,
-            'name' => $topDoctor->name,
-            'tipo_medico' => $topDoctor->tipo_medico,
-            'especialidad' => $topDoctor->especialidad,
-            'distrito' => $topDoctor->distrito,
-            'centro_salud' => $topDoctor->centro_salud,
-            'is_top_doctor' => true,
-        ];
-    }
-
     public function getDoctorInfo(int $doctorId): mixed
     {
         $doctor = Doctor::with([
@@ -420,6 +368,59 @@ class ReportsRepository implements ReportsRepositoryInterface
     }
 
     /* -------- Muestras -------- */
+
+    public function muestrasGetTopDoctorByAmountInfo(string $startDate, string $endDate): mixed
+    {
+        $topDoctor = Muestras::selectRaw(
+            'dr.id as doctor_id,
+            dr.name,
+            dr.tipo_medico,
+            esp.name as especialidad,
+            dist.name as distrito,
+            cs.name as centro_salud,
+            SUM(muestras.precio) as total_amount'
+        )
+            ->join('doctor as dr', 'muestras.id_doctor', '=', 'dr.id')
+            ->leftJoin('especialidad as esp', 'dr.especialidad_id', '=', 'esp.id')
+            ->leftJoin('distritos as dist', 'dr.distrito_id', '=', 'dist.id')
+            ->leftJoin('centrosalud as cs', 'dr.centrosalud_id', '=', 'cs.id')
+            ->whereBetween('muestras.created_at', [$startDate, $endDate])
+            ->groupBy('dr.id', 'dr.name', 'dr.tipo_medico')
+            ->orderByDesc('total_amount')
+            ->first();
+
+        if (!$topDoctor) {
+            $doctor = Doctor::with([
+                'especialidad:id,name',
+                'distrito:id,name',
+                'centrosalud:id,name',
+            ])->select('id', 'name', 'tipo_medico', 'especialidad_id', 'distrito_id', 'centrosalud_id')->inRandomOrder()->first();
+
+            if (!$doctor) {
+                return null;
+            }
+            return [
+                'id' => $doctor->id,
+                'name' => $doctor->name,
+                'tipo_medico' => $doctor->tipo_medico,
+                'especialidad' => $doctor->especialidad->name ?? null,
+                'distrito' => $doctor->distrito->name ?? null,
+                'centro_salud' => $doctor->centrosalud->name ?? null,
+                'is_top_doctor' => false,
+            ];
+        }
+
+        return [
+            'id' => $topDoctor->doctor_id,
+            'name' => $topDoctor->name,
+            'tipo_medico' => $topDoctor->tipo_medico,
+            'especialidad' => $topDoctor->especialidad,
+            'distrito' => $topDoctor->distrito,
+            'centro_salud' => $topDoctor->centro_salud,
+            'is_top_doctor' => true,
+        ];
+    }
+
     public function getRawMuestrasData(string $startDate, string $endDate): Collection
     {
         return Muestras::with([
@@ -440,8 +441,8 @@ class ReportsRepository implements ReportsRepositoryInterface
                     'id_doctor',
                     'created_at'
                 ])->whereBetween('created_at', [$startDate, $endDate])
-            ->where('state', true)
-            ->where('lab_state', true)
+            ->whereActive(true)
+            ->withEvent(MuestraEstadoType::PRODUCED)
             ->orderBy('created_at', 'desc')
             ->get();
     }
@@ -467,8 +468,8 @@ class ReportsRepository implements ReportsRepositoryInterface
                     'created_at'
                 ])
             ->whereBetween('created_at', [$startDate, $endDate])
-            ->where('state', true)
-            ->where('lab_state', true)
+            ->whereActive(true)
+            ->withEvent(MuestraEstadoType::PRODUCED)
             ->where('id_doctor', $idDoctor)
             ->orderBy('created_at', 'desc')
             ->get();

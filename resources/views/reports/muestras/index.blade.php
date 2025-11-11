@@ -78,6 +78,7 @@
 
 @section('plugins.Chartjs', true)
 @section('plugins.Sweetalert2', true)
+@section('plugins.Flatpickr', true)
 
 @section('js')
 
