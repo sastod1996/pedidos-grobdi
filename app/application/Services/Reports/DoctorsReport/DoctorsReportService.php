@@ -13,6 +13,7 @@ use Brick\Math\RoundingMode;
 use Brick\Money\Money;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class DoctorsReportService extends ReportBaseService
 {
@@ -24,6 +25,7 @@ class DoctorsReportService extends ReportBaseService
 
     public function createInitialReport(): mixed
     {
+        dd($this->getSeguimientoReport()->toArray());
         return [
             'doctorReport' => $this->getDoctorReport()->toArray(),
             'tipoDoctorReport' => $this->getTipoDoctorReport()->toArray(),
@@ -174,17 +176,21 @@ class DoctorsReportService extends ReportBaseService
         $end_date_1 = Carbon::parse($filters['end_date_1'] ?? now()->subMonths(2)->endOfMonth())->endOfDay();
         $end_date_2 = Carbon::parse($filters['end_date_2'] ?? now()->subMonths(1)->endOfMonth())->endOfDay();
 
-        $data1 = Pedidos::selectRaw('id_doctor, SUM(prize) as total_amount, COUNT(*) as total_quantity')
-            ->groupBy('id_doctor')
-            ->whereNotNull('id_doctor')->where('id_doctor', '!=', '')
-            ->whereBetween('created_at', [$start_date_1, $end_date_1])
+        $data1 = DB::table('pedidos as p')
+            ->join('doctor as dr', 'p.id_doctor', '=', 'dr.id')
+            ->selectRaw('p.id_doctor, dr.name as doctor_name, SUM(p.prize) as total_amount, COUNT(*) as total_quantity')
+            ->whereBetween('p.created_at', [$start_date_1, $end_date_1])
+            ->whereNotNull('p.id_doctor')->where('p.id_doctor', '!=', '')
+            ->groupBy('p.id_doctor', 'dr.name')
             ->get()
             ->keyBy('id_doctor');
 
-        $data2 = Pedidos::selectRaw('id_doctor, SUM(prize) as total_amount, COUNT(*) as total_quantity')
-            ->groupBy('id_doctor')
-            ->whereNotNull('id_doctor')->where('id_doctor', '!=', '')
-            ->whereBetween('created_at', [$start_date_2, $end_date_2])
+        $data2 = DB::table('pedidos as p')
+            ->join('doctor as dr', 'p.id_doctor', '=', 'dr.id')
+            ->selectRaw('p.id_doctor, dr.name as doctor_name, SUM(p.prize) as total_amount, COUNT(*) as total_quantity')
+            ->whereBetween('p.created_at', [$start_date_2, $end_date_2])
+            ->whereNotNull('p.id_doctor')->where('p.id_doctor', '!=', '')
+            ->groupBy('p.id_doctor', 'dr.name')
             ->get()
             ->keyBy('id_doctor');
 
@@ -205,12 +211,21 @@ class DoctorsReportService extends ReportBaseService
         $avgQuantity1 = $data1->isEmpty() ? 0.0 : ($data1->sum('total_quantity') / $data1->count());
         $avgQuantity2 = $data2->isEmpty() ? 0.0 : ($data2->sum('total_quantity') / $data2->count());
 
-
         $allDoctorIds = $data1->keys()->merge($data2->keys())->unique();
 
         $comparison = $allDoctorIds->map(function ($id_doctor) use ($data1, $data2) {
-            $prev = $data1->get($id_doctor) ?? (object) ['total_amount' => 0, 'total_quantity' => 0];
-            $curr = $data2->get($id_doctor) ?? (object) ['total_amount' => 0, 'total_quantity' => 0];
+            $prev = $data1->get($id_doctor) ?? (object) [
+                'total_amount' => 0,
+                'total_quantity' => 0,
+                'doctor_name' => ''
+            ];
+            $curr = $data2->get($id_doctor) ?? (object) [
+                'total_amount' => 0,
+                'total_quantity' => 0,
+                'doctor_name' => ''
+            ];
+
+            $doctorName = $curr->doctor_name ?: $prev->doctor_name ?: "Doctor {$id_doctor}";
 
             $currTotalAmount = Money::of($curr->total_amount, 'PEN');
             $prevTotalAmount = Money::of($prev->total_amount, 'PEN');
@@ -218,10 +233,9 @@ class DoctorsReportService extends ReportBaseService
             $amountFluctuation = $currTotalAmount->minus($prevTotalAmount);
             $quantityFluctuation = $curr->total_quantity - $prev->total_quantity;
 
-            // Opcional: porcentaje de crecimiento (evita división por cero)
-            $amountFluctuationRate = $prevTotalAmount->isGreaterThan(0) ?
-                ($amountFluctuation->getAmount()->toFloat() / $prevTotalAmount->getAmount()->toFloat()) * 100 :
-                ($currTotalAmount->isGreaterThan(0) ? 100 : 0);
+            $amountFluctuationRate = $prevTotalAmount->isGreaterThan(0)
+                ? ($amountFluctuation->getAmount()->toFloat() / $prevTotalAmount->getAmount()->toFloat()) * 100
+                : ($currTotalAmount->isGreaterThan(0) ? 100 : 0);
 
             $quantityFluctuationRate = $prev->total_quantity > 0
                 ? ($quantityFluctuation / $prev->total_quantity) * 100
@@ -229,6 +243,7 @@ class DoctorsReportService extends ReportBaseService
 
             return [
                 'id_doctor' => $id_doctor,
+                'doctor' => $doctorName,
                 'prev_amount' => $prev->total_amount,
                 'curr_amount' => $curr->total_amount,
                 'amount_fluctuation' => $amountFluctuation->getAmount()->toFloat(),
@@ -274,8 +289,8 @@ class DoctorsReportService extends ReportBaseService
             $topQuantityDecrease->toArray(),
             $avgAmount1,
             $avgAmount2,
-            $avgQuantity1,
-            $avgQuantity2,
+            number_format($avgQuantity1, 2),
+            number_format($avgQuantity2, 2),
             $comparison->toArray(),
             compact('start_date_1', 'end_date_1', 'start_date_2', 'end_date_2')
         );
