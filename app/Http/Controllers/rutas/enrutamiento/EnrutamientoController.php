@@ -286,6 +286,10 @@ class EnrutamientoController extends Controller
                 'title' => $categoriadoctor.' - '.$visita->doctor->name.' '.$visita->doctor->first_lastname.' '.$visita->doctor->second_lastname,
                 'start' => $visita->fecha,
                 'color' => $visita->estado_visita->color ?? '#cccccc',
+                'extendedProps' => [
+                    'estado' => $visita->estado_visita->name ?? 'Sin estado',
+                    'turno' => $visita->turno == 1 ? 'Tarde' : 'Mañana',
+                ],
             ];
         });
 
