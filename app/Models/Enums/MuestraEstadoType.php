@@ -8,5 +8,5 @@ enum MuestraEstadoType: string
     case APROVE_JEFE_COMERCIAL = 'aprobado_jefe_comercial';
     case SET_PRICE = 'precio_asignado';
     case APROVE_JEFE_OPERACIONES = 'aprobado_jefe_operaciones';
-    case PRODUCED = 'producido';
+    case PRODUCED = 'muestra_elaborada';
 }
