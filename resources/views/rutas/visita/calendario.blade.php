@@ -226,7 +226,26 @@
                 right: 'dayGridMonth,listMonth'
             },
             events: @json($eventos),
-            eventOrder: "turno",
+            eventOrder: 'extendedProps.turno',
+            eventDidMount(info) {
+                try {
+                    const turno = info.event.extendedProps?.turno ?? '';
+                    if (!info.view.type.startsWith('list')) return;
+                    const timeCell = info.el.querySelector('.fc-list-event-time');
+                    if (!timeCell) return;
+                    const txt = timeCell.textContent.trim().toLowerCase();
+                    const normalized = txt
+                        .replace(/\s+/g, ' ')
+                        .replace('todo el día', 'todo el dia')
+                        .replace('todo el día', 'todo el dia');
+                    const ALL_DAY_VARIANTS = ['all-day', 'all day', 'todo el dia', 'todo el día', 'todo el día'.toLowerCase()];
+                    if (ALL_DAY_VARIANTS.includes(txt) || ALL_DAY_VARIANTS.includes(normalized)) {
+                        timeCell.textContent = turno || '';
+                    }
+                } catch (e) {
+                    console.warn('eventDidMount error:', e);
+                }
+            },
             eventClick: function(info) {
                 mostrarDoctor(info.event.id);
             }
