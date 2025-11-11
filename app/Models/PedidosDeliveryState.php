@@ -16,7 +16,7 @@ class PedidosDeliveryState extends Model
 
     protected $casts = [
         'datetime_foto_domicilio' => 'datetime',
-        'datetime_foto_entrega'   => 'datetime',
+        'datetime_foto_entrega' => 'datetime',
     ];
 
     protected $fillable = [

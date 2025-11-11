@@ -173,7 +173,7 @@
                                 <tbody id="general-frasco-original-tbody">
                                     @include('empty-table', [
                                         'dataLength' => count($generalReport['data']['frasco_original']),
-                                        'colspan' => 5,
+                                        'colspan' => 6,
                                     ])
                                     @if (isset($generalReport['data']['frasco_original']) && count($generalReport['data']['frasco_original']) > 0)
                                         @foreach ($generalReport['data']['frasco_original'] as $muestra)
@@ -230,7 +230,7 @@
                                 <tbody id="general-frasco-muestra-tbody">
                                     @include('empty-table', [
                                         'dataLength' => count($generalReport['data']['frasco_muestra']),
-                                        'colspan' => 5,
+                                        'colspan' => 6,
                                     ])
                                     @if (isset($generalReport['data']['frasco_muestra']) && count($generalReport['data']['frasco_muestra']) > 0)
                                         @foreach ($generalReport['data']['frasco_muestra'] as $muestra)
@@ -469,7 +469,6 @@
         }
 
         function generalUpdateGraphics(response) {
-
             const startDate = new Date(response.filters.start_date).toLocaleDateString(
                 'es-PE');
             const endDate = new Date(response.filters.end_date).toLocaleDateString(

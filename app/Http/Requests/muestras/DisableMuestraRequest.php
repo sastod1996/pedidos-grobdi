@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\muestras;
 
+use App\Models\Enums\MuestraEstadoType;
+use App\Models\MuestrasEstado;
 use Illuminate\Foundation\Http\FormRequest;
 
 class DisableMuestraRequest extends FormRequest
@@ -14,8 +16,14 @@ class DisableMuestraRequest extends FormRequest
         $muestra = $this->route('muestra');
         $user = $this->user();
 
-        if ($user->hasRole('coordinador-lineas') && $muestra->aprobado_jefe_comercial) {
-            return false;
+        if ($user->hasRole('coordinador-lineas')) {
+            $approved = MuestrasEstado::where('muestras_id', $muestra->id)
+                ->where('type', MuestraEstadoType::APROVE_JEFE_COMERCIAL)
+                ->exists();
+
+            if ($approved) {
+                return false;
+            }
         }
 
         return $user->can('muestras.disable');

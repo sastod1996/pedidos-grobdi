@@ -91,7 +91,7 @@ class DetailPedidosPreviewImport implements OnEachRow, WithChunkReading, WithEve
         $this->excelPedidoOriginals[$pedidoKey] = $pedidoIdRaw;
 
         $pedido = $this->findPedido($pedidoIdRaw);
-        if (! $pedido) {
+        if (!$pedido) {
             $this->stats['not_found_count']++;
             $this->changes['not_found'][] = [
                 'row_index' => $rowIndex,
@@ -186,7 +186,7 @@ class DetailPedidosPreviewImport implements OnEachRow, WithChunkReading, WithEve
             return;
         }
 
-        if (! $this->headerAnalyzed && $this->looksLikeHeaderRow($row)) {
+        if (!$this->headerAnalyzed && $this->looksLikeHeaderRow($row)) {
             $aliases = [
                 'numero' => ['numero', 'número', 'pedido', 'nro', 'nro pedido'],
                 'articulo' => ['articulo', 'artículo', 'producto', 'item'],
@@ -196,7 +196,7 @@ class DetailPedidosPreviewImport implements OnEachRow, WithChunkReading, WithEve
             ];
 
             $headers = array_map(
-                fn ($value) => is_string($value) ? strtolower(trim($value)) : '',
+                fn($value) => is_string($value) ? strtolower(trim($value)) : '',
                 $row
             );
 
@@ -247,7 +247,7 @@ class DetailPedidosPreviewImport implements OnEachRow, WithChunkReading, WithEve
         $matches = 0;
 
         foreach ($row as $value) {
-            if (! is_string($value)) {
+            if (!is_string($value)) {
                 continue;
             }
 
@@ -298,7 +298,7 @@ class DetailPedidosPreviewImport implements OnEachRow, WithChunkReading, WithEve
     private function getStringValue(array $row, string $key): string
     {
         $index = $this->colMap[$key] ?? null;
-        if ($index === null || ! array_key_exists($index, $row)) {
+        if ($index === null || !array_key_exists($index, $row)) {
             return '';
         }
 
@@ -310,7 +310,7 @@ class DetailPedidosPreviewImport implements OnEachRow, WithChunkReading, WithEve
      */
     private function getStringValueByIndex(array $row, ?int $index): string
     {
-        if ($index === null || ! array_key_exists($index, $row)) {
+        if ($index === null || !array_key_exists($index, $row)) {
             return '';
         }
 
@@ -335,7 +335,7 @@ class DetailPedidosPreviewImport implements OnEachRow, WithChunkReading, WithEve
      */
     private function buildDuplicateKey(string $pedidoId, string $articulo, float $cantidad, float $unit): string
     {
-        return strtoupper(trim($pedidoId)).'|'.strtoupper(trim($articulo)).'|'.$this->formatNumber($cantidad).'|'.$this->formatNumber($unit);
+        return strtoupper(trim($pedidoId)) . '|' . strtoupper(trim($articulo)) . '|' . $this->formatNumber($cantidad) . '|' . $this->formatNumber($unit);
     }
 
     /**
@@ -343,7 +343,7 @@ class DetailPedidosPreviewImport implements OnEachRow, WithChunkReading, WithEve
      */
     private function buildArticleKey(string $articulo, float $cantidad, float $unit): string
     {
-        return strtoupper(trim($articulo)).'|'.$this->formatNumber($cantidad).'|'.$this->formatNumber($unit);
+        return strtoupper(trim($articulo)) . '|' . $this->formatNumber($cantidad) . '|' . $this->formatNumber($unit);
     }
 
     /**
@@ -369,7 +369,7 @@ class DetailPedidosPreviewImport implements OnEachRow, WithChunkReading, WithEve
         ];
 
         if (isset($this->rowKeyDetails[$normalizedKey])) {
-            if (! isset($this->duplicateOriginalAdded[$normalizedKey])) {
+            if (!isset($this->duplicateOriginalAdded[$normalizedKey])) {
                 $this->changes['duplicates'][] = $this->rowKeyDetails[$normalizedKey];
                 $this->duplicateOriginalAdded[$normalizedKey] = true;
             }
@@ -393,13 +393,13 @@ class DetailPedidosPreviewImport implements OnEachRow, WithChunkReading, WithEve
         }
 
         $pedido = Pedidos::where('orderId', $pedidoIdRaw)->first();
-        if (! $pedido && is_numeric($pedidoIdRaw)) {
+        if (!$pedido && is_numeric($pedidoIdRaw)) {
             $pedido = Pedidos::where('orderId', (int) $pedidoIdRaw)->first();
         }
 
-        if (! $pedido) {
+        if (!$pedido) {
             $pedido = Pedidos::where('nroOrder', $pedidoIdRaw)->first();
-            if (! $pedido && is_numeric($pedidoIdRaw)) {
+            if (!$pedido && is_numeric($pedidoIdRaw)) {
                 $pedido = Pedidos::where('nroOrder', (int) $pedidoIdRaw)->first();
             }
         }
@@ -456,7 +456,7 @@ class DetailPedidosPreviewImport implements OnEachRow, WithChunkReading, WithEve
             $originalId = $this->excelPedidoOriginals[$pedidoKey] ?? $pedidoKey;
             $pedido = $this->findPedido($originalId);
 
-            if (! $pedido) {
+            if (!$pedido) {
                 continue;
             }
 
@@ -473,7 +473,7 @@ class DetailPedidosPreviewImport implements OnEachRow, WithChunkReading, WithEve
                     (float) $currentArticle->unit_prize
                 );
 
-                if (! isset($excelArticles[$currentKey])) {
+                if (!isset($excelArticles[$currentKey])) {
                     $this->stats['to_delete_count']++;
                     $this->changes['to_delete'][] = [
                         'id' => $currentArticle->id,
@@ -507,7 +507,7 @@ class DetailPedidosPreviewImport implements OnEachRow, WithChunkReading, WithEve
             + $this->stats['prepared_orders_count']
             + $this->stats['to_delete_count'];
 
-        if ($processedSum === 0 && ! empty($this->changes['duplicates'])) {
+        if ($processedSum === 0 && !empty($this->changes['duplicates'])) {
             $this->changes['info_message'] = 'Solo se detectaron filas duplicadas. Revisa la tabla de duplicados para corregir tu Excel.';
             $this->data = $this->changes;
             $this->key = 'warning';

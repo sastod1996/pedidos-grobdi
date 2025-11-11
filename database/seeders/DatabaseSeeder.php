@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\EstadoVisita;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -156,7 +155,7 @@ class DatabaseSeeder extends Seeder
             'role_id' => 13,
         ]);
         $this->call(ZoneSeeder::class);
-    $this->call(MotorizadoUserZoneSeeder::class);
+        $this->call(MotorizadoUserZoneSeeder::class);
         $this->call(DepartamentosSeeder::class);
         $this->call(ProvinciaSeeder::class);
         $this->call(DistritoSeeder::class);

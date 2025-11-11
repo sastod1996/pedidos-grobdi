@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class UnidadMedida extends Model
-{use HasFactory;
+{
+    use HasFactory;
 
     // Nombre de la tabla (correcto según tu migración)
     protected $table = 'unidad_de_medida';

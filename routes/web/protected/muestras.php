@@ -21,4 +21,6 @@ Route::prefix('muestras')->group(function () {
     Route::put('/aprove-coordinador/{muestra}', [MuestrasController::class, 'aproveMuestraByCoordinadora'])->name('muestras.aproveCoordinadora');
     Route::put('/aprove-jcomercial/{muestra}', [MuestrasController::class, 'aproveMuestraByJefeComercial'])->name('muestras.aproveJefeComercial');
     Route::put('/aprove-joperaciones/{muestra}', [MuestrasController::class, 'aproveMuestraByJefeOperaciones'])->name('muestras.aproveJefeOperaciones');
+
+    Route::get('/status-history/{muestra}', [MuestrasController::class, 'getStatusByMuestra'])->name('muestras.status.history');
 });
