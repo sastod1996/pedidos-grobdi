@@ -129,6 +129,17 @@ class ReportsController extends Controller
         ];
         return response()->json($this->reportsService->doctors()->getTipoDoctorReport($filters)->toArray(), 200);
     }
+    public function getDoctorSeguimientoReport(Request $request)
+    {
+        $filters = [
+            'start_date_1' => $request->input('start_date_1'),
+            'start_date_2' => $request->input('start_date_2'),
+            'end_date_1' => $request->input('end_date_1'),
+            'end_date_2' => $request->input('end_date_2'),
+        ];
+
+        return response()->json($this->reportsService->doctors()->getSeguimientoReport($filters)->toArray(), 200);
+    }
 
     /* Muestras */
     public function muestrasView()

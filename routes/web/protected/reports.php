@@ -31,6 +31,7 @@ Route::prefix('reports')->group(function () {
         Route::prefix('api/v1')->group(function () {
             Route::get('doctors', [ReportsController::class, 'getDoctorReport'])->name('reports.doctores.doctores');
             Route::get('tipo-doctor', [ReportsController::class, 'getTipoDoctorReport'])->name('reports.doctores.tipo-doctor');
+            Route::get('seguimiento', [ReportsController::class, 'getDoctorSeguimientoReport'])->name('reports.doctores.seguimiento');
         });
     });
 
