@@ -405,13 +405,28 @@
                         mostrarDoctor(info.event.id);
                     },
                     eventDidMount(info) {
-                        const estado = info.event.extendedProps.estado;
-                        const turno = info.event.extendedProps.turno;
-                        const tooltip = [estado, turno].filter(Boolean).join(' · ');
-                        if (tooltip) {
-                            info.el.setAttribute('title', tooltip);
+                        try {
+                            const turno = info.event.extendedProps?.turno ?? '';
+                            if (!info.view.type.startsWith('list')) return;
+                            const timeCell = info.el.querySelector('.fc-list-event-time');
+                            if (!timeCell) return;
+                            const txt = timeCell.textContent.trim().toLowerCase();
+                            const normalized = txt
+                                .replace(/\s+/g, ' ')
+                                .replace('todo el día', 'todo el dia')
+                                .replace('todo el día', 'todo el dia');
+                            const ALL_DAY_VARIANTS = ['all-day', 'all day', 'todo el dia', 'todo el día',
+                                'todo el día'.toLowerCase()
+                            ];
+                            if (ALL_DAY_VARIANTS.includes(txt) || ALL_DAY_VARIANTS.includes(normalized)) {
+                                timeCell.textContent = turno || '';
+                            }
+                        } catch (e) {
+                            console.warn('eventDidMount error:', e);
                         }
                     },
+
+
                     eventContent(arg) {
                         const estado = arg.event.extendedProps.estado;
                         const turno = arg.event.extendedProps.turno;
