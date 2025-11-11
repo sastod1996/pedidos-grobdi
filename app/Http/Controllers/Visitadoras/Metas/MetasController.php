@@ -140,6 +140,7 @@ class MetasController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Datos para chart obtenidos.',
+                'meta-data' => $this->service->getListOfVisitorGoalByMetaId($visitorGoal->monthlyVisitorGoal->id),
                 'chart-data' => $chartData,
                 'doctors-data' => $doctorsData,
                 'meta' => $metaSummary,
