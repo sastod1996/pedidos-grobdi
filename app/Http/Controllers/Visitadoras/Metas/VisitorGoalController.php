@@ -10,10 +10,7 @@ use Illuminate\Http\Request;
 
 class VisitorGoalController extends Controller
 {
-
-    public function __construct(protected readonly MetasService $metasService)
-    {
-    }
+    public function __construct(protected readonly MetasService $metasService) {}
 
     /**
      * Update the specified resource in storage.
@@ -47,6 +44,10 @@ class VisitorGoalController extends Controller
      */
     public function showLogged(Request $request)
     {
+        if (! $request->expectsJson()) {
+            return view('bonificaciones.visitadoras-view');
+        }
+
         $tipoMedico = $request->input('tipo_medico') ?? 'Prescriptor';
         $month = $request->input('month') ?? now()->month;
         $year = $request->input('year') ?? now()->year;
@@ -65,10 +66,10 @@ class VisitorGoalController extends Controller
                 })
                 ->first();
 
-            if (!$visitorGoal) {
+            if (! $visitorGoal) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'No se encontró una meta activa para este mes y tipo de médico.'
+                    'message' => 'No se encontró una meta activa para este mes y tipo de médico.',
                 ], 404);
             }
 
@@ -95,5 +96,3 @@ class VisitorGoalController extends Controller
         }
     }
 }
-
-
