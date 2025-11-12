@@ -230,6 +230,7 @@
             eventDidMount(info) {
                 try {
                     const turno = info.event.extendedProps?.turno ?? '';
+                    const estado = info.event.extendedProps?.estado ?? '';
                     if (!info.view.type.startsWith('list')) return;
                     const timeCell = info.el.querySelector('.fc-list-event-time');
                     if (!timeCell) return;
@@ -240,11 +241,29 @@
                         .replace('todo el día', 'todo el dia');
                     const ALL_DAY_VARIANTS = ['all-day', 'all day', 'todo el dia', 'todo el día', 'todo el día'.toLowerCase()];
                     if (ALL_DAY_VARIANTS.includes(txt) || ALL_DAY_VARIANTS.includes(normalized)) {
+                        const isReprogramado = estado && estado.toLowerCase().includes('reprogram');
                         timeCell.textContent = turno || '';
+                        if (isReprogramado) {
+                            timeCell.textContent += (turno ? '  ' : '');
+                        }
                     }
                 } catch (e) {
                     console.warn('eventDidMount error:', e);
                 }
+            },
+            eventContent(arg) {
+                const estado = arg.event.extendedProps.estado;
+                const turno = arg.event.extendedProps.turno;
+                const lines = [`<span class="fc-event-title">${arg.event.title}</span>`];
+                if (turno) {
+                    lines.push(`<span class="fc-event-meta">${turno}</span>`);
+                }
+                if (estado) {
+                    lines.push(`<span class="fc-event-meta">${estado}</span>`);
+                }
+                return {
+                    html: `<div class="fc-event-content">${lines.join('')}</div>`
+                };
             },
             eventClick: function(info) {
                 mostrarDoctor(info.event.id);
@@ -312,7 +331,8 @@
                         id: data.visita_id.toString(),
                         title: data.doctor_name,
                         start: data.fecha_visita,
-                        color: data.color
+                        color: data.color,
+                        extendedProps: data.extendedProps ?? {}
                     });
                 }
             })

@@ -467,7 +467,7 @@ class EnrutamientoController extends Controller
             'fecha_visita' => $visita->fecha,
             'color' => $visita->estado_visita->color ?? '#ccc',
             'extendedProps' => [
-                'turno' => $visita->turno, // 0 = mañana, 1 = tarde
+                'turno' => $visita->turno == 1 ? 'Tarde' : 'Mañana', // valor textual para el frontend
                 'estado' => $visita->estado_visita->name ?? null,
             ],
         ]);
