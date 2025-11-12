@@ -15,6 +15,14 @@
                 <label>Indicadores de Pedidos</label>
             </div>
             <div class="card-body">
+                <div class="d-flex mb-3 gap-2 align-items-center">
+                    <select id="doctor-select" class="form-select grobdi-input" style="width:340px">
+                        <option value="">Todos los doctores</option>
+                        @foreach ($doctores as $doctor)
+                            <option value="{{ $doctor['id'] }}">{{ $doctor['name'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
                 <div id="calendar"></div>
                 <div class="mt-4">
                     <h5>Leyenda de estados:</h5>
@@ -77,13 +85,15 @@
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
 @stop
 
 @section('js')
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+    <script>
     // Llenar estado
     const estadoSelect = document.getElementById('estado');
     const fechaGroup = document.getElementById('fecha_visita_group');
@@ -181,6 +191,9 @@
     }
 
     let calendar;
+    const doctorSelectEl = document.getElementById('doctor-select');
+    let tomDoctorSelectLocal = null;
+    let doctorFilter = '';
     document.addEventListener('DOMContentLoaded', function() {
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition(function(position) {
@@ -209,7 +222,7 @@
             }
         }
 
-        const calendarEl = document.getElementById('calendar');
+    const calendarEl = document.getElementById('calendar');
         calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: obtenerVistaInicial(),
             locale: 'es',
@@ -230,6 +243,7 @@
             eventDidMount(info) {
                 try {
                     const turno = info.event.extendedProps?.turno ?? '';
+                    const estado = info.event.extendedProps?.estado ?? '';
                     if (!info.view.type.startsWith('list')) return;
                     const timeCell = info.el.querySelector('.fc-list-event-time');
                     if (!timeCell) return;
@@ -240,16 +254,50 @@
                         .replace('todo el día', 'todo el dia');
                     const ALL_DAY_VARIANTS = ['all-day', 'all day', 'todo el dia', 'todo el día', 'todo el día'.toLowerCase()];
                     if (ALL_DAY_VARIANTS.includes(txt) || ALL_DAY_VARIANTS.includes(normalized)) {
+                        const isReprogramado = estado && estado.toLowerCase().includes('reprogram');
                         timeCell.textContent = turno || '';
+                        if (isReprogramado) {
+                            timeCell.textContent += (turno ? '  ' : '');
+                        }
+                    }
+                    // Set data-doctor-id attribute
+                    try {
+                        const dId = info.event.extendedProps?.doctor?.id ?? null;
+                        if (dId) {
+                            info.el.setAttribute('data-doctor-id', dId);
+                        }
+                        // Apply filter if needed
+                        if (doctorFilter && !(info.event.title || '').toLowerCase().includes(doctorFilter) && (!dId || dId !== String(doctorFilter))) {
+                            info.el.classList.add('fc-event-filter-hidden');
+                        } else {
+                            info.el.classList.remove('fc-event-filter-hidden');
+                        }
+                    } catch (e) {
+                        // ignorar
                     }
                 } catch (e) {
                     console.warn('eventDidMount error:', e);
                 }
             },
+            eventContent(arg) {
+                const estado = arg.event.extendedProps.estado;
+                const turno = arg.event.extendedProps.turno;
+                const lines = [`<span class="fc-event-title">${arg.event.title}</span>`];
+                if (turno) {
+                    lines.push(`<span class="fc-event-meta">${turno}</span>`);
+                }
+                if (estado) {
+                    lines.push(`<span class="fc-event-meta">${estado}</span>`);
+                }
+                return {
+                    html: `<div class="fc-event-content">${lines.join('')}</div>`
+                };
+            },
             eventClick: function(info) {
                 mostrarDoctor(info.event.id);
             }
         });
+
         calendar.render();
 
         if (typeof mediaQueryMovil.addEventListener === 'function') {
@@ -257,7 +305,73 @@
         } else if (typeof mediaQueryMovil.addListener === 'function') {
             mediaQueryMovil.addListener(aplicarVistaResponsiva);
         }
-        aplicarVistaResponsiva();
+    aplicarVistaResponsiva();
+    // Reaplicar filtro después del primer render para sincronizar visibilidad
+    applyDoctorFilter('');
+    // Inicializar Tom Select para doctor
+        function initDoctorTomSelectLocal() {
+        try {
+            tomDoctorSelectLocal = new TomSelect('#doctor-select', {
+                create: false,
+                allowEmptyOption: true,
+                placeholder: 'Buscar o seleccionar doctor...',
+                onChange: function(value) {
+                    if (!value) {
+                        applyDoctorFilter('');
+                    } else {
+                        // When selecting a doctor, switch to listMonth view and apply filter
+                        if (calendar && calendar.view.type !== 'listMonth') {
+                            calendar.changeView('listMonth');
+                        }
+                        applyDoctorFilter('', value || null);
+                    }
+                },
+                onSearchChange: function(search) {
+                    if (!search) {
+                        applyDoctorFilter('');
+                    } else {
+                        applyDoctorFilter(search, null);
+                    }
+                }
+            });
+        } catch (e) { console.warn('TomSelect init failed', e); }
+    }
+
+        function applyDoctorFilter(filter, doctorId = null) {
+            const filterText = (filter || '').trim().toLowerCase();
+            doctorFilter = filterText || (doctorId ? String(doctorId) : '');
+            if (!calendar) return;
+            const container = calendarEl;
+            if (!container) return;
+            const useId = doctorId !== null;
+            container.querySelectorAll('.fc-event').forEach((el) => {
+                const elDoctorId = el.getAttribute('data-doctor-id');
+                if (useId) {
+                    if (!elDoctorId || elDoctorId !== String(doctorId)) {
+                        el.classList.add('fc-event-filter-hidden');
+                    } else {
+                        el.classList.remove('fc-event-filter-hidden');
+                    }
+                    return;
+                }
+                const text = (el.textContent || '').trim().toLowerCase();
+                if (!filterText) {
+                    el.classList.remove('fc-event-filter-hidden');
+                } else if (text.includes(filterText)) {
+                    el.classList.remove('fc-event-filter-hidden');
+                } else {
+                    el.classList.add('fc-event-filter-hidden');
+                }
+            });
+        }
+
+        // Tom Select handles dropdown, filter and selection
+
+    // Init Tom Select combobox for visitadora calendar
+    initDoctorTomSelectLocal();
+    // Reapply filter using the selected id if any
+    const initialSelectedId = (tomDoctorSelectLocal && tomDoctorSelectLocal.getValue()) ? tomDoctorSelectLocal.getValue() : (doctorSelectEl ? doctorSelectEl.value : '');
+    applyDoctorFilter('', initialSelectedId || null);
         // Para doctores sin fecha asignada
         // document.querySelectorAll('.detalle-doctor').forEach(el => {
         //     el.addEventListener('click', function(e) {
@@ -312,8 +426,12 @@
                         id: data.visita_id.toString(),
                         title: data.doctor_name,
                         start: data.fecha_visita,
-                        color: data.color
+                        color: data.color,
+                        extendedProps: data.extendedProps ?? {}
                     });
+                    // Reaplicar filtro para el evento agregado
+                    const selectedId = (typeof tomDoctorSelectLocal !== 'undefined' && tomDoctorSelectLocal) ? tomDoctorSelectLocal.getValue() : (doctorSelectEl ? doctorSelectEl.value : '');
+                    applyDoctorFilter('', selectedId || null);
                 }
             })
             .catch(err => {

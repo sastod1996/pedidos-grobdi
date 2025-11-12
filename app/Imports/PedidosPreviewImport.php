@@ -397,7 +397,7 @@ class PedidosPreviewImport implements OnEachRow, WithChunkReading, WithEvents
             return null;
         }
 
-        return round((float) $value, 2);
+        return round((float) $value, 3);
     }
 
     private function stringsDiffer(?string $current, ?string $incoming): bool

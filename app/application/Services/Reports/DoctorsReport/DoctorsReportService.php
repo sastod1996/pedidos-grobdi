@@ -25,7 +25,6 @@ class DoctorsReportService extends ReportBaseService
 
     public function createInitialReport(): mixed
     {
-        dd($this->getSeguimientoReport()->toArray());
         return [
             'doctorReport' => $this->getDoctorReport()->toArray(),
             'tipoDoctorReport' => $this->getTipoDoctorReport()->toArray(),

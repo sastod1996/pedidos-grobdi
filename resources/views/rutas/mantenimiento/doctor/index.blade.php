@@ -31,6 +31,8 @@
                                 <input type="hidden" name="end_date" value="{{ $endDate }}">
                                 <input type="hidden" name="tipo_medico" value="{{ $tipoMedico }}">
                                 <input type="hidden" name="distrito_id" value="{{ $distritoId }}">
+                                <input type="hidden" name="especialidad_id" value="{{ $especialidadId }}">
+                                <input type="hidden" name="centrosalud_id" value="{{ $centrosaludId }}">
                                 <input type="hidden" name="sort_by" value="{{ $ordenarPor }}">
                                 <input type="hidden" name="direction" value="{{ $direccion }}">
                                 <button type="submit" class="btn btn-outline" data-bs-toggle="tooltip"
@@ -87,6 +89,28 @@
                                     @foreach ($distritos as $distrito)
                                         <option value="{{ $distrito->id }}"
                                             {{ $distritoId == $distrito->id ? 'selected' : '' }}>{{ $distrito->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="especialidad_id"><i class="fa fa-stethoscope"></i> Especialidad</label>
+                                <select name="especialidad_id" id="especialidad_id" class="form-select">
+                                    <option value="">Todas</option>
+                                    @foreach ($especialidades as $especialidad)
+                                        <option value="{{ $especialidad->id }}"
+                                            {{ $especialidadId == $especialidad->id ? 'selected' : '' }}>{{ $especialidad->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="centrosalud_id"><i class="fa fa-hospital"></i> Centro de Salud</label>
+                                <select name="centrosalud_id" id="centrosalud_id" class="form-select">
+                                    <option value="">Todos</option>
+                                    @foreach ($centrosSalud as $centro)
+                                        <option value="{{ $centro->id }}"
+                                            {{ $centrosaludId == $centro->id ? 'selected' : '' }}>{{ $centro->name }}
                                         </option>
                                     @endforeach
                                 </select>

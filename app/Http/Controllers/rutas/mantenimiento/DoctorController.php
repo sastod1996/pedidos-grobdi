@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\rutas\DoctorStoreRequest;
 use App\Imports\DoctoresImport;
 use App\Models\CategoriaDoctor;
+use App\Models\CentroSalud;
 use App\Models\Day;
 use App\Models\Distrito;
 use App\Models\Doctor;
@@ -44,6 +45,8 @@ class DoctorController extends Controller
         $endDate = $request->input('end_date');
         $tipoMedico = $request->input('tipo_medico');
         $distritoId = $request->input('distrito_id');
+        $especialidadId = $request->input('especialidad_id');
+        $centrosaludId = $request->input('centrosalud_id');
 
         $query = $this->buildDoctorQuery($request);
 
@@ -58,17 +61,25 @@ class DoctorController extends Controller
 
         $tiposMedico = Doctor::select('tipo_medico')->distinct()->pluck('tipo_medico');
 
+        $especialidades = Especialidad::all();
+
+        $centrosSalud = CentroSalud::all();
+
         return view('rutas.mantenimiento.doctor.index', compact(
             'doctores',
             'distritos',
             'tiposMedico',
+            'especialidades',
+            'centrosSalud',
             'ordenarPor',
             'direccion',
             'search',
             'startDate',
             'endDate',
             'tipoMedico',
-            'distritoId'
+            'distritoId',
+            'especialidadId',
+            'centrosaludId'
         ));
     }
 
@@ -128,6 +139,14 @@ class DoctorController extends Controller
 
         if ($request->filled('distrito_id')) {
             $query->where('distrito_id', $request->input('distrito_id'));
+        }
+
+        if ($request->filled('especialidad_id')) {
+            $query->where('especialidad_id', $request->input('especialidad_id'));
+        }
+
+        if ($request->filled('centrosalud_id')) {
+            $query->where('centrosalud_id', $request->input('centrosalud_id'));
         }
 
         return $query;

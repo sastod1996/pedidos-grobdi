@@ -38,6 +38,12 @@
                                 <i class="fas fa-stethoscope"></i> Tipo Doctor
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="seguimiento-tab" data-toggle="pill" href="#seguimiento" role="tab"
+                                aria-controls="seguimiento" data-target="#seguimiento" aria-selected="false">
+                                <i class="fas fa-chart-line"></i> Seguimiento
+                            </a>
+                        </li>
                     </ul>
                 </div>
                 <div class="card-body">
@@ -47,6 +53,9 @@
                         </div>
                         <div class="tab-pane fade" id="tipo-doctor" role="tabpanel" aria-labelledby="tipo-doctor-tab">
                             @include('reports.doctores.partials.tipo-doctor')
+                        </div>
+                        <div class="tab-pane fade" id="seguimiento" role="tabpanel" aria-labelledby="seguimiento-tab">
+                            @include('reports.doctores.partials.seguimiento')
                         </div>
                     </div>
                 </div>
