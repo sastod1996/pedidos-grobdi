@@ -377,14 +377,14 @@ class MetasService
             }
         }
 
-        if (! empty($monthlyGoal->start_date) && ! empty($monthlyGoal->end_date)) {
+        if (!empty($monthlyGoal->start_date) && !empty($monthlyGoal->end_date)) {
             $start = Carbon::parse($monthlyGoal->start_date);
             $end = Carbon::parse($monthlyGoal->end_date);
 
             return $start->format('d/m/Y') . ' - ' . $end->format('d/m/Y');
         }
 
-        if (! empty($monthlyGoal->start_date)) {
+        if (!empty($monthlyGoal->start_date)) {
             return Carbon::parse($monthlyGoal->start_date)
                 ->locale('es')
                 ->translatedFormat('F, Y');
@@ -428,7 +428,7 @@ class MetasService
         try {
             $date = $value instanceof Carbon ? $value->copy() : Carbon::parse($value);
 
-            if (! $preserveTime) {
+            if (!$preserveTime) {
                 $date->startOfDay();
             }
 
@@ -437,4 +437,5 @@ class MetasService
             return is_string($value) ? $value : (string) $value;
         }
     }
+
 }

@@ -155,6 +155,7 @@ class ViewSeeder extends Seeder
             ['url' => 'reports.doctors', 'is_menu' => true, 'name' => 'Reporte de Doctores', 'description' => 'Vista del reporte de doctores', 'module_id' => 9],
             ['url' => 'reports.doctores.doctores', 'is_menu' => false, 'name' => 'Reporte de Doctores por Doctor', 'description' => 'API para el reporte de doctores por doctor', 'module_id' => 9],
             ['url' => 'reports.doctores.tipo-doctor', 'is_menu' => false, 'name' => 'Reporte de Doctores por Tipo Doctor', 'description' => 'API para el reporte de doctores por tipo doctor (^tipo-medico^ en las tablas)', 'module_id' => 9],
+            ['url' => 'reports.doctores.seguimiento', 'is_menu' => false, 'name' => 'Reporte de Seguimiento de Doctores', 'description' => 'API para el reporte de seguimiento por doctores y ver la fluctuación de ventas', 'module_id' => 9],
             ['url' => 'reports.rutas', 'is_menu' => true, 'name' => 'Reporte de Rutas', 'description' => 'Vista del reporte de rutas', 'module_id' => 9],
             ['url' => 'reports.rutas.zones', 'is_menu' => false, 'name' => 'Reporte de Rutas por Zona', 'description' => 'API para el reporte de rutas por zona', 'module_id' => 9],
             ['url' => 'reports.muestras', 'is_menu' => true, 'name' => 'Reporte de Muestras', 'description' => 'Vista del reporte de muestras', 'module_id' => 9],
