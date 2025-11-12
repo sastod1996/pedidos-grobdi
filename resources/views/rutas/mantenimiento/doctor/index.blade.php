@@ -85,12 +85,22 @@
                             <div class="col-md-6 mb-3">
                                 <label for="distrito_id"><i class="fa fa-map-marker-alt"></i> Distrito</label>
                                 <select name="distrito_id" id="distrito_id" class="form-select select2">
+
                                     <option value="">Todos</option>
+
+                                    {{-- Lista de Distritos de Lima y Callao --}}
                                     @foreach ($distritos as $distrito)
                                         <option value="{{ $distrito->id }}"
-                                            {{ $distritoId == $distrito->id ? 'selected' : '' }}>{{ $distrito->name }}
+                                            {{ $distritoId == $distrito->id ? 'selected' : '' }}>
+                                            {{ $distrito->name }}
                                         </option>
                                     @endforeach
+
+                                    {{-- Opción especial para "Otros Distritos" --}}
+                                    <option value="_OTROS_" {{ $distritoId == '_OTROS_' ? 'selected' : '' }}>
+                                        Otros Departamentos
+                                    </option>
+
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
@@ -99,7 +109,8 @@
                                     <option value="">Todas</option>
                                     @foreach ($especialidades as $especialidad)
                                         <option value="{{ $especialidad->id }}"
-                                            {{ $especialidadId == $especialidad->id ? 'selected' : '' }}>{{ $especialidad->name }}
+                                            {{ $especialidadId == $especialidad->id ? 'selected' : '' }}>
+                                            {{ $especialidad->name }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -224,7 +235,8 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
+        rel="stylesheet" />
 @endsection
 
 @section('js')
