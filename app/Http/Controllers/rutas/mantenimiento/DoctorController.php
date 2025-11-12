@@ -44,11 +44,10 @@ class DoctorController extends Controller
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
         $tipoMedico = $request->input('tipo_medico');
-        $distritoId = $request->input('distrito_id');
+        $distritoId = $request->input('distrito_id'); 
         $especialidadId = $request->input('especialidad_id');
         $centrosaludId = $request->input('centrosalud_id');
 
-        // Consulta de doctores con filtros
         $doctores = Doctor::with(['categoriadoctor', 'especialidad', 'centrosalud', 'distrito'])
             ->when($search, function ($query, $search) {
                 return $query->where(function ($q) use ($search) {
@@ -68,7 +67,13 @@ class DoctorController extends Controller
                 return $query->where('tipo_medico', $tipoMedico);
             })
             ->when($distritoId, function ($query, $distritoId) {
-                return $query->where('distrito_id', $distritoId);
+                if ($distritoId === '_OTROS_') {
+                    return $query->whereDoesntHave('distrito.provincia', function ($q) {
+                        $q->whereIn('name', ['Lima', 'Callao']);
+                    });
+                } else {
+                    return $query->where('distrito_id', $distritoId);
+                }
             })
             ->when($especialidadId, function ($query, $especialidadId) {
                 return $query->where('especialidad_id', $especialidadId);
@@ -79,18 +84,17 @@ class DoctorController extends Controller
             ->orderBy($ordenarPor, $direccion)
             ->paginate(15);
 
-        // Datos para los filtros - ORDENADOS ALFABÉTICAMENTE
         $tiposMedico = Doctor::select('tipo_medico')
             ->distinct()
             ->whereNotNull('tipo_medico')
             ->orderBy('tipo_medico', 'asc')
             ->pluck('tipo_medico');
 
-        $distritos = Distrito::orderBy('name', 'asc')->get();
-
+        $distritos = Distrito::whereHas('provincia', function ($query) {
+            $query->whereIn('name', ['Lima', 'Callao']);
+        })->orderBy('name', 'asc')->whereNotNull('name')->get();
         $especialidades = Especialidad::orderBy('name', 'asc')->get();
 
-        // CENTROS DE SALUD ORDENADOS ALFABÉTICAMENTE
         $centrosSalud = CentroSalud::orderBy('name', 'asc')->get();
 
         return view('rutas.mantenimiento.doctor.index', compact(
