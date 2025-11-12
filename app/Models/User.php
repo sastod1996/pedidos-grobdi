@@ -84,4 +84,9 @@ class User extends Authenticatable
         $this->notify(new ResetPasswordNotification($token));
     }
 
+    public function visitorGoals()
+    {
+        return $this->hasMany(VisitorGoal::class);
+    }
+
 }
