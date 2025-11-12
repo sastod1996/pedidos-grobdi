@@ -260,7 +260,6 @@
             const initSeguimientoModule = () => {
             // Estado global de la aplicación
             let appState = {
-                currentMetric: 'amount',
                 filters: {},
                 initialFilters: null,
                 initialRequestFilters: null,
@@ -551,7 +550,7 @@
                     button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
                 });
             };
-
+            //Correccion de la implementacion de interfaz porque no carga los pedidos positivos, soluccion hacer consulta con la base de datos
             const updateHorizontalChart = (chart, dataset, metricKey, paletteKey) => {
                 if (!chart || !metricSettings[metricKey]) {
                     return;
@@ -579,6 +578,7 @@
                 chart.update();
             };
 
+            //Verificar para que funciona este metodo
             const buildHorizontalChart = (canvasId, dataset, metricKey, paletteKey) => {
                 const canvas = document.getElementById(canvasId);
                 if (!canvas || !metricSettings[metricKey]) {
@@ -586,6 +586,8 @@
                 }
 
                 const metric = metricSettings[metricKey];
+
+
 
                 const chart = new Chart(canvas.getContext('2d'), {
                     type: 'bar',
