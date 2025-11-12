@@ -84,7 +84,7 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="distrito_id"><i class="fa fa-map-marker-alt"></i> Distrito</label>
-                                <select name="distrito_id" id="distrito_id" class="form-select">
+                                <select name="distrito_id" id="distrito_id" class="form-select select2">
                                     <option value="">Todos</option>
                                     @foreach ($distritos as $distrito)
                                         <option value="{{ $distrito->id }}"
@@ -95,7 +95,7 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="especialidad_id"><i class="fa fa-stethoscope"></i> Especialidad</label>
-                                <select name="especialidad_id" id="especialidad_id" class="form-select">
+                                <select name="especialidad_id" id="especialidad_id" class="form-select select2">
                                     <option value="">Todas</option>
                                     @foreach ($especialidades as $especialidad)
                                         <option value="{{ $especialidad->id }}"
@@ -106,7 +106,7 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="centrosalud_id"><i class="fa fa-hospital"></i> Centro de Salud</label>
-                                <select name="centrosalud_id" id="centrosalud_id" class="form-select">
+                                <select name="centrosalud_id" id="centrosalud_id" class="form-select select2">
                                     <option value="">Todos</option>
                                     @foreach ($centrosSalud as $centro)
                                         <option value="{{ $centro->id }}"
@@ -127,12 +127,12 @@
                 </div>
             </div>
             <div class="card-body table-responsive">
-                <table class="table table-striped  table-grobdi" id="miTabla">
+                <table class="table table-striped table-grobdi" id="miTabla">
                     <thead>
                         <tr>
                             <th>
                                 <a
-                                    href="{{ route('doctor.index', ['sort_by' => 'name', 'direction' => $ordenarPor == 'name' && $direccion == 'asc' ? 'desc' : 'asc']) }}">
+                                    href="{{ route('doctor.index', array_merge(request()->except('sort_by', 'direction', 'page'), ['sort_by' => 'name', 'direction' => $ordenarPor == 'name' && $direccion == 'asc' ? 'desc' : 'asc'])) }}">
                                     Nombre
                                     @if ($ordenarPor == 'name')
                                         {{ $direccion == 'asc' ? '↑' : '↓' }}
@@ -193,7 +193,6 @@
                 {!! $doctores->appends(request()->except('page'))->links() !!}
             </div>
         </div>
-        </div>
         @can('doctor.cargadata')
             <div class="modal fade" id="itemModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
@@ -224,6 +223,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
 @endsection
 
 @section('js')
@@ -231,11 +232,29 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
     </script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar Flatpickr
             flatpickr('.flatpickr', {
                 dateFormat: 'Y-m-d',
                 allowInput: true
+            });
+
+            // Inicializar Select2 con búsqueda
+            $('.select2').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Seleccione una opción',
+                allowClear: true,
+                language: {
+                    noResults: function() {
+                        return "No se encontraron resultados";
+                    },
+                    searching: function() {
+                        return "Buscando...";
+                    }
+                }
             });
 
             // Inicializar tooltips
