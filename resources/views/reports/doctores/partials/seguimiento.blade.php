@@ -365,7 +365,10 @@
                     if (!value) {
                         return null;
                     }
-
+                    // Soporta 'YYYY-MM' convirtiéndolo al primer día del mes
+                    if (typeof value === 'string' && /^\d{4}-\d{2}$/.test(value)) {
+                        value = `${value}-01`;
+                    }
                     const parsed = new Date(value);
                     return Number.isNaN(parsed.getTime()) ? null : parsed;
                 };
@@ -858,11 +861,14 @@
                     filters: rawFilters = {}
                 } = payload;
 
-                let positiveByAmount = (topStats.amount_increase || []).map(normalizeDoctorEntry);
-                let negativeByAmount = (topStats.amount_decrease || []).map(normalizeDoctorEntry);
-                let positiveByQuantity = (topStats.quantity_increase || []).map(normalizeDoctorEntry);
-                let negativeByQuantity = (topStats.quantity_decrease || []).map(normalizeDoctorEntry);
-                const doctorComparisons = (rawComparisons || []).map(normalizeDoctorEntry);
+                // Asegurar que cualquier colección sea un array (el backend podría enviar objetos asociativos)
+                const toArray = (v) => Array.isArray(v) ? v : Object.values(v || {});
+
+                let positiveByAmount = toArray(topStats.amount_increase).map(normalizeDoctorEntry);
+                let negativeByAmount = toArray(topStats.amount_decrease).map(normalizeDoctorEntry);
+                let positiveByQuantity = toArray(topStats.quantity_increase).map(normalizeDoctorEntry);
+                let negativeByQuantity = toArray(topStats.quantity_decrease).map(normalizeDoctorEntry);
+                const doctorComparisons = toArray(rawComparisons).map(normalizeDoctorEntry);
 
                 if (!doctorComparisons.length) {
                     const unique = new Map();
