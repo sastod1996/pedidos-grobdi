@@ -49,6 +49,7 @@ class VisitorGoalController extends Controller
     {
         $tipoMedico = $request->input('tipo_medico') ?? 'Prescriptor';
         $month = $request->input('month') ?? now()->month;
+        $year = $request->input('year') ?? now()->year;
 
         try {
             $visitorGoal = VisitorGoal::with([
@@ -57,8 +58,9 @@ class VisitorGoalController extends Controller
             ])
                 ->select('id', 'user_id', 'goal_amount', 'debited_amount', 'monthly_visitor_goal_id')
                 ->where('user_id', $request->user()->id)
-                ->whereHas('monthlyVisitorGoal', function ($query) use ($month, $tipoMedico) {
+                ->whereHas('monthlyVisitorGoal', function ($query) use ($month, $year, $tipoMedico) {
                     $query->whereMonth('start_date', $month)
+                        ->whereYear('start_date', $year)
                         ->where('tipo_medico', 'LIKE', "%$tipoMedico%");
                 })
                 ->first();
