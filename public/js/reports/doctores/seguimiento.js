@@ -135,6 +135,13 @@
             orderButton: document.getElementById('order_table')
         };
 
+        const paginationControls = {
+            wrapper: document.getElementById('seguimientoPagination'),
+            info: document.getElementById('seguimientoPaginationInfo'),
+            prev: document.getElementById('seguimientoPaginationPrev'),
+            next: document.getElementById('seguimientoPaginationNext')
+        };
+
         const defaultLabel = filterFormElements.rangeLabel?.dataset?.defaultLabel || '';
 
         const metricLabels = {
@@ -581,7 +588,7 @@
             }
         };
 
-        const updateDoctorsTable = doctors => {
+        const updateDoctorsTable = (doctors, options = {}) => {
             const tbody = document.getElementById('seguimientoDoctorTableBody');
             const summary = document.getElementById('seguimientoTableSummary');
 
@@ -592,20 +599,23 @@
             if (!doctors.length) {
                 tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">No hay información disponible para los filtros seleccionados.</td></tr>';
                 if (summary) {
-                    summary.textContent = 'Sin datos';
+                    summary.textContent = options.summaryText || 'Sin datos';
                 }
                 return;
             }
+
+            const startIndex = Number.isFinite(Number(options.startIndex)) ? Number(options.startIndex) : 0;
 
             tbody.innerHTML = doctors.map((doctor, index) => {
                 const amountDiff = Number(doctor.amount_diff) || 0;
                 const quantityDiff = Number(doctor.quantity_diff) || 0;
                 const amountTrendClass = amountDiff >= 0 ? 'badge-grobdi badge-green' : 'badge-grobdi badge-red';
                 const quantityTrendClass = quantityDiff >= 0 ? 'badge-grobdi badge-green' : 'badge-grobdi badge-red';
+                const rowNumber = startIndex + index + 1;
 
                 return `
                     <tr>
-                        <td>${index + 1}</td>
+                        <td>${quantityFormatter.format(rowNumber)}</td>
                         <td class="text-left">${doctor.name}</td>
                         <td data-metric="quantity">
                             <span class="badge-grobdi badge-gray">${quantityFormatter.format(doctor.quantity_filter_1)} pedidos</span>
@@ -630,12 +640,118 @@
             }).join('');
 
             if (summary) {
-                const positives = doctors.filter(doc => Number(doc.amount_diff || 0) > 0).length;
-                const negatives = doctors.filter(doc => Number(doc.amount_diff || 0) < 0).length;
-                summary.textContent = `Mostrando ${doctors.length} doctores (${positives} positivos / ${negatives} negativos)`;
+                if (options.summaryText) {
+                    summary.textContent = options.summaryText;
+                } else if (options.totals && options.pagination) {
+                    const totals = options.totals;
+                    const metricLabel = metricLabels[currentMetric] || 'Montos';
+                    const metricFragment = metricLabel ? ` en ${metricLabel.toLowerCase()}` : '';
+                    const startDisplay = quantityFormatter.format(startIndex + 1);
+                    const endDisplay = quantityFormatter.format(startIndex + doctors.length);
+                    const totalDisplay = quantityFormatter.format(totals.total);
+                    const positivesDisplay = quantityFormatter.format(totals.positives);
+                    const negativesDisplay = quantityFormatter.format(totals.negatives);
+                    summary.textContent = `Mostrando ${startDisplay}-${endDisplay} de ${totalDisplay} doctores (${positivesDisplay} con variación positiva / ${negativesDisplay} con variación negativa${metricFragment})`;
+                } else {
+                    summary.textContent = `Mostrando ${doctors.length} doctores`;
+                }
             }
 
             applyMetricToTables(currentMetric);
+        };
+
+        const computeDoctorSummary = (collection, metricKey) => collection.reduce((acc, doctor) => {
+            const value = Number(doctor[metricKey] || 0);
+            if (value > 0) {
+                acc.positives += 1;
+            } else if (value < 0) {
+                acc.negatives += 1;
+            }
+            return acc;
+        }, {
+            total: collection.length,
+            positives: 0,
+            negatives: 0
+        });
+
+        const updatePaginationControls = (totalPages, totalItems) => {
+            if (!paginationControls.wrapper) {
+                return;
+            }
+
+            const hasData = totalItems > 0;
+            paginationControls.wrapper.classList.toggle('d-none', !hasData);
+
+            if (!hasData) {
+                if (paginationControls.info) {
+                    paginationControls.info.textContent = 'Sin datos';
+                }
+                if (paginationControls.prev) {
+                    paginationControls.prev.disabled = true;
+                }
+                if (paginationControls.next) {
+                    paginationControls.next.disabled = true;
+                }
+                return;
+            }
+
+            const currentPage = appState.pagination.currentPage;
+            if (paginationControls.info) {
+                paginationControls.info.textContent = `Página ${currentPage} de ${totalPages}`;
+            }
+            if (paginationControls.prev) {
+                paginationControls.prev.disabled = currentPage <= 1;
+            }
+            if (paginationControls.next) {
+                paginationControls.next.disabled = currentPage >= totalPages;
+            }
+        };
+
+        const renderDoctorsTableWithPagination = () => {
+            const doctors = appState.sortedDoctors || [];
+            const total = doctors.length;
+            const perPage = appState.pagination.perPage;
+            const totalPages = total ? Math.max(1, Math.ceil(total / perPage)) : 1;
+
+            appState.pagination.totalPages = totalPages;
+
+            if (!total) {
+                appState.pagination.currentPage = 1;
+                updateDoctorsTable([], { summaryText: 'Sin datos' });
+                updatePaginationControls(totalPages, total);
+                return;
+            }
+
+            const currentPage = Math.min(Math.max(appState.pagination.currentPage, 1), totalPages);
+            appState.pagination.currentPage = currentPage;
+
+            const startIndex = (currentPage - 1) * perPage;
+            const paginatedDoctors = doctors.slice(startIndex, startIndex + perPage);
+            const metricKey = getMetricKeyForCurrent(currentMetric);
+            const totals = computeDoctorSummary(doctors, metricKey);
+
+            updateDoctorsTable(paginatedDoctors, {
+                startIndex,
+                totals,
+                pagination: {
+                    currentPage,
+                    totalPages,
+                    perPage,
+                    total
+                }
+            });
+
+            updatePaginationControls(totalPages, total);
+        };
+
+        const changePage = delta => {
+            const nextPage = appState.pagination.currentPage + delta;
+            if (nextPage < 1 || nextPage > appState.pagination.totalPages) {
+                return;
+            }
+
+            appState.pagination.currentPage = nextPage;
+            renderDoctorsTableWithPagination();
         };
 
         const syncFormWithFilters = filters => {
@@ -902,10 +1018,16 @@
             initialRequestFilters: null,
             lastRequestFilters: {},
             data: null,
+            sortedDoctors: [],
             charts: {
                 positive: null,
                 negative: null,
                 trend: null
+            },
+            pagination: {
+                perPage: 20,
+                currentPage: 1,
+                totalPages: 1
             }
         };
 
@@ -928,9 +1050,14 @@
                 }
 
                 const sorted = sortDoctorComparisons(appState.data.doctorComparisons || [], currentOrdering, currentMetric);
-                updateDoctorsTable(sorted);
+                appState.sortedDoctors = sorted;
+                appState.pagination.currentPage = 1;
+                renderDoctorsTableWithPagination();
             });
         }
+
+        paginationControls.prev?.addEventListener('click', () => changePage(-1));
+        paginationControls.next?.addEventListener('click', () => changePage(1));
 
         const fetchReportData = async (filters = {}) => {
             try {
@@ -998,7 +1125,9 @@
             updateStatistics(processedData.stats);
 
             const sortedComparisons = sortDoctorComparisons(processedData.doctorComparisons || [], currentOrdering, currentMetric);
-            updateDoctorsTable(sortedComparisons);
+            appState.sortedDoctors = sortedComparisons;
+            appState.pagination.currentPage = 1;
+            renderDoctorsTableWithPagination();
 
             const datasets = currentMetric === 'amount'
                 ? {
@@ -1058,7 +1187,8 @@
             updateMonthlyTrendChart(appState.charts.trend, appState.data.monthlyPerformance, metric);
 
             const sortedComparisons = sortDoctorComparisons(appState.data.doctorComparisons || [], currentOrdering, metric);
-            updateDoctorsTable(sortedComparisons);
+            appState.sortedDoctors = sortedComparisons;
+            renderDoctorsTableWithPagination();
         };
 
         filterFormElements.metricButtons.forEach(button => {
@@ -1122,6 +1252,7 @@
             handleMetricChange('amount');
             currentOrdering = 'negatives';
             setOrderButtonState(currentOrdering);
+            appState.pagination.currentPage = 1;
             renderReport(baselineRequest);
         });
 

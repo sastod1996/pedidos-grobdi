@@ -239,6 +239,20 @@
         </table>
 
     </div>
+    <div class="card-body-grobdi pt-0">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 d-none" id="seguimientoPagination">
+            <small class="text-muted mb-0">20 registros por página</small>
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn-grobdi btn-outline-primary-grobdi btn-sm" id="seguimientoPaginationPrev" type="button" disabled>
+                    Anterior
+                </button>
+                <span class="text-muted small" id="seguimientoPaginationInfo">Página 1 de 1</span>
+                <button class="btn-grobdi btn-outline-primary-grobdi btn-sm" id="seguimientoPaginationNext" type="button" disabled>
+                    Siguiente
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="card-grobdi mt-4">
