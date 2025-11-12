@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckPermission
@@ -16,7 +17,11 @@ class CheckPermission
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $currentRoute = $request->route()->getName();
+        $currentRoute = $request->route()?->getName();
+
+        if (!$currentRoute) {
+            return $next($request);
+        }
         // 🔹 Rutas públicas que deben quedar fuera del permiso
         $publicRoutes = [
             'login',
@@ -29,7 +34,12 @@ class CheckPermission
             'roles.permissions',
             'roles.updatePermissions',
         ];
-        if (in_array($currentRoute, $publicRoutes)) {
+        $publicRoutePatterns = [
+            'ubicaciones.*',
+            'centrosalud.buscar',
+        ];
+
+        if (in_array($currentRoute, $publicRoutes) || Str::is($publicRoutePatterns, $currentRoute)) {
             return $next($request);
         }
         $user = Auth::user();
@@ -39,7 +49,7 @@ class CheckPermission
             return redirect()->route('login');
         }
         // dd($currentRoute);
-        $hasPermission = $user->role->views()->where('url',$currentRoute)->exists();
+        $hasPermission = $user->role->views()->where('url', $currentRoute)->exists();
 
         if (!$hasPermission) {
             abort(403, 'No tienes permiso para acceder a esta página.');

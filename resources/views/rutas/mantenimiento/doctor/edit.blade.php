@@ -8,6 +8,11 @@
 
 @section('content')
 @can('doctor.edit')
+@php
+    $initialDistritoId = old('distrito_id', $doctor->distrito_id);
+    $initialProvinciaId = old('provincia_id', optional($doctor->distrito)->provincia_id);
+    $initialDepartamentoId = old('departamento_id', optional(optional($doctor->distrito)->provincia)->departamento_id);
+@endphp
 <div class="grobdi-header mt-3">
     <div class="grobdi-title">
         <div>
@@ -71,19 +76,22 @@
                 @enderror
             </div>
         </div>
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="form-group-grobdi">
-                <label for="distrito_id" class="grobdi-label">Distrito:</label>
-                <select class="grobdi-input @error('distrito_id') is-invalid @enderror" name="distrito_id" id="distrito_id">
-                    <option selected disabled>Seleccione el distrito</option>
-                    @foreach ($distritos as $distrito)
-                        <option value="{{ $distrito->id }}" {{ $doctor->distrito_id == $distrito->id ? 'selected' : '' }}>{{ $distrito->name }}</option>
-                    @endforeach
-                </select>
-                @error('distrito_id')
-                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                @enderror
-            </div>
+        <div class="col-12">
+            <x-grobdi.location-selector
+                :departamentos-endpoint="route('ubicaciones.departamentos.index')"
+                :provincias-endpoint="route('ubicaciones.departamentos.provincias', ['departamento' => '__departamento__'])"
+                :distritos-endpoint="route('ubicaciones.provincias.distritos', ['provincia' => '__provincia__'])"
+                :chain-endpoint="route('ubicaciones.distritos.chain', ['distrito' => '__distrito__'])"
+                :selected-departamento="$initialDepartamentoId"
+                :selected-provincia="$initialProvinciaId"
+                :selected-distrito="$initialDistritoId"
+                label-departamento="Departamento"
+                label-provincia="Provincia"
+                label-distrito="Distrito"
+                name="distrito_id"
+                required
+                error-key="distrito_id"
+            />
         </div>
         <div class="col-12 col-md-6 col-lg-4">
             <div class="form-group-grobdi">
@@ -288,6 +296,7 @@
 
 @section('js')
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="{{ asset('js/components/location-selector.js') }}" defer></script>
 
 <script>
     jQuery(function ($) {

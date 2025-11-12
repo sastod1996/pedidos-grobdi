@@ -17,4 +17,7 @@ Route::middleware(['check.permission'])->group(function () {
     require __DIR__ . '/web/protected/laboratorio.php';
     require __DIR__ . '/web/protected/ajustes.php';
     require __DIR__ . '/web/protected/profile.php';
+
+    //Ruta general para ubicaciones de departamento, provincia y distrito
+    require __DIR__ . '/web/protected/ubicaciones.php';
 });

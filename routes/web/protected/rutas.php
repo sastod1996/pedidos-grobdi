@@ -18,6 +18,7 @@ Route::resource('doctor', DoctorController::class);
 Route::post('/doctor/cargadata', [DoctorController::class, 'cargadata'])->name('doctor.cargadata');
 Route::resource('lista', ListaController::class);
 
+
 Route::get('/enrutamiento', [EnrutamientoController::class, 'index'])->name('enrutamiento.index');
 Route::post('/enrutamiento/store', [EnrutamientoController::class, 'store'])->name('enrutamiento.store');
 Route::post('/enrutamientolista/store', [EnrutamientoController::class, 'Enrutamientolistastore'])->name('enrutamientolista.store');
