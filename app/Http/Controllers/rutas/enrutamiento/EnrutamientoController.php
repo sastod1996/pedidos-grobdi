@@ -270,7 +270,7 @@ class EnrutamientoController extends Controller
         })->orderBy('visita_doctor.turno', 'asc')->get();
         $estados = EstadoVisita::all(['id', 'name', 'color']);
         // dd($visitas);
-        $eventos = $visitas->map(function ($visita) {
+    $eventos = $visitas->map(function ($visita) {
             if ($visita->doctor->categoriadoctor->name == 'AAA') {
                 $categoriadoctor = '★★★';
             } elseif ($visita->doctor->categoriadoctor->name == 'AA') {
@@ -289,17 +289,28 @@ class EnrutamientoController extends Controller
                 'extendedProps' => [
                     'estado' => $visita->estado_visita->name ?? 'Sin estado',
                     'turno' => $visita->turno == 1 ? 'Tarde' : 'Mañana',
+                    'doctor' => [
+                        'id' => $visita->doctor->id ?? null,
+                        'name' => trim($visita->doctor->name.' '.$visita->doctor->first_lastname.' '.$visita->doctor->second_lastname),
+                    ],
                 ],
             ];
         });
 
         $doctoresConVisita = $visitas->pluck('doctor_id');
+        $doctores = $visitas->map(function ($v) {
+            $d = $v->doctor;
+            return [
+                'id' => $d->id,
+                'name' => trim($d->name.' '.$d->first_lastname.' '.$d->second_lastname),
+            ];
+        })->unique('id')->values();
         // $doctoresSinFecha = Doctor::whereNotIn('id', $doctoresConVisita)->get();
         // $doctoresSinFecha = VisitaDoctor::whereHas('enrutamientolista.enrutamiento.zone.users', function ($query) {
         //     $query->where('users.id', Auth::id());
         // })->whereNotIn('id', $doctoresConVisita)->get();
 
-        return view('rutas.visita.calendario', compact('eventos', 'estados'));
+        return view('rutas.visita.calendario', compact('eventos', 'estados', 'doctores'));
     }
 
     /**
@@ -337,6 +348,13 @@ class EnrutamientoController extends Controller
         })->values();
 
         $eventos = $this->formatearEventosCalendario($visitas);
+        $doctores = $visitas->map(function ($v) {
+            $d = $v->doctor;
+            return [
+                'id' => $d->id,
+                'name' => trim($d->name.' '.$d->first_lastname.' '.$d->second_lastname),
+            ];
+        })->unique('id')->values();
 
         return view('rutas.visita.calendario-supervisora', [
             'visitadoras' => $visitadoras,
@@ -346,6 +364,7 @@ class EnrutamientoController extends Controller
             'estadisticasEstados' => $estadisticasEstados,
             'totalVisitas' => $visitas->count(),
             'estadoReprogramadoId' => optional($estados->firstWhere('name', 'Reprogramado'))->id ?? 5,
+            'doctores' => $doctores,
         ]);
     }
 
@@ -467,8 +486,13 @@ class EnrutamientoController extends Controller
             'fecha_visita' => $visita->fecha,
             'color' => $visita->estado_visita->color ?? '#ccc',
             'extendedProps' => [
-                'turno' => $visita->turno == 1 ? 'Tarde' : 'Mañana', // valor textual para el frontend
+                'turno' => $visita->turno == 1 ? 'Tarde' : 'Mañana',
                 'estado' => $visita->estado_visita->name ?? null,
+
+                'doctor' => [
+                    'id' => $doctor->id ?? null,
+                    'name' => trim($doctor->name.' '.$doctor->first_lastname.' '.$doctor->second_lastname),
+                ],
             ],
         ]);
     }
@@ -524,6 +548,8 @@ class EnrutamientoController extends Controller
                     'estado' => $visita->estado_visita->name ?? 'Sin estado',
                     'turno' => $visita->turno == 1 ? 'Tarde' : 'Mañana',
                     'doctor' => [
+                        'id' => $visita->doctor?->id,
+                        'name' => $nombreDoctor,
                         'especialidad' => $visita->doctor?->especialidad?->name,
                         'distrito' => $visita->doctor?->distrito?->name,
                         'centro_salud' => $visita->doctor?->centroSalud?->name,

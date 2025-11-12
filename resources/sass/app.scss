@@ -4062,6 +4062,9 @@ select.form-control-grobdi {
 	background: #94a3b8;
 }
 
+/* Hide events when filtered out */
+.fc-event-filter-hidden { display: none !important; }
+
 @media (max-width: 768px) {
 	.calendar-controls {
 		flex-direction: column;
