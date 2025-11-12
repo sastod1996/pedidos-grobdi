@@ -47,30 +47,32 @@
             <div class="card-header">
                 <div class="row align-items-center">
                     <div class="row">
-                        <div class="mb-1 font-weight-bold" id="doctor-name-label" style="font-size: 1.1rem;">
-                            {{ $doctorReport['doctor_info']['is_top_doctor'] ? 'Top Doctor:' : 'Dr.' }}
-                            {{ $doctorReport['doctor_info']['doctor'] }}
+                        <div class="col">
+                            <div class="mb-1 font-weight-bold" id="doctor-name-label" style="font-size: 1.1rem;">
+                                {{ $doctorReport['doctor_info']['is_top_doctor'] ? 'Top Doctor:' : 'Dr.' }}
+                                {{ $doctorReport['doctor_info']['doctor'] }}
+                            </div>
+                            <div class="text-muted mb-1" id="doctor-details-label" style="font-size: 0.95rem;">
+                                Tipo: {{ $doctorReport['doctor_info']['tipo_doctor'] ?? 'Sin registrar' }}
+                                <span class="mx-1">•</span>
+                                Especialidad: {{ $doctorReport['doctor_info']['especialidad'] ?? 'Sin registrar' }}
+                                <span class="mx-1">•</span>
+                                Distrito: {{ $doctorReport['doctor_info']['distrito'] ?? 'Sin registrar' }}
+                                <span class="mx-1">•</span>
+                                Centro de Salud: {{ $doctorReport['doctor_info']['centro_salud'] ?? 'Sin registrar' }}
+                            </div>
+                            <small>
+                                <i>Mostrando datos por: <span id="doctor-anual-dataset-indicator">Inversión en
+                                        muestras</span></i>
+                            </small>
                         </div>
-                        <div class="text-muted mb-1" id="doctor-details-label" style="font-size: 0.95rem;">
-                            Tipo: {{ $doctorReport['doctor_info']['tipo_doctor'] ?? 'Sin registrar' }}
-                            <span class="mx-1">•</span>
-                            Especialidad: {{ $doctorReport['doctor_info']['especialidad'] ?? 'Sin registrar' }}
-                            <span class="mx-1">•</span>
-                            Distrito: {{ $doctorReport['doctor_info']['distrito'] ?? 'Sin registrar' }}
-                            <span class="mx-1">•</span>
-                            Centro de Salud: {{ $doctorReport['doctor_info']['centro_salud'] ?? 'Sin registrar' }}
+                        <div class="col-auto">
+                            <select class="badge bg-danger border-0"
+                                style="padding-top: .35rem; padding-bottom: .35rem;" id="doctor-anual-dataset-selector">
+                                <option value="amount">Inversión en muestras</option>
+                                <option value="count">Cantidad de muestras</option>
+                            </select>
                         </div>
-                        <small>
-                            <i>Mostrando datos por: <span id="doctor-anual-dataset-indicator">Inversión en
-                                    muestras</span></i>
-                        </small>
-                    </div>
-                    <div class="col-auto">
-                        <select class="badge bg-danger border-0" style="padding-top: .35rem; padding-bottom: .35rem;"
-                            id="doctor-anual-dataset-selector">
-                            <option value="amount">Inversión en muestras</option>
-                            <option value="count">Cantidad de muestras</option>
-                        </select>
                     </div>
                 </div>
             </div>
@@ -158,8 +160,8 @@
     <script>
         let doctorReport = @json($doctorReport);
         const doctorMuestrasDetailsTable = $('#doctor-muestras-details-table');
-    const doctorNameLabel = $('#doctor-name-label');
-    const doctorDetailsLabel = $('#doctor-details-label');
+        const doctorNameLabel = $('#doctor-name-label');
+        const doctorDetailsLabel = $('#doctor-details-label');
         const monthYearInput = $('#doctor-month-year');
         const doctorIdInput = $('#doctor-id-doctor');
         initAutocompleteInput({

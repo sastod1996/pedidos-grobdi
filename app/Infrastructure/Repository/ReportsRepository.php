@@ -21,6 +21,7 @@ class ReportsRepository implements ReportsRepositoryInterface
     use ExcludeWordsFromQuery;
 
     /* -------- Ventas -------- */
+
     public function getVentasGeneralReport(int $month, int $year): Collection
     {
         $periodColumn = $month > 0 ? 'DAY(created_at)' : 'MONTH(created_at)';
@@ -385,7 +386,14 @@ class ReportsRepository implements ReportsRepositoryInterface
             ->leftJoin('distritos as dist', 'dr.distrito_id', '=', 'dist.id')
             ->leftJoin('centrosalud as cs', 'dr.centrosalud_id', '=', 'cs.id')
             ->whereBetween('muestras.created_at', [$startDate, $endDate])
-            ->groupBy('dr.id', 'dr.name', 'dr.tipo_medico')
+            ->groupBy(
+                'dr.id',
+                'dr.name',
+                'dr.tipo_medico',
+                'esp.name',
+                'dist.name',
+                'cs.name'
+            )
             ->orderByDesc('total_amount')
             ->first();
 
