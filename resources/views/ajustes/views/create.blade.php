@@ -17,6 +17,23 @@
             <i class="fas fa-file-alt"></i> Información de la Vista
         </div>
         <div class="card-body-grobdi">
+            @php
+                $fontawesomeSuggestions = [
+                    'fas fa-cog',
+                    'fas fa-users',
+                    'fas fa-chart-line',
+                    'fas fa-clipboard-list',
+                    'fas fa-map-marker-alt',
+                    'fas fa-truck',
+                    'fas fa-file-alt',
+                    'fas fa-flask',
+                    'fas fa-briefcase',
+                    'fas fa-cash-register',
+                    'fas fa-database',
+                    'fas fa-laptop'
+                ];
+            @endphp
+
             @if ($errors->any())
                 <div class="alert-grobdi alert-danger-grobdi mb-4">
                     <strong><i class="fas fa-exclamation-triangle"></i> Por favor corrige los siguientes errores:</strong>
@@ -103,6 +120,46 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label class="grobdi-label">
+                                <i class="fas fa-icons text-danger"></i> Icono (Font Awesome)
+                            </label>
+                            <input type="text"
+                                   id="icon-input"
+                                   name="icon"
+                                   list="icon-options"
+                                   class="form-control grobdi-input"
+                                   placeholder="Ej: fas fa-user"
+                                   value="{{ old('icon') }}">
+                            <datalist id="icon-options">
+                                @foreach ($fontawesomeSuggestions as $iconOption)
+                                    <option value="{{ $iconOption }}"></option>
+                                @endforeach
+                            </datalist>
+                            <div class="icon-picker-preview" id="icon-preview-wrapper">
+                                <i id="icon-preview" class="{{ old('icon') ? old('icon') : 'fas fa-icons text-muted' }}"></i>
+                                <span id="icon-preview-label">{{ old('icon') ? old('icon') : 'Sin icono seleccionado' }}</span>
+                                <button type="button" class="btn btn-link btn-sm icon-clear-btn" id="icon-clear-button" style="display: {{ old('icon') ? 'inline-flex' : 'none' }};">Quitar</button>
+                            </div>
+                            <div class="icon-suggestions">
+                                <span class="icon-suggestions-title">Iconos sugeridos</span>
+                                <div class="icon-suggestion-list">
+                                    @foreach ($fontawesomeSuggestions as $iconOption)
+                                        <button type="button" class="icon-chip" data-icon-pick="{{ $iconOption }}">
+                                            <i class="{{ $iconOption }}"></i>
+                                        </button>
+                                    @endforeach
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">
+                                <i class="fas fa-info-circle"></i> Usa clases Font Awesome como <code>fas fa-home</code>. Campo opcional.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="grobdi-label">
                                 <i class="fas fa-bars text-danger"></i> Visibilidad en Menú
                             </label>
                             <div class="grobdi-switch-container">
@@ -177,9 +234,114 @@
         .swal2-icon.swal2-success .swal2-success-ring {
             border-color: rgba(16, 185, 129, 0.3) !important;
         }
+
+        /* Icon picker */
+        .icon-picker-preview {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            color: #475569;
+        }
+        .icon-picker-preview i {
+            font-size: 1.5rem;
+            min-width: 1.5rem;
+            text-align: center;
+        }
+        .icon-clear-btn {
+            padding: 0;
+            font-size: 0.8rem;
+        }
+        .icon-suggestions {
+            margin-top: 0.75rem;
+        }
+        .icon-suggestions-title {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 0.25rem;
+        }
+        .icon-suggestion-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .icon-chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 9999px;
+            border: 1px solid #e2e8f0;
+            background-color: #f8fafc;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .icon-chip:hover {
+            background-color: #e2e8f0;
+            border-color: #cbd5f5;
+            transform: translateY(-1px);
+        }
+        .icon-chip i {
+            font-size: 1.1rem;
+            color: #1f2937;
+        }
     </style>
 @stop
 
 @section('js')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const iconInput = document.getElementById('icon-input');
+            if (!iconInput) {
+                return;
+            }
+
+            const previewIcon = document.getElementById('icon-preview');
+            const previewLabel = document.getElementById('icon-preview-label');
+            const clearButton = document.getElementById('icon-clear-button');
+            const suggestionButtons = document.querySelectorAll('[data-icon-pick]');
+            const defaultIconClass = 'fas fa-icons text-muted';
+            const defaultLabel = 'Sin icono seleccionado';
+
+            const updatePreview = (value) => {
+                const className = value || '';
+                if (previewIcon) {
+                    previewIcon.className = className || defaultIconClass;
+                }
+                if (previewLabel) {
+                    previewLabel.textContent = className || defaultLabel;
+                }
+                if (clearButton) {
+                    clearButton.style.display = className ? 'inline-flex' : 'none';
+                }
+            };
+
+            updatePreview(iconInput.value.trim());
+
+            iconInput.addEventListener('input', (event) => {
+                updatePreview(event.target.value.trim());
+            });
+
+            suggestionButtons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    const value = button.getAttribute('data-icon-pick');
+                    iconInput.value = value;
+                    iconInput.dispatchEvent(new Event('input'));
+                    iconInput.focus();
+                });
+            });
+
+            if (clearButton) {
+                clearButton.addEventListener('click', () => {
+                    iconInput.value = '';
+                    iconInput.dispatchEvent(new Event('input'));
+                    iconInput.focus();
+                });
+            }
+        });
+    </script>
 @stop
