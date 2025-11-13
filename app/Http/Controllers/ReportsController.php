@@ -24,7 +24,8 @@ class ReportsController extends Controller
     {
         $filters = [
             'month' => $request->input('month'),
-            'year' => $request->input('year'),
+            'start_year' => $request->input('start_year'),
+            'end_year' => $request->input('end_year'),
         ];
         return response()->json($this->reportsService->ventas()->getGeneralReport($filters)->toArray(), 200);
     }

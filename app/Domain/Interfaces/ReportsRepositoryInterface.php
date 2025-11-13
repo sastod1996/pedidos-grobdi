@@ -7,7 +7,7 @@ use Illuminate\Support\Collection;
 
 interface ReportsRepositoryInterface
 {
-    public function getVentasGeneralReport(int $month, int $year): Collection;
+    public function getVentasGeneralReport(int $month, Carbon $startYearDate, Carbon $endYearDate): Collection;
     public function getVentasVisitadorasReport(string $startDate, string $endDate): Collection;
     public function getVentasProductosReport(string $startDate, string $endDate): Collection;
     public function getRutasZonesReport(int $month, int $year, array $distritos): Collection;
