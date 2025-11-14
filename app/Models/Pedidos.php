@@ -98,4 +98,9 @@ class Pedidos extends Model
     {
         return $this->hasOne(PedidosDeliveryState::class, 'pedido_id')->latestOfMany();
     }
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
 }
