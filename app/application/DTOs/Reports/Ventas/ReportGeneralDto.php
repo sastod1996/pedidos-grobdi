@@ -3,7 +3,6 @@
 namespace App\Application\DTOs\Reports\Ventas;
 
 use App\Application\DTOs\Reports\ReportBaseDto;
-use Brick\Money\Money;
 
 enum ReportGeneralType: string
 {
@@ -16,9 +15,7 @@ class ReportGeneralDto extends ReportBaseDto
     public function __construct(
         private ReportGeneralType $type,
         private string $period,
-        private Money $totalAmount,
-        private int $totalPedidos,
-        private Money $averageAmount,
+        private array $generalStatsByYear,
         array $data,
         array $filters = []
     ) {
@@ -31,11 +28,8 @@ class ReportGeneralDto extends ReportBaseDto
                 'type' => $this->type,
                 'period' => $this->period,
             ],
-            'general_stats' => [
-                'total_amount' => $this->totalAmount->getAmount()->__toString(),
-                'total_pedidos' => $this->totalPedidos,
-                'average_amount' => $this->averageAmount->getAmount()->__toString(),
-            ],
+            'general_stats' => $this->generalStatsByYear,
+            'data' => $this->data
         ];
     }
 }

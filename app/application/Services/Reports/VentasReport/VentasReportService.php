@@ -32,54 +32,96 @@ class VentasReportService extends ReportBaseService
     public function getGeneralReport(array $filters = []): ReportGeneralDto
     {
         $month = $filters['month'] ?? 0;
-        $year = $filters['year'] ?? now()->year;
-        $isDaily = $month > 0;
-        $rawData = $this->repo->getVentasGeneralReport($month, $year);
-        $dataMap = $rawData->keyBy('period')->mapWithKeys(function ($item) {
-            return [
-                $item->period => [
-                    'total_amount' => Money::of($item->total_amount, 'PEN'),
-                    'total_pedidos' => (int) $item->total_pedidos,
-                ]
-            ];
-        });
+        $start_year = $filters['start_year'] ?? now()->year;
+        $end_year = $filters['end_year'] ?? now()->year;
 
+        if ($start_year > $end_year) {
+            throw new \InvalidArgumentException("El año de inicio no puede ser mayor que el año de fin.");
+        }
+
+        $isDaily = $month > 0;
+
+        $startYearDate = Carbon::create($start_year, $isDaily ? $month : 1, $isDaily ? 1 : 1)->startOfDay();
+        $endYearDate = Carbon::create($end_year, $isDaily ? $month : 12, $isDaily ? cal_days_in_month(CAL_GREGORIAN, $month, $end_year) : 31)->endOfDay();
+
+        $rawData = $this->repo->getVentasGeneralReport($month, $startYearDate, $endYearDate);
+
+        // Agrupar por año y período
+        $yearlyData = [];
+        foreach ($rawData as $item) {
+            $yearlyData[$item->year][$item->period] = [
+                'total_amount' => Money::of($item->total_amount, 'PEN'),
+                'total_pedidos' => (int) $item->total_pedidos,
+            ];
+        }
+
+        // Determinar rango de períodos (días o meses)
         if ($isDaily) {
-            $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
-            $range = range(1, $daysInMonth);
+            $maxDays = 0;
+            for ($y = $start_year; $y <= $end_year; $y++) { // <=, no <
+                $days = cal_days_in_month(CAL_GREGORIAN, $month, $y);
+                $maxDays = max($maxDays, $days);
+            }
+            $range = range(1, $maxDays);
             $labels = array_map(fn($d) => str_pad($d, 2, '0', STR_PAD_LEFT), $range);
         } else {
             $range = range(1, 12);
-            $labels = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
+            $labels = array_map(fn($m) => str_pad($m, 2, '0', STR_PAD_LEFT), $range);
         }
 
-        $totalAmount = Money::zero('PEN');
-        $totalPedidos = 0;
-        foreach ($range as $index => $period) {
-            $exists = $dataMap->has($period);
-            $amount = $exists ? $dataMap[$period]['total_amount'] : Money::zero('PEN');
-            $pedidos = $exists ? $dataMap[$period]['total_pedidos'] : 0;
-            $completeData[] = [
-                'label' => $labels[$index],
-                'total_amount' => $amount->getAmount()->toFloat(),
-                'total_pedidos' => $pedidos,
+        // Preparar datos finales
+        $generalStatsByYear = [];
+        $dataByYear = [];
+
+        foreach (range($start_year, $end_year) as $year) {
+            $dataForYear = $yearlyData[$year] ?? [];
+            $points = [];
+            $totalAmount = Money::zero('PEN');
+            $totalPedidos = 0;
+
+            foreach ($range as $index => $period) {
+                $exists = isset($dataForYear[$period]);
+                $amount = $exists ? $dataForYear[$period]['total_amount'] : Money::zero('PEN');
+                $pedidos = $exists ? $dataForYear[$period]['total_pedidos'] : 0;
+
+                $points[] = [
+                    'label' => $labels[$index],
+                    'total_amount' => $amount->getAmount()->toFloat(),
+                    'total_pedidos' => $pedidos,
+                ];
+
+                $totalAmount = $totalAmount->plus($amount);
+                $totalPedidos += $pedidos;
+            }
+
+            // Estadísticas por año
+            $avg = count($points) > 0
+                ? $totalAmount->dividedBy(count($points), RoundingMode::HALF_UP)
+                : Money::zero('PEN');
+
+            $generalStatsByYear[$year] = [
+                'total_amount' => $totalAmount->getAmount()->__toString(),
+                'total_pedidos' => $totalPedidos,
+                'average_amount' => $avg->getAmount()->__toString(),
             ];
-            $totalAmount = $totalAmount->plus($amount);
-            $totalPedidos += $pedidos;
+
+            // Datos para el gráfico
+            $dataByYear[] = [
+                'year' => $year,
+                'data' => $points,
+            ];
         }
 
-        $periodLabel = $isDaily ? sprintf('%02d-%d', $month, $year) : (string) $year;
-
-        $average = count($completeData) > 0 ? $totalAmount->dividedBy(count($completeData), RoundingMode::HALF_UP) : Money::zero('PEN');
+        $periodLabel = $isDaily
+            ? sprintf('%02d (%d-%d)', $month, $start_year, $end_year)
+            : sprintf('%d-%d', $start_year, $end_year);
 
         return new ReportGeneralDto(
             $isDaily ? ReportGeneralType::DAILY : ReportGeneralType::MONTHLY,
             $periodLabel,
-            $totalAmount,
-            $totalPedidos,
-            $average,
-            $completeData,
-            compact('month', 'year')
+            $generalStatsByYear,
+            $dataByYear,
+            compact('month', 'start_year', 'end_year')
         );
     }
     public function getVisitadorasReport(array $filters = []): ReportVisitadorasDto

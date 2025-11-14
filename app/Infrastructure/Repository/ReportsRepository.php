@@ -21,19 +21,21 @@ class ReportsRepository implements ReportsRepositoryInterface
     use ExcludeWordsFromQuery;
 
     /* -------- Ventas -------- */
-
-    public function getVentasGeneralReport(int $month, int $year): Collection
+    public function getVentasGeneralReport(int $month, $startDate, $endDate): Collection
     {
         $periodColumn = $month > 0 ? 'DAY(created_at)' : 'MONTH(created_at)';
 
         return Pedidos::selectRaw("
-        {$periodColumn} as period,
-        SUM(prize) as total_amount,
-        COUNT(*) as total_pedidos")->whereYear('created_at', $year)
+            {$periodColumn} as period,
+            YEAR(created_at) as year,
+            SUM(prize) as total_amount,
+            COUNT(*) as total_pedidos")
+            ->whereBetween('created_at', [$startDate, $endDate])
             ->where('status', true)
             ->when($month > 0, fn($q) => $q->whereMonth('created_at', $month))
+            ->orderBy('year')
             ->orderBy('period')
-            ->groupBy('period')
+            ->groupBy('year', 'period')
             ->get();
     }
     public function getVentasVisitadorasReport(string $startDate, string $endDate): Collection
