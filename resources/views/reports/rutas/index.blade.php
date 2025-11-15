@@ -6,29 +6,13 @@
 
 @section('title', 'Dashboard')
 
-@section('content_header')
-    <div class="row mb-2">
-        <div class="col-sm-6">
-            <h1 class="m-0"><i class="fas fa-route text-danger"></i> Rutas</h1>
-        </div>
-        <div class="col-sm-6 align-self-end">
-            <ol class="breadcrumb float-sm-right">
-                <li class="breadcrumb-item"><a href="{{ route('home') }}">Inicio</a>
-                </li>
-                <li class="breadcrumb-item active">Reporte de Rutas</li>
-            </ol>
-        </div>
-    </div>
-@stop
-
 @section('content')
     @can('reports.rutas')
-    <div class="card card-danger">
-        <div class="card-header">
-            <h5 class="mb-0"><i class="fas fa-chart-pie"></i> Reporte por Zonas</h5>
-        </div>
-        <div class="card-body">
-            <div class="row">
+    <x-grobdi.report.chart-card
+        title="Reporte por Zonas"
+        subtitle="Controla visitas por estado, mes y distritos desde un solo tablero"
+    >
+        <div class="row">
                 <div class="col-2">
                     <div class="card card-outline card-danger">
                         <div class="card-header">
@@ -174,9 +158,8 @@
                         </div>
                     </div>
                 </div>
-            </div>
         </div>
-    </div>
+    </x-grobdi.report.chart-card>
 
     @endcan
 @stop
