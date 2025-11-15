@@ -3,14 +3,10 @@
 @section('title', 'Conexiones de Usuarios')
 
 @section('content')
-	<div class="grobdi-header">
-		<div class="grobdi-title">
-			<div>
-				<h2>📡 Monitoreo de Conexiones</h2>
-				<p>Visualiza quién está conectado, desde qué dispositivo y cuándo fue su última actividad.</p>
-			</div>
-		</div>
-	</div>
+	<x-grobdi.layout.header-card
+		title="📡 Monitoreo de Conexiones"
+		subtitle="Visualiza quién está conectado, desde qué dispositivo y cuándo fue su última actividad."
+	/>
 
 	<div class="row g-3 mb-4">
 		<div class="col-sm-6 col-lg-3">
@@ -51,27 +47,27 @@
 		</div>
 	</div>
 
-	<div class="card shadow-sm mb-4">
-		<div class="card-header d-flex justify-content-between align-items-center">
-			<span class="fw-bold">Sesiones por usuario</span>
+	<x-grobdi.layout.table-card
+		title="Sesiones por usuario"
+		tableClass="table-bordered table-striped table-hover mb-0"
+	>
+		<x-slot:actions>
 			<span class="badge badge-primary">{{ $statistics['active_users'] }} usuarios activos</span>
-		</div>
-		<div class="card-body">
-			<div class="table-responsive">
-				<table class="table table-bordered table-striped table-hover table-grobdi mb-0">
-					<thead>
-						<tr>
-							<th>Usuario</th>
-							<th>Correo</th>
-							<th>ID asociado</th>
-							<th>Sesiones activas</th>
-							<th>Sesiones totales</th>
-							<th>Última actividad</th>
-						</tr>
-					</thead>
-					<tbody>
-						@forelse ($sessionsByUser as $summary)
-							<tr>
+		</x-slot:actions>
+
+		<thead>
+			<tr>
+				<th>Usuario</th>
+				<th>Correo</th>
+				<th>ID asociado</th>
+				<th>Sesiones activas</th>
+				<th>Sesiones totales</th>
+				<th>Última actividad</th>
+			</tr>
+		</thead>
+		<tbody>
+			@forelse ($sessionsByUser as $summary)
+				<tr>
 								<td class="fw-bold">{{ $summary['display_name'] }}</td>
 								<td>{{ $summary['display_email'] }}</td>
 								<td>
@@ -100,44 +96,35 @@
 									@endif
 								</td>
 							</tr>
-						@empty
-							@include('empty-table', ['colspan' => 6, 'dataLength' => 0, 'personalizedMessage' => 'Sin usuarios conectados'])
-						@endforelse
-					</tbody>
-				</table>
-			</div>
-		</div>
-	</div>
+			@empty
+				@include('empty-table', ['colspan' => 6, 'dataLength' => 0, 'personalizedMessage' => 'Sin usuarios conectados'])
+			@endforelse
+		</tbody>
+	</x-grobdi.layout.table-card>
 
-	<div class="card shadow-sm">
-		<div class="card-header">
-			<div class="row">
-				<div class="col">
-					<span class="fw-bold">Detalle de sesiones</span>
-				</div>
-				<div class="col text-right">
-					<span class="badge badge-secondary">{{ $statistics['total_sessions'] }} registros</span>
-				</div>
-			</div>
-		</div>
-		<div class="card-body">
-			<div class="table-responsive">
-				<table class="table table-bordered table-striped table-hover table-grobdi mb-0">
-					<thead>
-						<tr>
-							<th>Usuario</th>
-							<th>Estado</th>
-							<th>Dispositivo</th>
-							<th>Navegador</th>
-							<th>IP</th>
-							<th>ID usuario</th>
-							<th>Sesión</th>
-							<th>Última actividad</th>
-							<th>Detalles</th>
-						</tr>
-					</thead>
-					<tbody>
-						@forelse ($sessions as $session)
+	<x-grobdi.layout.table-card
+		title="Detalle de sesiones"
+		tableClass="table-bordered table-striped table-hover mb-0"
+	>
+		<x-slot:actions>
+			<span class="badge badge-secondary">{{ $statistics['total_sessions'] }} registros</span>
+		</x-slot:actions>
+
+		<thead>
+			<tr>
+				<th>Usuario</th>
+				<th>Estado</th>
+				<th>Dispositivo</th>
+				<th>Navegador</th>
+				<th>IP</th>
+				<th>ID usuario</th>
+				<th>Sesión</th>
+				<th>Última actividad</th>
+				<th>Detalles</th>
+			</tr>
+		</thead>
+		<tbody>
+			@forelse ($sessions as $session)
 							@php($modalId = 'session-modal-' . md5($session->id))
 							<tr>
 								<td>
@@ -183,20 +170,17 @@
 										<span class="text-muted">Sin registros</span>
 									@endif
 								</td>
-								<td class="text-center">
-									<button class="btn btn-sm btn-outline-primary" type="button" data-toggle="modal" data-target="#{{ $modalId }}">
-										Ver detalles
-									</button>
-								</td>
+							<td class="text-center">
+								<x-grobdi.button variant="outline" size="sm" icon="fa fa-eye" type="button" data-toggle="modal" :data-target="'#' . $modalId">
+									Ver detalles
+								</x-grobdi.button>
+							</td>
 							</tr>
-						@empty
-							@include('empty-table', ['colspan' => 9, 'dataLength' => 0, 'personalizedMessage' => 'Sin sesiones registradas'])
-						@endforelse
-					</tbody>
-				</table>
-			</div>
-		</div>
-	</div>
+			@empty
+				@include('empty-table', ['colspan' => 9, 'dataLength' => 0, 'personalizedMessage' => 'Sin sesiones registradas'])
+			@endforelse
+		</tbody>
+	</x-grobdi.layout.table-card>
 @foreach ($sessions as $session)
 	@php($modalId = 'session-modal-' . md5($session->id))
 	<div class="modal fade" id="{{ $modalId }}" tabindex="-1" role="dialog" aria-labelledby="{{ $modalId }}Label" aria-hidden="true">
