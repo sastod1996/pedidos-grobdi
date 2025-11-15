@@ -45,90 +45,76 @@
                 </div>
             @endif
 
-            <form action="{{ route('views.store') }}" method="POST" id="createViewForm">
+            @php
+                $moduleOptions = $modules->map(fn($module) => ['value' => $module->id, 'label' => $module->name])->toArray();
+            @endphp
+
+            <form action="{{ route('views.store') }}" method="POST" id="createViewForm" class="grobdi-form">
                 @csrf
 
                 <div class="row">
                     <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="grobdi-label">
-                                <i class="fas fa-tag text-danger"></i> Nombre de la Vista <span class="text-danger">*</span>
-                            </label>
-                            <input type="text"
-                                   name="name"
-                                   class="form-control grobdi-input"
-                                   placeholder="Ej: Gestión de Usuarios"
-                                   required
-                                   value="{{ old('name') }}">
+                        <x-grobdi.form.input
+                            label="<i class='fas fa-tag text-danger'></i> Nombre de la Vista <span class='text-danger'>*</span>"
+                            name="name"
+                            placeholder="Ej: Gestión de Usuarios"
+                            required
+                        >
                             <small class="form-text text-muted">
                                 <i class="fas fa-info-circle"></i> Nombre descriptivo de la vista
                             </small>
-                        </div>
+                        </x-grobdi.form.input>
                     </div>
 
                     <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="grobdi-label">
-                                <i class="fas fa-link text-danger"></i> Ruta (URL) <span class="text-danger">*</span>
-                            </label>
-                            <input type="text"
-                                   name="url"
-                                   class="form-control grobdi-input"
-                                   placeholder="Ej: /admin/usuarios"
-                                   required
-                                   value="{{ old('url') }}">
+                        <x-grobdi.form.input
+                            label="<i class='fas fa-link text-danger'></i> Ruta (URL) <span class='text-danger'>*</span>"
+                            name="url"
+                            placeholder="Ej: /admin/usuarios"
+                            required
+                        >
                             <small class="form-text text-muted">
                                 <i class="fas fa-info-circle"></i> URL de acceso a la vista
                             </small>
-                        </div>
+                        </x-grobdi.form.input>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label class="grobdi-label">
-                        <i class="fas fa-align-left text-danger"></i> Descripción
-                    </label>
-                    <textarea name="description"
-                              class="form-control grobdi-input"
-                              rows="3"
-                              placeholder="Describe brevemente la funcionalidad de esta vista...">{{ old('description') }}</textarea>
+                <x-grobdi.form.textarea
+                    label="<i class='fas fa-align-left text-danger'></i> Descripción"
+                    name="description"
+                    rows="3"
+                    placeholder="Describe brevemente la funcionalidad de esta vista..."
+                >
                     <small class="form-text text-muted">
                         <i class="fas fa-info-circle"></i> Información adicional sobre la vista (opcional)
                     </small>
-                </div>
+                </x-grobdi.form.textarea>
 
                 <div class="row">
                     <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="grobdi-label">
-                                <i class="fas fa-cube text-danger"></i> Módulo <span class="text-danger">*</span>
-                            </label>
-                            <select name="module_id" class="form-control grobdi-input" required>
-                                <option value="">Selecciona un módulo</option>
-                                @foreach($modules as $module)
-                                    <option value="{{ $module->id }}" {{ old('module_id') == $module->id ? 'selected' : '' }}>
-                                        {{ $module->name }}
-                                    </option>
-                                @endforeach
-                            </select>
+                        <x-grobdi.form.select
+                            label="<i class='fas fa-cube text-danger'></i> Módulo <span class='text-danger'>*</span>"
+                            name="module_id"
+                            :options="$moduleOptions"
+                            placeholder="Selecciona un módulo"
+                            required
+                        >
                             <small class="form-text text-muted">
                                 <i class="fas fa-info-circle"></i> Módulo al que pertenece la vista
                             </small>
-                        </div>
+                        </x-grobdi.form.select>
                     </div>
 
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label class="grobdi-label">
-                                <i class="fas fa-icons text-danger"></i> Icono (Font Awesome)
-                            </label>
-                            <input type="text"
-                                   id="icon-input"
-                                   name="icon"
-                                   list="icon-options"
-                                   class="form-control grobdi-input"
-                                   placeholder="Ej: fas fa-user"
-                                   value="{{ old('icon') }}">
+                            <x-grobdi.form.input
+                                label="<i class='fas fa-icons text-danger'></i> Icono (Font Awesome)"
+                                id="icon-input"
+                                name="icon"
+                                placeholder="Ej: fas fa-user"
+                                :inputAttrs="['list' => 'icon-options']"
+                            />
                             <datalist id="icon-options">
                                 @foreach ($fontawesomeSuggestions as $iconOption)
                                     <option value="{{ $iconOption }}"></option>
@@ -158,25 +144,16 @@
 
                 <div class="row">
                     <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="grobdi-label">
-                                <i class="fas fa-bars text-danger"></i> Visibilidad en Menú
-                            </label>
-                            <div class="grobdi-switch-container">
-                                <input type="hidden" name="is_menu" value="0">
-                                <label class="grobdi-switch">
-                                    <input type="checkbox"
-                                           name="is_menu"
-                                           value="1"
-                                           {{ old('is_menu', true) ? 'checked' : '' }}>
-                                    <span class="switch-slider"></span>
-                                    <span class="switch-label">Mostrar esta vista en el menú de navegación</span>
-                                </label>
-                            </div>
+                        <x-grobdi.form.switch
+                            label="<i class='fas fa-bars text-danger'></i> Visibilidad en Menú"
+                            name="is_menu"
+                            :checked="old('is_menu', true)"
+                            description="Mostrar esta vista en el menú de navegación"
+                        >
                             <small class="form-text text-muted">
                                 <i class="fas fa-info-circle"></i> Activa si deseas que aparezca en el menú principal
                             </small>
-                        </div>
+                        </x-grobdi.form.switch>
                     </div>
                 </div>
 
