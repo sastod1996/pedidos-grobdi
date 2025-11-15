@@ -1,205 +1,143 @@
 @php
     $doctorReport = $data['doctorReport'];
 @endphp
-<div class="row">
-    <div class="col-2">
-        <form id="doctor-filter">
-            <div class="form-group position-relative">
-                <label for="doctor-name-query">Nombre del doctor</label>
-                <input type="text" id="doctor-name-query" name="doctor-name-query" class="form-control"
-                    autocomplete="off" />
-                <div id="doctor-suggestions-list" class="list-group position-absolute overflow-auto border"
-                    style="z-index: 1000; max-height: 200px; width: 100%;"></div>
-                <input type="hidden" name="doctor-id-doctor" id="doctor-id-doctor"
-                    value="{{ $doctorReport['filters']['id_doctor'] }}" />
+<div class="row g-4 align-items-stretch">
+    <div class="col-12 col-lg-3">
+        <div class="card-grobdi h-100">
+            <div class="card-header-grobdi">
+                <h4 class="mb-0">Filtros del doctor</h4>
+                <p class="text-muted mb-0">Refina la búsqueda por nombre y rango de fechas</p>
             </div>
-            <div class="form-group">
-                <div class="form-group">
-                    <label for="visitadoras-start-date-input">
-                        Fecha Inicio</label>
-                    <div class="input-group date" data-target-input="nearest">
-                        <input class="form-control datetimepicker-input" type="date" name="fecha"
-                            id="visitadoras-start-date-input" value="{{ now()->startOfMonth()->format('Y-m-d') }}"
-                            required>
-                        <div class="input-group-append" data-target="#visitadoras-start-date-input">
-                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+            <div class="card-body-grobdi">
+                <form id="doctor-filter" class="grobdi-form">
+                    <div class="form-group-grobdi position-relative">
+                        <label for="doctor-name-query" class="form-label">Nombre del doctor</label>
+                        <input type="text" id="doctor-name-query" name="doctor-name-query"
+                            class="form-control-grobdi" autocomplete="off" placeholder="Ej. Dr. Condori" />
+                        <div id="doctor-suggestions-list" class="autocomplete-dropdown"></div>
+                        <input type="hidden" name="doctor-id-doctor" id="doctor-id-doctor"
+                            value="{{ $doctorReport['filters']['id_doctor'] }}" />
+                    </div>
+                    <div class="form-grid">
+                        <div>
+                            <label for="visitadoras-start-date-input" class="form-label">Fecha inicio</label>
+                            <div class="input-with-icon">
+                                <input class="form-control-grobdi" type="date" name="fecha"
+                                    id="visitadoras-start-date-input" value="{{ now()->startOfMonth()->format('Y-m-d') }}"
+                                    required>
+                                <span><i class="fas fa-calendar-alt"></i></span>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="visitadoras-end-date-input" class="form-label">Fecha fin</label>
+                            <div class="input-with-icon">
+                                <input class="form-control-grobdi" type="date" name="visitadoras-end-date-input"
+                                    id="visitadoras-end-date-input" value="{{ now()->format('Y-m-d') }}" required>
+                                <span><i class="fas fa-calendar-alt"></i></span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="visitadoras-end-date-input">
-                        Fecha Fin</label>
-                    <div class="input-group date" data-target-input="nearest">
-                        <input class="form-control datetimepicker-input" type="date"
-                            name="visitadoras-end-date-input" id="visitadoras-end-date-input"
-                            value="{{ now()->format('Y-m-d') }}" required>
-                        <div class="input-group-append" data-target="#visitadoras-end-date-input">
-                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                        </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-grobdi btn-primary-grobdi w-100">
+                            <i class="fas fa-search mr-2"></i>Buscar
+                        </button>
                     </div>
-                </div>
-            </div>
-            <button type="submit" class="btn btn-dark w-100">
-                Buscar
-            </button>
-        </form>
-    </div>
-    <div class="col-10">
-        <div class="card card-outline card-dark">
-            <div class="card-header">
-                <div class="card-title mb-1 font-weight-bold" id="doctor-name-label" style="font-size: 1.1rem;">
-                    {{ $doctorReport['doctor_info']['is_top_doctor'] ? 'Top Doctor:' : 'Dr.' }}
-                    {{ $doctorReport['doctor_info']['doctor'] }}
-                </div>
-                <div class="text-muted" id="doctor-details-label" style="font-size: 0.95rem;">
-                    Tipo: {{ $doctorReport['doctor_info']['tipo_doctor'] ?? 'Sin registrar' }}
-                    <span class="mx-1">•</span>
-                    Especialidad: {{ $doctorReport['doctor_info']['especialidad'] ?? 'Sin registrar' }}
-                    <span class="mx-1">•</span>
-                    Distrito: {{ $doctorReport['doctor_info']['distrito'] ?? 'Sin registrar' }}
-                    <span class="mx-1">•</span>
-                    Centro de Salud: {{ $doctorReport['doctor_info']['centro_salud'] ?? 'Sin registrar' }}
-                </div>
-            </div>
-            <div class="card-body">
-                <font dir="auto" style="vertical-align: inherit;">
-                    <font dir="auto" style="vertical-align: inherit;">
-                        <div class="chart">
-                            <div class="chartjs-size-monitor">
-                                <div class="chartjs-size-monitor-expand">
-                                    <div class=""></div>
-                                </div>
-                                <div class="chartjs-size-monitor-shrink">
-                                    <div class=""></div>
-                                </div>
-                            </div>
-                            <canvas id="doctor-amount-spent-anually-chart"
-                                style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%; display: block;"
-                                width="496" height="250" class="chartjs-render-monitor"></canvas>
-                        </div>
-                    </font>
-                </font>
+                </form>
             </div>
         </div>
+    </div>
+    <div class="col-12 col-lg-9">
+        <x-grobdi.report.chart-card
+            title="{{ $doctorReport['doctor_info']['is_top_doctor'] ? 'Top Doctor' : 'Doctor' }}"
+            :subtitle="sprintf('%s • %s • %s • %s',
+                $doctorReport['doctor_info']['doctor'],
+                $doctorReport['doctor_info']['tipo_doctor'] ?? 'Tipo sin registrar',
+                $doctorReport['doctor_info']['especialidad'] ?? 'Especialidad sin registrar',
+                $doctorReport['doctor_info']['distrito'] ?? 'Distrito sin registrar')"
+        >
+            <div class="chart-wrapper" style="height: 320px;">
+                <canvas id="doctor-amount-spent-anually-chart"></canvas>
+            </div>
+        </x-grobdi.report.chart-card>
     </div>
 </div>
-<div class="row mt-3">
-    <div class="col-6">
-        <div class="card card-outline card-dark">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <font dir="auto" style="vertical-align: inherit;">
-                        <font dir="auto" style="vertical-align: inherit;">Monto consumido agrupado por tipo de
-                            producto</font>
-                    </font>
-                </h3>
+
+<div class="row g-4 mt-1">
+    <div class="col-12 col-lg-6">
+        <x-grobdi.report.chart-card
+            title="Monto consumido por tipo"
+            subtitle="Distribución por categorías de producto"
+        >
+            @include('empty-chart', [
+                'dataLength' => count($doctorReport['data']['amount_spent_monthly_grouped_by_tipo']),
+            ])
+            <div class="chart-wrapper" style="height: 300px;">
+                <canvas id="amount-spent-monthly-grouped-by-tipo-chart"></canvas>
             </div>
-            <div class="card-body">
-                <font dir="auto" style="vertical-align: inherit;">
-                    <font dir="auto" style="vertical-align: inherit;">
-                        <div class="chart position-relative">
-                            <div class="chartjs-size-monitor">
-                                <div class="chartjs-size-monitor-expand">
-                                    <div class=""></div>
-                                </div>
-                                <div class="chartjs-size-monitor-shrink">
-                                    <div class=""></div>
-                                </div>
-                            </div>
-                            @include('empty-chart', [
-                                'dataLength' => count(
-                                    $doctorReport['data']['amount_spent_monthly_grouped_by_tipo']),
-                            ])
-                            <canvas id="amount-spent-monthly-grouped-by-tipo-chart"
-                                style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%; display: block;"
-                                width="496" height="250" class="chartjs-render-monitor"></canvas>
-                        </div>
-                    </font>
-                </font>
-            </div>
-        </div>
+        </x-grobdi.report.chart-card>
     </div>
-    <div class="col-6">
-        <div class="card card-outline card-dark">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <font dir="auto" style="vertical-align: inherit;">
-                        <font dir="auto" style="vertical-align: inherit;">Productos más comprados por el doctor
-                        </font>
-                    </font>
-                </h3>
-                <div class="col-auto" style="text-align: end;">
-                    <select class="badge bg-danger border-0 p-0" id="doctor-top-consumed-products-select">
-                        <option value="0">Top 3</option>
-                        <option value="1">Top 5</option>
-                        <option value="2">Top 10</option>
-                    </select>
-                </div>
+    <div class="col-12 col-lg-6">
+        <x-grobdi.report.chart-card
+            title="Productos más consumidos"
+            subtitle="Ranking configurable de pedidos"
+        >
+            <x-slot name="actions">
+                <select id="doctor-top-consumed-products-select" class="form-control-grobdi form-control-sm">
+                    <option value="0">Top 3</option>
+                    <option value="1">Top 5</option>
+                    <option value="2">Top 10</option>
+                </select>
+            </x-slot>
+            @include('empty-chart', [
+                'dataLength' => count($doctorReport['data']['most_consumed_products_monthly']),
+            ])
+            <div class="chart-wrapper" style="height: 300px;">
+                <canvas id="most-consumed-products-monthly-chart"></canvas>
             </div>
-            <div class="card-body">
-                <font dir="auto" style="vertical-align: inherit;">
-                    <font dir="auto" style="vertical-align: inherit;">
-                        <div class="chart position-relative">
-                            <div class="chartjs-size-monitor">
-                                <div class="chartjs-size-monitor-expand">
-                                    <div class=""></div>
-                                </div>
-                                <div class="chartjs-size-monitor-shrink">
-                                    <div class=""></div>
-                                </div>
-                            </div>
-                            @include('empty-chart', [
-                                'dataLength' => count($doctorReport['data']['most_consumed_products_monthly']),
-                            ])
-                            <canvas id="most-consumed-products-monthly-chart"
-                                style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%; display: block;"
-                                width="496" height="250" class="chartjs-render-monitor"></canvas>
-                        </div>
-                    </font>
-                </font>
-            </div>
-        </div>
+        </x-grobdi.report.chart-card>
     </div>
 </div>
-<div class="row">
+
+<div class="row g-4 mt-1">
     <div class="col-12">
-        <div class="card card-outline card-danger">
-            <div class="card-body table-responsive p-0" style="height: 450px;">
-                <table class=" table table-head-fixed text-nowrap table-striped">
-                    <thead>
-                        <tr>
-                            <th class="text-start">Producto</th>
-                            <th class="text-center">Cantidad</th>
-                            <th class="text-center">Sub Total</th>
-                            <th class="text-center">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="doctor-products-details-table" class="table-dark">
-                        @include('empty-table', [
-                            'dataLength' => count($doctorReport['data']['most_consumed_products_monthly']),
-                            'colspan' => 4,
-                        ])
-                        @foreach ($doctorReport['data']['most_consumed_products_monthly'] as $product)
-                            <tr>
-                                <td>
-                                    {{ $product['articulo'] }}
-                                </td>
-                                <td class="text-center">
-                                    {{ $product['total_cantidad'] }}
-                                </td>
-                                <td class="text-center">
-                                    S/
-                                    {{ number_format($product['total_sub_total'] / $product['total_cantidad'], 2) }}
-                                </td>
-                                <td class="text-center">
-                                    S/ {{ $product['total_sub_total'] }}
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        <x-grobdi.layout.table-card
+            title="Detalle de productos consumidos"
+            subtitle="Listado ordenado por volumen y monto"
+            table-id="doctor-products-details-table"
+            table-class="table-striped table-hover align-middle"
+        >
+            <thead>
+                <tr>
+                    <th class="text-start">Producto</th>
+                    <th class="text-center">Cantidad</th>
+                    <th class="text-center">Sub Total</th>
+                    <th class="text-center">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @include('empty-table', [
+                    'dataLength' => count($doctorReport['data']['most_consumed_products_monthly']),
+                    'colspan' => 4,
+                ])
+                @foreach ($doctorReport['data']['most_consumed_products_monthly'] as $product)
+                    <tr>
+                        <td>
+                            {{ $product['articulo'] }}
+                        </td>
+                        <td class="text-center">
+                            {{ $product['total_cantidad'] }}
+                        </td>
+                        <td class="text-center">
+                            S/
+                            {{ number_format($product['total_sub_total'] / $product['total_cantidad'], 2) }}
+                        </td>
+                        <td class="text-center">
+                            S/ {{ number_format($product['total_sub_total'], 2) }}
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </x-grobdi.layout.table-card>
     </div>
 </div>
 

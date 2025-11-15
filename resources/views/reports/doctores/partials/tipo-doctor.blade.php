@@ -1,31 +1,31 @@
 @php
     $tipoDoctorReport = $data['tipoDoctorReport'];
 @endphp
-<div class="card card-outline card-dark mb-3">
-    <div class="card-body py-2">
-        <div class="row">
+<div class="card-grobdi mb-4">
+    <div class="card-body-grobdi">
+        <div class="row g-3 align-items-end">
             <div class="col-12 col-md-8">
-                <form id="tipo-doctor-filter">
-                    <div class="row">
+                <form id="tipo-doctor-filter" class="grobdi-form">
+                    <div class="row g-3">
                         <div class="col-12 col-md-6">
-                            <div class="form-group">
-                                <label for="tipo-doctor-year" class="form-label"><i class="fas fa-calendar-check"></i>
+                            <div class="form-group-grobdi">
+                                <label for="tipo-doctor-year" class="form-label"><i class="fas fa-calendar-check mr-1"></i>
                                     Año</label>
-                                <input type="text" id="tipo-doctor-year" class="form-control"
+                                <input type="text" id="tipo-doctor-year" class="form-control-grobdi"
                                     placeholder="Seleccione un año" value="{{ date('Y') }}" readonly>
                             </div>
                         </div>
-                        <div class="col-12 col-md-6 align-content-end align-content-md-end mb-md-3">
-                            <button class="btn btn-danger btn-block w-100" type="submit">
-                                <i class="fas fa-filter"></i> Filtrar
+                        <div class="col-12 col-md-6">
+                            <button class="btn-grobdi btn-primary-grobdi w-100" type="submit">
+                                <i class="fas fa-filter mr-2"></i>Aplicar filtros
                             </button>
                         </div>
                     </div>
                 </form>
             </div>
-            <div class="col-12 col-md-4 mt-3 mt-md-0 align-content-md-end mb-md-3">
-                <button class="btn btn-outline-dark btn-block w-100" id="tipo-doctor-clean-filter">
-                    <i class="fas fa-eraser"></i> Limpiar
+            <div class="col-12 col-md-4 mt-2 mt-md-0">
+                <button class="btn-grobdi btn-outline-primary-grobdi w-100" id="tipo-doctor-clean-filter">
+                    <i class="fas fa-eraser mr-2"></i>Limpiar
                 </button>
             </div>
         </div>
@@ -35,159 +35,108 @@
 <!-- Gráfica Principal por Mes -->
 <div class="row ">
     <div class="col-12">
-        <div class="card">
-            <div class="card-header bg-danger border-0">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <h5 class="mb-0">
-                            <i class="fas fa-chart-bar"></i> Ventas por Tipo de Doctor - Mensual
-                        </h5>
-                        <small><i>Evolución mensual de ventas</i></small>
-                    </div>
-                    <div class="col-auto">
-                        <div class="row">
-                            <div class="col-12 col-md-auto" style="text-align: end;">
-                                <span class="badge bg-light px-3 py-2 text-sm">
-                                    Mostrando datos del año: <span id="tipo-doctor-table-year-indicator">
-                                        {{ now()->year }}
-                                    </span>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <x-grobdi.report.chart-card
+            title="Ventas por Tipo de Doctor - Mensual"
+            subtitle="Evolución mensual de ventas"
+        >
+            <x-slot name="actions">
+                <span class="badge-grobdi badge-gray">
+                    Año en vista: <span id="tipo-doctor-table-year-indicator">{{ now()->year }}</span>
+                </span>
+            </x-slot>
+            @include('empty-chart', ['dataLength' => $tipoDoctorReport['resume']['total_amount']])
+            <div class="chart-wrapper" style="height: 430px;">
+                <canvas id="tipo-doctor-bar-chart"></canvas>
             </div>
-            <div class="card-body" style="height: 450px; position: relative;">
-                @include('empty-chart', ['dataLength' => $tipoDoctorReport['resume']['total_amount']])
-                <canvas id="tipo-doctor-bar-chart" style="max-height: 400px;"></canvas>
-            </div>
-        </div>
+        </x-grobdi.report.chart-card>
     </div>
 </div>
 
 <!-- Gráficas Complementarias -->
 <div class="row mb-4">
     <div class="col-12 col-lg-6">
-        <div class="card card-outline card-danger h-100">
-            <div class="card-header bg-dark border-0">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <h5 class="mb-0">
-                            <i class="fas fa-chart-pie"></i> Distribución por Tipo de Doctor
-                        </h5>
-                        <small><i>Mostrando: <span id="tipo-doctor-pie-chart-showing-label">Ingresos
-                                    Totales</span></i></small>
-                    </div>
-                    <div class="col-auto">
-                        <div class="row">
-                            <div class="col-12 col-md-auto order-2 order-md-1" style="text-align: end;">
-                                <select class="badge bg-light border-0"
-                                    style="padding-top: .35rem; padding-bottom: .35rem;"
-                                    id="tipo-doctor-pie-chart-select">
-                                    <option value="0">Ingresos Totales</option>
-                                    <option value="1">Cantidad de Pedidos</option>
-                                    <option value="2">Total de Doctores</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <x-grobdi.report.chart-card
+            title="Distribución por Tipo de Doctor"
+            subtitle="Compara ingresos, pedidos y cantidad de doctores"
+        >
+            <x-slot name="actions">
+                <select class="form-control-grobdi form-control-sm" id="tipo-doctor-pie-chart-select">
+                    <option value="0">Ingresos Totales</option>
+                    <option value="1">Cantidad de Pedidos</option>
+                    <option value="2">Total de Doctores</option>
+                </select>
+            </x-slot>
+            <p class="text-muted mb-2">Mostrando: <span id="tipo-doctor-pie-chart-showing-label">Ingresos Totales</span></p>
+            @include('empty-chart', ['dataLength' => $tipoDoctorReport['resume']['total_amount']])
+            <div class="chart-wrapper" style="height: 360px;">
+                <canvas id="tipo-doctor-pie-chart"></canvas>
             </div>
-            <div class="card-body d-flex align-items-center justify-content-center"
-                style="height: 400px; position: relative;">
-                @include('empty-chart', ['dataLength' => $tipoDoctorReport['resume']['total_amount']])
-                <canvas id="tipo-doctor-pie-chart" style="max-height: 350px; max-width: 100%;"></canvas>
-            </div>
-        </div>
+        </x-grobdi.report.chart-card>
     </div>
     <div class="col-12 col-lg-6">
-        <div class="card card-danger card-outline h-100">
-            <div class="card-header bg-dark">
-                <h5 class="m-0">
-                    <i class="fas fa-table"></i> <span class="d-none d-sm-inline">Tabla de detalles por Tipo de
-                        Doctor</span>
-                </h5>
-                <small><i>Estadisticas generales</i></small>
-            </div>
-            <div class="table-responsive card-body p-0">
-                <div style="max-height: 350px; overflow-y: auto;">
-                    <table class="table table-head-fixed text-nowrap table-light table-striped ">
-                        <thead>
-                            <tr>
-                                <th>
-                                    <i class="fas fa-user-md"></i> Tipo
-                                </th>
-                                <th class="text-center">
-                                    <i class="fas fa-users"></i> Cantidad
-                                </th>
-                                <th class="text-center">
-                                    <i class="fas fa-boxes"></i> Pedidos
-                                </th>
-                                <th class="text-center">
-                                    <i class="fas fa-dollar-sign"></i> Ingresos
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="table-dark" id="tipo-doctor-table-body">
-                            @include('empty-table', [
-                                'colspan' => 4,
-                                'dataLength' => count($tipoDoctorReport['resume']['tipos_resume']),
-                            ])
-                            @if (isset($tipoDoctorReport) && count($tipoDoctorReport['resume']['tipos_resume']) > 0)
-                                @foreach ($tipoDoctorReport['resume']['tipos_resume'] as $tipoDoctor)
-                                    <tr>
-                                        <td>
-                                            <strong>
-                                                {{ $tipoDoctor['tipo_medico'] }}
-                                            </strong>
-                                        </td>
-                                        <td class="text-center">
-                                            {{ $tipoDoctor['total_doctores'] }}
-                                        </td>
-                                        <td class="text-center">{{ $tipoDoctor['total_pedidos'] }}</td>
-                                        <td class="text-center">
-                                            <span class="badge bg-success">
-                                                S/ {{ number_format($tipoDoctor['total_amount'], 2) }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            @endif
-                        </tbody>
-                        <tfoot class="table-dark">
-                            <tr>
-                                <th>
-                                    <i class="fas fa-calculator mr-1"></i> TOTAL
-                                </th>
-                                <th class="text-center" id="tipo-doctor-tfoot-total-doctores">
-                                    {{ $tipoDoctorReport['resume']['total_doctores'] }} Drs.
-                                </th>
-                                <th class="text-center" id="tipo-doctor-tfoot-total-pedidos">
-                                    {{ $tipoDoctorReport['resume']['total_pedidos'] }}
-                                </th>
-                                <th class="text-center" id="tipo-doctor-tfoot-total-amount">
-                                    S/ {{ number_format($tipoDoctorReport['resume']['total_amount'], 2) }}
-                                </th>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            </div>
-        </div>
+        <x-grobdi.layout.table-card
+            title="Tabla de detalles por Tipo de Doctor"
+            subtitle="Estadísticas generales"
+            table-class="table-striped align-middle"
+        >
+            <thead>
+                <tr>
+                    <th><i class="fas fa-user-md mr-1"></i> Tipo</th>
+                    <th class="text-center"><i class="fas fa-users mr-1"></i> Cantidad</th>
+                    <th class="text-center"><i class="fas fa-boxes mr-1"></i> Pedidos</th>
+                    <th class="text-center"><i class="fas fa-dollar-sign mr-1"></i> Ingresos</th>
+                </tr>
+            </thead>
+            <tbody id="tipo-doctor-table-body">
+                @include('empty-table', [
+                    'colspan' => 4,
+                    'dataLength' => count($tipoDoctorReport['resume']['tipos_resume']),
+                ])
+                @if (isset($tipoDoctorReport) && count($tipoDoctorReport['resume']['tipos_resume']) > 0)
+                    @foreach ($tipoDoctorReport['resume']['tipos_resume'] as $tipoDoctor)
+                        <tr>
+                            <td>
+                                <strong>{{ $tipoDoctor['tipo_medico'] }}</strong>
+                            </td>
+                            <td class="text-center">
+                                {{ $tipoDoctor['total_doctores'] }}
+                            </td>
+                            <td class="text-center">{{ $tipoDoctor['total_pedidos'] }}</td>
+                            <td class="text-center">
+                                <span class="badge-grobdi badge-green">
+                                    S/ {{ number_format($tipoDoctor['total_amount'], 2) }}
+                                </span>
+                            </td>
+                        </tr>
+                    @endforeach
+                @endif
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th><i class="fas fa-calculator mr-1"></i> TOTAL</th>
+                    <th class="text-center" id="tipo-doctor-tfoot-total-doctores">
+                        {{ $tipoDoctorReport['resume']['total_doctores'] }} Drs.
+                    </th>
+                    <th class="text-center" id="tipo-doctor-tfoot-total-pedidos">
+                        {{ $tipoDoctorReport['resume']['total_pedidos'] }}
+                    </th>
+                    <th class="text-center" id="tipo-doctor-tfoot-total-amount">
+                        S/ {{ number_format($tipoDoctorReport['resume']['total_amount'], 2) }}
+                    </th>
+                </tr>
+            </tfoot>
+        </x-grobdi.layout.table-card>
     </div>
 </div>
 
 <!-- Acciones adicionales -->
 <div class="row">
     <div class="col-12">
-        <div class="card">
-            <div class="card-body text-center py-3">
-                <div class="btn-group flex-column flex-sm-row" role="group">
-                    <button class="btn btn-success btn-lg mb-2 mb-sm-0 me-sm-2" id="descargar-excel-tipo-doctor">
-                        <i class="fas fa-file-excel"></i> <span class="d-none d-sm-inline">Descargar Excel</span>
-                        <span class="d-sm-none">Excel</span>
-                    </button>
-                </div>
+        <div class="card-grobdi text-center">
+            <div class="card-body-grobdi py-3">
+                <button class="btn-grobdi btn-success-grobdi btn-lg" id="descargar-excel-tipo-doctor">
+                    <i class="fas fa-file-excel mr-2"></i>Descargar Excel
+                </button>
             </div>
         </div>
     </div>
