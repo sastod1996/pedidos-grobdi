@@ -20,16 +20,17 @@
             </ul>
         </div>
     @endif
-    <form class="form-group-grobdi" action="{{ route('modules.store') }}" method="POST">
+    <form class="grobdi-form" action="{{ route('modules.store') }}" method="POST">
         @csrf
-        <div class="form-group">
-            <label class="grobdi-label">Nombre</label>
-            <input type="text" name="name" class="form-control grobdi-input" required>
-        </div>
-        <div class="form-group">
-            <label class="grobdi-label">Descripción</label>
-            <input type="text" name="description" class="form-control grobdi-input">
-        </div>
+        <x-grobdi.form.input
+            label="Nombre"
+            name="name"
+            required
+        />
+        <x-grobdi.form.input
+            label="Descripción"
+            name="description"
+        />
         <button class="btn btn-grobdi btn-primary-grobdi">Guardar</button>
         <a href="{{ route('modules.index') }}" class="btn btn-grobdi btn-secondary-grobdi">Cancelar</a>
     </form>

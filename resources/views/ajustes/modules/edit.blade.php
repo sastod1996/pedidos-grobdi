@@ -16,16 +16,19 @@
             </ul>
         </div>
     @endif
-    <form action="{{ route('modules.update', $module) }}" method="POST">
+    <form action="{{ route('modules.update', $module) }}" method="POST" class="grobdi-form">
         @csrf @method('PUT')
-        <div class="form-group">
-            <label>Nombre</label>
-            <input type="text" name="name" value="{{ $module->name }}" class="form-control" required>
-        </div>
-        <div class="form-group">
-            <label>Descripción</label>
-            <input type="text" name="description" value="{{ $module->description }}" class="form-control">
-        </div>
+        <x-grobdi.form.input
+            label="Nombre"
+            name="name"
+            :value="old('name', $module->name)"
+            required
+        />
+        <x-grobdi.form.input
+            label="Descripción"
+            name="description"
+            :value="old('description', $module->description)"
+        />
         <button class="btn btn-primary">Actualizar</button>
         <a href="{{ route('modules.index') }}" class="btn btn-secondary">Cancelar</a>
     </form>
