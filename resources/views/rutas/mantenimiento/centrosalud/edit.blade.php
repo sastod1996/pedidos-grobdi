@@ -12,59 +12,52 @@
 <div class="card mt-5">
   <h2 class="card-header">Actualizar Centro de Salud</h2>
   <div class="card-body">
-  
+
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
         <a class="btn btn-primary btn-sm" href="{{ url()->previous() }}"><i class="fa fa-arrow-left"></i> Atrás</a>
     </div>
-  
-    <form action="{{ route('centrosalud.update',$centrosalud->id) }}" method="POST">
+
+    <form action="{{ route('centrosalud.update',$centrosalud->id) }}" method="POST" class="grobdi-form">
     @csrf
     @method('PUT')
         <div class="row">
 
             <div class="col-xs-6 col-sm-6 col-md-6">
-                <label for="inputName" class="form-label"><strong>Nombre:</strong></label>
-                <input 
-                    type="text" 
-                    name="name" 
-                    value="{{ $centrosalud->name }}"
-                    class="form-control @error('name') is-invalid @enderror" 
-                    id="inputName" 
-                    placeholder="Ingresar nombre del centro de salud">
-                @error('name')
-                    <div class="form-text text-danger">{{ $message }}</div>
-                @enderror
+                <x-grobdi.form.input
+                    label="<strong>Nombre:</strong>"
+                    name="name"
+                    id="inputName"
+                    placeholder="Ingresar nombre del centro de salud"
+                    :value="old('name', $centrosalud->name)"
+                />
             </div>
             <div class="col-xs-6 col-sm-6 col-md-6">
-                <label for="adress" class="form-label"><strong>Dirección:</strong></label>
-                <input 
-                    type="text" 
-                    name="adress" 
-                    value="{{ $centrosalud->adress }}"
-                    class="form-control @error('adress') is-invalid @enderror" 
-                    id="adress" 
-                    placeholder="Ingresar la dirección del centro de salud">
-                @error('adress')
-                    <div class="form-text text-danger">{{ $message }}</div>
-                @enderror
+                <x-grobdi.form.input
+                    label="<strong>Dirección:</strong>"
+                    name="adress"
+                    id="adress"
+                    placeholder="Ingresar la dirección del centro de salud"
+                    :value="old('adress', $centrosalud->adress)"
+                />
             </div>
             <div class="col-xs-12 col-sm-12 col-md-12">
-                <label for="description" class="form-label"><strong>Descripción:</strong></label>
-                <input 
-                    type="text" 
-                    name="description" 
-                    value="{{ $centrosalud->description }}"
-                    class="form-control @error('description') is-invalid @enderror" 
-                    id="description" 
-                    placeholder="Descripción del centro de salud">
-                @error('description')
-                    <div class="form-text text-danger">{{ $message }}</div>
-                @enderror
+                <x-grobdi.form.input
+                    label="<strong>Descripción:</strong>"
+                    name="description"
+                    id="description"
+                    placeholder="Descripción del centro de salud"
+                    :value="old('description', $centrosalud->description)"
+                />
             </div>
             <div class="col-sm-12">
-                <label class="form-label">Buscar en el mapa:</label>
-                <!-- Contenedor del buscador y mapa -->
-                <input type="text" name="address" id="address" placeholder="Buscar dirección" class="form-control mb-2">
+                <x-grobdi.form.input
+                    label="Buscar en el mapa"
+                    name="address"
+                    id="address"
+                    placeholder="Buscar dirección"
+                    :inputAttrs="['autocomplete' => 'off']"
+                    inputClass="mb-2"
+                />
 
                 <div id="map" style="height: 400px; margin-bottom: 15px;"></div>
 
@@ -76,7 +69,7 @@
         <br>
         <button type="submit" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> Actualizar</button>
     </form>
-  
+
     </div>
 </div>
 @endcan

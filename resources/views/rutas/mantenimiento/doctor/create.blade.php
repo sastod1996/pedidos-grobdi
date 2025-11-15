@@ -36,52 +36,47 @@
 
 <form action="{{ route('doctor.store') }}" method="POST" class="grobdi-form">
     @csrf
+    @php
+        $especialidadOptions = $especialidades->map(fn ($especialidad) => [
+            'value' => $especialidad->id,
+            'label' => $especialidad->name,
+        ])->toArray();
+
+        $categoriaDoctorOptions = $categorias->map(fn ($categoria) => [
+            'value' => $categoria->id,
+            'label' => $categoria->name,
+        ])->toArray();
+
+        $tipoMedicoOptions = collect(App\Models\Doctor::TIPOMEDICO)->map(fn ($tipo) => [
+            'value' => $tipo,
+            'label' => $tipo,
+        ])->toArray();
+    @endphp
 
     <div class="row g-4">
         <div class="col-12 col-md-6">
-            <div class="form-group-grobdi">
-                <label for="inputName" class="grobdi-label">Nombres:</label>
-                <input
-                    type="text"
-                    name="name"
-                    value="{{ old('name') }}"
-                    class="grobdi-input @error('name') is-invalid @enderror"
-                    id="inputName"
-                    placeholder="Ingresar el nombre del doctor">
-                @error('name')
-                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                @enderror
-            </div>
+            <x-grobdi.form.input
+                label="Nombres:"
+                name="name"
+                id="inputName"
+                placeholder="Ingresar el nombre del doctor"
+            />
         </div>
         <div class="col-12 col-md-3 col-lg-2">
-            <div class="form-group-grobdi">
-                <label for="cmp" class="grobdi-label">CMP:</label>
-                <input
-                    type="text"
-                    name="cmp"
-                    value="{{ old('cmp') }}"
-                    class="grobdi-input @error('cmp') is-invalid @enderror"
-                    id="cmp"
-                    placeholder="Ingresar el nro de CMP del doctor">
-                @error('cmp')
-                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                @enderror
-            </div>
+            <x-grobdi.form.input
+                label="CMP:"
+                name="cmp"
+                id="cmp"
+                placeholder="Ingresar el nro de CMP del doctor"
+            />
         </div>
         <div class="col-12 col-md-6 col-lg-4">
-            <div class="form-group-grobdi">
-                <label for="phone" class="grobdi-label">Teléfono:</label>
-                <input
-                    type="text"
-                    name="phone"
-                    value="{{ old('phone') }}"
-                    class="grobdi-input @error('phone') is-invalid @enderror"
-                    id="phone"
-                    placeholder="Ingresar el número de teléfono del doctor">
-                @error('phone')
-                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                @enderror
-            </div>
+            <x-grobdi.form.input
+                label="Teléfono:"
+                name="phone"
+                id="phone"
+                placeholder="Ingresar el número de teléfono del doctor"
+            />
         </div>
         <div class="col-12">
             <x-grobdi.location-selector
@@ -99,93 +94,91 @@
             />
         </div>
         <div class="col-12 col-md-6 col-lg-4">
-            <div class="form-group-grobdi">
-                <label for="especialidad" class="grobdi-label">Especialidades:</label>
-                <select class="grobdi-input @error('especialidad_id') is-invalid @enderror" name="especialidad_id" id="especialidad">
-                    <option selected disabled>Seleccione una especialidad</option>
-                    @foreach ($especialidades as $especialidad)
-                        <option value="{{ $especialidad->id }}" {{ old('especialidad_id') == $especialidad->id ? 'selected' : '' }}>{{ $especialidad->name }}</option>
-                    @endforeach
-                </select>
-                @error('especialidad_id')
-                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                @enderror
-            </div>
+            <x-grobdi.form.select
+                label="Especialidades:"
+                name="especialidad_id"
+                id="especialidad"
+                placeholder="Seleccione una especialidad"
+                :options="$especialidadOptions"
+                error-key="especialidad_id"
+            />
         </div>
         <div class="col-12 col-md-6 col-lg-4">
-            <div class="form-group-grobdi">
-                <label for="birthdate" class="grobdi-label">Fecha de nacimiento:</label>
-                <input
-                    type="date"
-                    name="birthdate"
-                    value="{{ old('birthdate') }}"
-                    class="grobdi-input @error('birthdate') is-invalid @enderror"
-                    id="birthdate"
-                    placeholder="Ingresar su fecha de nacimiento">
-                @error('birthdate')
-                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                @enderror
-            </div>
+            <x-grobdi.form.input
+                label="Fecha de nacimiento:"
+                name="birthdate"
+                id="birthdate"
+                type="date"
+                placeholder="Ingresar su fecha de nacimiento"
+            />
         </div>
         <div class="col-12 col-md-6 col-lg-4">
-            <div class="form-group-grobdi">
-                <label for="categoria" class="grobdi-label">Categoría Médico:</label>
-                <select class="grobdi-input" name="categoria_medico" id="categoria">
-                    <option selected disabled>Seleccione</option>
-                    <option value="empresa" {{ old('categoria_medico') == 'empresa' ? 'selected' : '' }}>Empresa</option>
-                    <option value="visitador" {{ old('categoria_medico') == 'visitador' ? 'selected' : '' }}>Visitador</option>
-                </select>
-            </div>
+            <x-grobdi.form.select
+                label="Categoría Médico:"
+                name="categoria_medico"
+                id="categoria"
+                placeholder="Seleccione"
+                :options="[
+                    ['value' => 'empresa', 'label' => 'Empresa'],
+                    ['value' => 'visitador', 'label' => 'Visitador'],
+                ]"
+            />
         </div>
         <div class="col-12 col-md-6 col-lg-4">
-            <div class="form-group-grobdi">
-                <label for="tipo_medico" class="grobdi-label">Tipo Médico:</label>
-                <select class="grobdi-input" name="tipo_medico" id="tipo_medico">
-                    <option selected disabled>Seleccione</option>
-                    @foreach (App\Models\Doctor::TIPOMEDICO as $tipo_medico)
-                        <option value="{{ $tipo_medico }}" {{ old('tipo_medico') == $tipo_medico ? 'selected' : '' }}>{{ $tipo_medico }}</option>
-                    @endforeach
-                </select>
-            </div>
+            <x-grobdi.form.select
+                label="Tipo Médico:"
+                name="tipo_medico"
+                id="tipo_medico"
+                placeholder="Seleccione"
+                :options="$tipoMedicoOptions"
+            />
         </div>
         <div class="col-12 col-md-6 col-lg-4">
-            <div class="form-group-grobdi">
-                <label for="asignado_consultorio" class="grobdi-label">¿Asignado a consultorio?</label>
-                <select class="grobdi-input" name="asignado_consultorio" id="asignado_consultorio">
-                    <option selected disabled>Seleccione</option>
-                    <option value="0" {{ old('asignado_consultorio') === '0' ? 'selected' : '' }}>No</option>
-                    <option value="1" {{ old('asignado_consultorio') === '1' ? 'selected' : '' }}>Sí</option>
-                </select>
-            </div>
+            <x-grobdi.form.select
+                label="¿Asignado a consultorio?"
+                name="asignado_consultorio"
+                id="asignado_consultorio"
+                placeholder="Seleccione"
+                :options="[
+                    ['value' => '0', 'label' => 'No'],
+                    ['value' => '1', 'label' => 'Sí'],
+                ]"
+            />
         </div>
         <div class="col-12 col-md-6 col-lg-4">
-            <div class="form-group-grobdi">
-                <label for="hijos" class="grobdi-label">¿Padre?</label>
-                <select class="grobdi-input" name="songs" id="hijos">
-                    <option selected disabled>Seleccione</option>
-                    <option value="0" {{ old('songs') === '0' ? 'selected' : '' }}>No</option>
-                    <option value="1" {{ old('songs') === '1' ? 'selected' : '' }}>Sí</option>
-                </select>
-            </div>
+            <x-grobdi.form.select
+                label="¿Padre?"
+                name="songs"
+                id="hijos"
+                placeholder="Seleccione"
+                :options="[
+                    ['value' => '0', 'label' => 'No'],
+                    ['value' => '1', 'label' => 'Sí'],
+                ]"
+            />
         </div>
         <div class="col-12 col-lg-6">
-            <div class="form-group-grobdi">
-                <label for="centrosalud_id" class="grobdi-label">Centro de Salud:</label>
-                <select id="centrosalud_id" name="centrosalud_id" class="grobdi-input" style="width: 100%;"></select>
-                @error('centrosalud_id')
-                    <div class="invalid-feedback d-block">Seleccione un centro de salud, si no lo encuentra debe crearlo antes</div>
-                @enderror
-            </div>
+            <x-grobdi.form.select
+                label="Centro de Salud:"
+                name="centrosalud_id"
+                id="centrosalud_id"
+                placeholder="Buscar centro de salud"
+                :options="[]"
+                :input-attrs="['style' => 'width: 100%;']"
+                error-message="Seleccione un centro de salud, si no lo encuentra debe crearlo antes"
+            />
         </div>
         <div class="col-12 col-sm-6 col-lg-2">
-            <div class="form-group-grobdi">
-                <label for="recovery" class="grobdi-label">¿Es recuperación?</label>
-                <select class="grobdi-input" name="recovery" id="recovery">
-                    <option selected disabled>Seleccione</option>
-                    <option value="0" {{ old('recovery') === '0' ? 'selected' : '' }}>No</option>
-                    <option value="1" {{ old('recovery') === '1' ? 'selected' : '' }}>Sí</option>
-                </select>
-            </div>
+            <x-grobdi.form.select
+                label="¿Es recuperación?"
+                name="recovery"
+                id="recovery"
+                placeholder="Seleccione"
+                :options="[
+                    ['value' => '0', 'label' => 'No'],
+                    ['value' => '1', 'label' => 'Sí'],
+                ]"
+            />
         </div>
         <div class="col-12">
             <div class="form-group-grobdi">
@@ -210,63 +203,38 @@
             </div>
         </div>
         <div class="col-12 col-md-6">
-            <div class="form-group-grobdi">
-                <label for="name_secretariat" class="grobdi-label">Secretaria:</label>
-                <input
-                    type="text"
-                    name="name_secretariat"
-                    value="{{ old('name_secretariat') }}"
-                    class="grobdi-input @error('name_secretariat') is-invalid @enderror"
-                    id="name_secretariat"
-                    placeholder="Ingresar el nombre de la secretaria">
-                @error('name_secretariat')
-                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                @enderror
-            </div>
+            <x-grobdi.form.input
+                label="Secretaria:"
+                name="name_secretariat"
+                id="name_secretariat"
+                placeholder="Ingresar el nombre de la secretaria"
+            />
         </div>
         <div class="col-12 col-md-4 col-lg-3">
-            <div class="form-group-grobdi">
-                <label for="phone_secretariat" class="grobdi-label">Teléfono secretaria:</label>
-                <input
-                    type="text"
-                    name="phone_secretariat"
-                    value="{{ old('phone_secretariat') }}"
-                    class="grobdi-input @error('phone_secretariat') is-invalid @enderror"
-                    id="phone_secretariat"
-                    placeholder="Ingresar el número de teléfono de la secretaria">
-                @error('phone_secretariat')
-                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                @enderror
-            </div>
+            <x-grobdi.form.input
+                label="Teléfono secretaria:"
+                name="phone_secretariat"
+                id="phone_secretariat"
+                placeholder="Ingresar el número de teléfono de la secretaria"
+            />
         </div>
         <div class="col-12">
-            <div class="form-group-grobdi">
-                <label for="observaciones" class="grobdi-label">Observaciones:</label>
-                <input
-                    type="text"
-                    name="observations"
-                    value="{{ old('observations') }}"
-                    class="grobdi-input @error('observations') is-invalid @enderror"
-                    id="observaciones"
-                    placeholder="Ingresar las observaciones">
-                @error('observations')
-                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                @enderror
-            </div>
+            <x-grobdi.form.input
+                label="Observaciones:"
+                name="observations"
+                id="observaciones"
+                placeholder="Ingresar las observaciones"
+            />
         </div>
         <div class="col-12 col-md-6">
-            <div class="form-group-grobdi">
-                <label for="categoria_id" class="grobdi-label">Categoría del doctor:</label>
-                <select class="grobdi-input @error('categoria_id') is-invalid @enderror" name="categoria_id" id="categoria_id">
-                    <option selected disabled>Seleccione la categoría</option>
-                    @foreach ($categorias as $categoria)
-                        <option value="{{ $categoria->id }}" {{ old('categoria_id') == $categoria->id ? 'selected' : '' }}>{{ $categoria->name }}</option>
-                    @endforeach
-                </select>
-                @error('categoria_id')
-                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                @enderror
-            </div>
+            <x-grobdi.form.select
+                label="Categoría del doctor:"
+                name="categoria_id"
+                id="categoria_id"
+                placeholder="Seleccione la categoría"
+                :options="$categoriaDoctorOptions"
+                error-key="categoria_id"
+            />
         </div>
     </div>
 

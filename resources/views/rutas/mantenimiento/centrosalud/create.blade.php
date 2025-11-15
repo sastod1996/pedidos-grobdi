@@ -23,48 +23,38 @@
         <div class="row">
 
             <div class="col-xs-6 col-sm-6 col-md-6">
-                <label for="inputName" class="form-label"><strong>Nombre:</strong></label>
-                <input
-                    type="text"
+                <x-grobdi.form.input
+                    label="<strong>Nombre:</strong>"
                     name="name"
-                    value=""
-                    class="form-control @error('name') is-invalid @enderror"
                     id="inputName"
-                    placeholder="Ingresar nombre del centro de salud">
-                @error('name')
-                    <div class="form-text text-danger">{{ $message }}</div>
-                @enderror
+                    placeholder="Ingresar nombre del centro de salud"
+                />
             </div>
             <div class="col-xs-6 col-sm-6 col-md-6">
-                <label for="adress" class="form-label"><strong>Dirección:</strong></label>
-                <input
-                    type="text"
+                <x-grobdi.form.input
+                    label="<strong>Dirección:</strong>"
                     name="adress"
-                    value=""
-                    class="form-control @error('adress') is-invalid @enderror"
                     id="adress"
-                    placeholder="Ingresar la dirección del centro de salud">
-                @error('adress')
-                    <div class="form-text text-danger">{{ $message }}</div>
-                @enderror
+                    placeholder="Ingresar la dirección del centro de salud"
+                />
             </div>
             <div class="col-xs-12 col-sm-12 col-md-12">
-                <label for="description" class="form-label"><strong>Descripción:</strong></label>
-                <input
-                    type="text"
+                <x-grobdi.form.input
+                    label="<strong>Descripción:</strong>"
                     name="description"
-                    value=""
-                    class="form-control @error('description') is-invalid @enderror"
                     id="description"
-                    placeholder="Descripción del centro de salud">
-                @error('description')
-                    <div class="form-text text-danger">{{ $message }}</div>
-                @enderror
+                    placeholder="Descripción del centro de salud"
+                />
             </div>
             <div class="col-sm-12">
-                <label class="form-label">Buscar en el mapa:</label>
-                <!-- Contenedor del buscador y mapa -->
-                <input type="text" name="address" id="address" placeholder="Buscar dirección" class="form-control mb-2">
+                <x-grobdi.form.input
+                    label="Buscar en el mapa"
+                    name="address"
+                    id="address"
+                    placeholder="Buscar dirección"
+                    :inputAttrs="['autocomplete' => 'off']"
+                    inputClass="mb-2"
+                />
 
                 <div id="map" style="height: 400px; margin-bottom: 15px;"></div>
 

@@ -23,34 +23,22 @@
         <div class="row">
 
             <div class="col-xs-6 col-sm-6 col-md-6">
-                <div class="form-group-grobdi">
-                    <label class="grobdi-label">Nombre:</label>
-                    <input
-                        type="text"
-                        name="name"
-                        value="{{ $especialidad->name }}"
-                        class="grobdi-input @error('name') is-invalid @enderror"
-                        id="inputName"
-                        placeholder="Ingresar nombre de la especialidad">
-                    @error('name')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
+                <x-grobdi.form.input
+                    label="Nombre"
+                    name="name"
+                    id="inputName"
+                    placeholder="Ingresar nombre de la especialidad"
+                    :value="old('name', $especialidad->name)"
+                />
             </div>
             <div class="col-xs-6 col-sm-6 col-md-6">
-                <div class="form-group-grobdi">
-                    <label class="grobdi-label">Descripción:</label>
-                    <input
-                        type="text"
-                        name="description"
-                        value="{{ $especialidad->description }}"
-                        class="grobdi-input @error('description') is-invalid @enderror"
-                        id="description"
-                        placeholder="Descripción de la especialidad">
-                    @error('description')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
+                <x-grobdi.form.input
+                    label="Descripción"
+                    name="description"
+                    id="description"
+                    placeholder="Descripción de la especialidad"
+                    :value="old('description', $especialidad->description)"
+                />
             </div>
         </div>
 
