@@ -1,147 +1,107 @@
 @php
     $generalReport = $data['generalReport'];
 @endphp
-<div class="row">
+<div class="row mb-4">
     <div class="col-12">
-        <div class="card bg-dark card-outline card-danger">
-            <div class="card-header py-1">
-                <div class="row">
-                    <div class="col-6 align-content-center">
-                        <h6 class="card-title">
-                            <i class="fas fa-filter"></i> Filtros
-                        </h6>
-                    </div>
-                    <div class="col-6">
-                        <small class="badge bg-light text-dark p-2 float-sm-right">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span class="d-none d-md-inline">Data de: </span>
-                            <i
-                                id="generaln-start-date-indicator">{{ ucfirst(now()->startOfMonth()->format('d/m/Y')) }}</i>
-                            - <i id="generaln-end-date-indicator">{{ ucfirst(now()->format('d/m/Y')) }}</i>
-                        </small>
-                    </div>
+        <div class="card-grobdi">
+            <div class="card-header-grobdi d-flex flex-column flex-md-row justify-content-between gap-2">
+                <div>
+                    <h4 class="mb-1"><i class="fas fa-filter mr-2"></i>Filtros</h4>
+                    <p class="text-muted mb-0">Ajusta el rango de fechas para el resumen de muestras</p>
                 </div>
+                <small class="badge-grobdi badge-gray align-self-start align-self-md-center">
+                    <i class="fas fa-calendar-alt mr-1"></i>
+                    <span class="d-none d-md-inline">Datos desde </span>
+                    <span
+                        id="generaln-start-date-indicator">{{ ucfirst(now()->startOfMonth()->format('d/m/Y')) }}</span>
+                    <span class="mx-1">-</span>
+                    <span id="generaln-end-date-indicator">{{ ucfirst(now()->format('d/m/Y')) }}</span>
+                </small>
             </div>
-            <div class="card-body py-1">
-                <div class="row">
-                    <div class="col-12 col-md-9">
-                        <form id="general-filter">
-                            <div class="row">
+            <div class="card-body-grobdi">
+                <div class="row g-3 align-items-end">
+                    <div class="col-12 col-md-12">
+                        <form id="general-filter" class="grobdi-form">
+                            <div class="row g-3">
                                 <div class="col-12 col-sm-6 col-md-4">
-                                    <div class="form-group">
-                                        <label class="form-label">
-                                            Fecha Inicio
-                                        </label>
-                                        <input type="date" class="form-control"
-                                            name="start_date"value="{{ now()->startOfMonth()->toDateString() }}">
+                                    <div class="form-group-grobdi">
+                                        <label class="form-label">Fecha inicio</label>
+                                        <input type="date" class="form-control-grobdi" name="start_date"
+                                            value="{{ now()->startOfMonth()->toDateString() }}">
                                     </div>
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-4">
-                                    <div class="form-group">
-                                        <label class="form-label">
-                                            Fecha Fin
-                                        </label>
-                                        <input type="date" class="form-control" name="end_date"
+                                    <div class="form-group-grobdi">
+                                        <label class="form-label">Fecha fin</label>
+                                        <input type="date" class="form-control-grobdi" name="end_date"
                                             value="{{ now()->toDateString() }}">
                                     </div>
                                 </div>
-                                <div class="col-12 col-md-4 align-content-end align-content-md-end mb-md-3">
-                                    <button class="btn btn-danger w-100" type="submit">
-                                        <i class="fas fa-filter"></i> Filtrar
+                                <div class="col-12 col-md-4">
+                                    <button class="btn-grobdi btn-primary-grobdi w-100 mb-2" type="submit">
+                                        <i class="fas fa-filter mr-2"></i>Filtrar
+                                    </button>
+                                    <button class="btn-grobdi btn-outline-primary-grobdi w-100"
+                                        id="general-clean-filter">
+                                        <i class="fas fa-eraser mr-2"></i>Limpiar
                                     </button>
                                 </div>
                             </div>
                         </form>
                     </div>
-                    <div class="col-12 col-md-3 mt-3 mt-md-0 align-content-md-end mb-md-3">
-                        <button class="btn btn-outline-light w-100" id="general-clean-filter">
-                            <i class="fas fa-eraser"></i> Limpiar
-                        </button>
-                    </div>
+
                 </div>
             </div>
         </div>
     </div>
 </div>
-<div class="row">
-    <div class="col-6">
-        <div class="card card-danger">
-            <div class="card-header">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <h5 class="mb-0">
-                            <i class="fas fa-chart-pie"></i> Comparativa por Tipos de Muestras
-                        </h5>
-                        <small>
-                            <i>Mostrando: <span id="general-tipo-muestra-dataset-indicator">Cantidad de
-                                    muestras</span></i>
-                        </small>
-                    </div>
-                    <div class="col-auto">
-                        <select class="badge bg-light border-0" style="padding-top: .35rem; padding-bottom: .35rem;"
-                            id="general-tipo-muestra-dataset-selector">
-                            <option value="0">Cantidad de muestras</option>
-                            <option value="1">Inversión en muestras</option>
-                        </select>
-                    </div>
-                </div>
+<div class="row g-4">
+    <div class="col-12 col-lg-6">
+        <x-grobdi.report.chart-card title="Comparativa por Tipos de Muestras"
+            subtitle="Evalúa distribución e inversión">
+            <x-slot name="actions">
+                <select class="form-control-grobdi form-control-sm" id="general-tipo-muestra-dataset-selector">
+                    <option value="0">Cantidad de muestras</option>
+                    <option value="1">Inversión en muestras</option>
+                </select>
+            </x-slot>
+            <p class="text-muted mb-2">Mostrando: <span id="general-tipo-muestra-dataset-indicator">Cantidad de
+                    muestras</span></p>
+            <div class="chart-wrapper" style="height: 320px;">
+                <canvas id="general-tipo-muestras-chart"></canvas>
+                @include('empty-chart', [
+                    'dataLength' => array_sum(
+                        array_column($generalReport['general_stats']['by_tipo_muestra'], 'count')),
+                ])
             </div>
-
-            <div class="card-body">
-                <div class="position-relative">
-                    <canvas id="general-tipo-muestras-chart" height="300px">
-                    </canvas>
-                    @include('empty-chart', [
-                        'dataLength' => array_sum(
-                            array_column($generalReport['general_stats']['by_tipo_muestra'], 'count')),
-                    ])
-                </div>
-            </div>
-        </div>
+        </x-grobdi.report.chart-card>
     </div>
-    <div class="col-6">
-        <div class="card card-danger">
-            <div class="card-header">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <h5 class="mb-0">
-                            <i class="far fa-chart-bar"></i> Comparativa por Tipos de Frasco
-                        </h5>
-                        <small>
-                            <i>Mostrando: <span id="general-tipo-frasco-dataset-indicator">Cantidad de
-                                    muestras</span></i>
-                        </small>
-                    </div>
-                    <div class="col-auto">
-                        <select class="badge bg-light border-0" style="padding-top: .35rem; padding-bottom: .35rem;"
-                            id="general-tipo-frasco-dataset-selector">
-                            <option value="0">Cantidad de muestras</option>
-                            <option value="1">Inversión en muestras</option>
-                        </select>
-                    </div>
-                </div>
+    <div class="col-12 col-lg-6">
+        <x-grobdi.report.chart-card title="Comparativa por Tipos de Frasco"
+            subtitle="Identifica qué frascos concentran pedidos">
+            <x-slot name="actions">
+                <select class="form-control-grobdi form-control-sm" id="general-tipo-frasco-dataset-selector">
+                    <option value="0">Cantidad de muestras</option>
+                    <option value="1">Inversión en muestras</option>
+                </select>
+            </x-slot>
+            <p class="text-muted mb-2">Mostrando: <span id="general-tipo-frasco-dataset-indicator">Cantidad de
+                    muestras</span></p>
+            <div class="chart-wrapper" style="height: 320px;">
+                <canvas id="general-tipo-frasco-chart"></canvas>
+                @include('empty-chart', [
+                    'dataLength' => $generalReport['general_stats']['total_muestras'],
+                ])
             </div>
-
-            <div class="card-body">
-                <div class="position-relative">
-                    <canvas id="general-tipo-frasco-chart" height="300px">
-                    </canvas>
-                    @include('empty-chart', [
-                        'dataLength' => $generalReport['general_stats']['total_muestras'],
-                    ])
-                </div>
-            </div>
-        </div>
+        </x-grobdi.report.chart-card>
     </div>
 </div>
 <div class="row">
     <div class="col-12">
-        <div class="card card-danger card-tabs">
-            <div class="card-header p-0 pt-1">
-                <ul class="nav nav-tabs" id="general-detail-table-tabs" role="tablist">
-                    <li class="pt-2 px-3">
-                        <i class="fas fa-pump-soap"></i> Tabla detallada
-                    </li>
+        <div class="card-grobdi">
+            <div class="card-header-grobdi border-bottom-0">
+                <h4 class="mb-0"><i class="fas fa-pump-soap mr-2"></i>Tabla detallada</h4>
+                <ul class="nav nav-tabs mt-3" id="general-detail-table-tabs" role="tablist">
                     <li class="nav-item">
                         <a class="nav-link active" id="general-table-frasco-original-tab" data-toggle="pill"
                             href="#general-table-frasco-original" role="tab"
@@ -154,12 +114,12 @@
                     </li>
                 </ul>
             </div>
-            <div class="card-body p-0">
+            <div class="card-body-grobdi p-0">
                 <div class="tab-content" id="general-detail-table-tabContent">
                     <div class="tab-pane fade show active" id="general-table-frasco-original" role="tabpanel"
                         aria-labelledby="general-table-frasco-original-tab">
                         <div class="table-responsive" style="max-height: 60dvh;">
-                            <table class="table table-dark table-head-fixed text-nowrap m-0">
+                            <table class="table table-grobdi table-striped text-nowrap m-0">
                                 <thead>
                                     <tr>
                                         <th>Nombre</th>
@@ -196,7 +156,7 @@
                                         @endforeach
                                     @endif
                                 </tbody>
-                                <tfoot class="table-foot-fixed table-dark">
+                                <tfoot class="table-foot-fixed">
                                     <tr>
                                         <th><i class="fas fa-calculator"></i> TOTAL</th>
                                         <th class="text-center" id="tfoot-frasco-original-cantidad">
@@ -216,7 +176,7 @@
                     <div class="tab-pane fade" id="general-table-frasco-muestra" role="tabpanel"
                         aria-labelledby="general-table-frasco-muestra-tab">
                         <div class="table-responsive" style="max-height: 60dvh;">
-                            <table class="table table-dark table-head-fixed text-nowrap m-0">
+                            <table class="table table-grobdi table-striped text-nowrap m-0">
                                 <thead>
                                     <tr>
                                         <th>Nombre</th>
@@ -249,7 +209,7 @@
                                         @endforeach
                                     @endif
                                 </tbody>
-                                <tfoot class="table-foot-fixed table-dark">
+                                <tfoot class="table-foot-fixed">
                                     <tr>
                                         <th><i class="fas fa-calculator"></i> TOTAL</th>
                                         <th class="text-center" id="tfoot-frasco-muestra-cantidad">

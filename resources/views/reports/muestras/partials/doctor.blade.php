@@ -1,158 +1,131 @@
 @php
     $doctorReport = $data['doctorReport'];
 @endphp
-<div class="row">
-    <div class="col-2">
-        <form id="doctor-filter">
-            <div class="form-group position-relative">
-                <label for="doctor-name-query">Nombre del doctor</label>
-                <input type="text" id="doctor-name-query" name="doctor-name-query" class="form-control"
-                    autocomplete="off" />
-                <div id="doctor-suggestions-list" class="list-group position-absolute overflow-auto border"
-                    style="z-index: 1000; max-height: 200px; width: 100%;"></div>
-                <input type="hidden" name="doctor-id-doctor" id="doctor-id-doctor"
-                    value="{{ $doctorReport['filters']['id_doctor'] }}" />
+<div class="row g-4">
+    <div class="col-12 col-lg-3">
+        <div class="card-grobdi h-100">
+            <div class="card-header-grobdi">
+                <h4 class="mb-1">Filtros del doctor</h4>
+                <p class="text-muted mb-0">Selecciona un doctor y rango de fechas</p>
             </div>
-            <div class="form-group">
-                <div class="form-group">
-                    <label for="doctors-start-date-input">
-                        Fecha Inicio</label>
-                    <div class="input-group date" data-target-input="nearest">
-                        <input class="form-control datetimepicker-input" type="date" name="fecha"
-                            id="doctors-start-date-input" value="{{ now()->startOfMonth()->format('Y-m-d') }}" required>
-                        <div class="input-group-append" data-target="#doctors-start-date-input">
-                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                        </div>
+            <div class="card-body-grobdi">
+                <form id="doctor-filter" class="grobdi-form">
+                    <div class="form-group-grobdi position-relative">
+                        <label for="doctor-name-query" class="form-label">Nombre del doctor</label>
+                        <input type="text" id="doctor-name-query" name="doctor-name-query"
+                            class="form-control-grobdi" autocomplete="off" placeholder="Ej. Dr. Ruiz" />
+                        <div id="doctor-suggestions-list" class="autocomplete-dropdown"></div>
+                        <input type="hidden" name="doctor-id-doctor" id="doctor-id-doctor"
+                            value="{{ $doctorReport['filters']['id_doctor'] }}" />
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="doctors-end-date-input">
-                        Fecha Fin</label>
-                    <div class="input-group date" data-target-input="nearest">
-                        <input class="form-control datetimepicker-input" type="date" name="doctors-end-date-input"
-                            id="doctors-end-date-input" value="{{ now()->format('Y-m-d') }}" required>
-                        <div class="input-group-append" data-target="#doctors-end-date-input">
-                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <button type="submit" class="btn btn-dark w-100">
-                Buscar
-            </button>
-        </form>
-    </div>
-    <div class="col-10">
-        <div class="card card-outline card-dark">
-            <div class="card-header">
-                <div class="row align-items-center">
-                    <div class="row">
-                        <div class="col">
-                            <div class="mb-1 font-weight-bold" id="doctor-name-label" style="font-size: 1.1rem;">
-                                {{ $doctorReport['doctor_info']['is_top_doctor'] ? 'Top Doctor:' : 'Dr.' }}
-                                {{ $doctorReport['doctor_info']['doctor'] }}
+                    <div class="form-grid">
+                        <div>
+                            <label for="doctors-start-date-input" class="form-label">Fecha inicio</label>
+                            <div class="input-with-icon">
+                                <input class="form-control-grobdi" type="date" name="fecha"
+                                    id="doctors-start-date-input" value="{{ now()->startOfMonth()->format('Y-m-d') }}"
+                                    required>
+                                <span><i class="fas fa-calendar-alt"></i></span>
                             </div>
-                            <div class="text-muted mb-1" id="doctor-details-label" style="font-size: 0.95rem;">
-                                Tipo: {{ $doctorReport['doctor_info']['tipo_doctor'] ?? 'Sin registrar' }}
-                                <span class="mx-1">•</span>
-                                Especialidad: {{ $doctorReport['doctor_info']['especialidad'] ?? 'Sin registrar' }}
-                                <span class="mx-1">•</span>
-                                Distrito: {{ $doctorReport['doctor_info']['distrito'] ?? 'Sin registrar' }}
-                                <span class="mx-1">•</span>
-                                Centro de Salud: {{ $doctorReport['doctor_info']['centro_salud'] ?? 'Sin registrar' }}
-                            </div>
-                            <small>
-                                <i>Mostrando datos por: <span id="doctor-anual-dataset-indicator">Inversión en
-                                        muestras</span></i>
-                            </small>
                         </div>
-                        <div class="col-auto">
-                            <select class="badge bg-danger border-0"
-                                style="padding-top: .35rem; padding-bottom: .35rem;" id="doctor-anual-dataset-selector">
-                                <option value="amount">Inversión en muestras</option>
-                                <option value="count">Cantidad de muestras</option>
-                            </select>
+                        <div>
+                            <label for="doctors-end-date-input" class="form-label">Fecha fin</label>
+                            <div class="input-with-icon">
+                                <input class="form-control-grobdi" type="date" name="doctors-end-date-input"
+                                    id="doctors-end-date-input" value="{{ now()->format('Y-m-d') }}" required>
+                                <span><i class="fas fa-calendar-alt"></i></span>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="position-relative">
-                    @include('empty-chart', ['dataLength' => count($doctorReport['data']['muestras'])])
-                    <canvas id="doctor-amount-spent-anually-chart"
-                        style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%; display: block;"
-                        width="496" height="250" class="chartjs-render-monitor"></canvas>
-                </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-grobdi btn-primary-grobdi w-100">
+                            <i class="fas fa-search mr-2"></i>Buscar
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
+    </div>
+    <div class="col-12 col-lg-9">
+        <x-grobdi.report.chart-card
+            title="{{ $doctorReport['doctor_info']['is_top_doctor'] ? 'Top Doctor' : 'Doctor' }}"
+            :subtitle="sprintf('%s • %s • %s • %s',
+                $doctorReport['doctor_info']['doctor'],
+                $doctorReport['doctor_info']['tipo_doctor'] ?? 'Tipo sin registrar',
+                $doctorReport['doctor_info']['especialidad'] ?? 'Especialidad sin registrar',
+                $doctorReport['doctor_info']['distrito'] ?? 'Distrito sin registrar')"
+        >
+            <x-slot name="actions">
+                <select class="form-control-grobdi form-control-sm" id="doctor-anual-dataset-selector">
+                    <option value="amount">Inversión en muestras</option>
+                    <option value="count">Cantidad de muestras</option>
+                </select>
+            </x-slot>
+            <p class="text-muted mb-2">Mostrando datos por: <span id="doctor-anual-dataset-indicator">Inversión en
+                    muestras</span></p>
+            @include('empty-chart', ['dataLength' => count($doctorReport['data']['muestras'])])
+            <div class="chart-wrapper" style="height: 320px;">
+                <canvas id="doctor-amount-spent-anually-chart"></canvas>
+            </div>
+        </x-grobdi.report.chart-card>
     </div>
 </div>
-<div class="row">
+
+<div class="row g-4 mt-1">
     <div class="col-12 col-lg-4">
-        <div class="card card-outline card-danger h-100">
-            <div class="card-header">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <h5 class="mb-0">
-                            Comparación de Tipos de Frasco
-                        </h5>
-                    </div>
-                    <div class="col-auto">
-                        <select class="badge bg-danger border-0" style="padding-top: .35rem; padding-bottom: .35rem;"
-                            id="doctor-tipo-frasco-dataset-selector">
-                            <option value="0">Montos</option>
-                            <option value="1">Cantidades</option>
-                        </select>
-                    </div>
-                </div>
+        <x-grobdi.report.chart-card
+            title="Comparación de Tipos de Frasco"
+            subtitle="Alterna entre montos y cantidades"
+        >
+            <x-slot name="actions">
+                <select class="form-control-grobdi form-control-sm" id="doctor-tipo-frasco-dataset-selector">
+                    <option value="0">Montos</option>
+                    <option value="1">Cantidades</option>
+                </select>
+            </x-slot>
+            @include('empty-chart', ['dataLength' => count($doctorReport['data']['muestras'])])
+            <div class="chart-wrapper" style="height: 320px;">
+                <canvas id="doctor-tipo-frasco-chart"></canvas>
             </div>
-            <div class="card-body h-100">
-                <div class="position-relative">
-                    <canvas id="doctor-tipo-frasco-chart" style="min-height: 100%;"></canvas>
-                    @include('empty-chart', [
-                        'dataLength' => count($doctorReport['data']['muestras']),
-                    ])
-                </div>
-            </div>
-        </div>
+        </x-grobdi.report.chart-card>
     </div>
     <div class="col-12 col-lg-8">
-        <div class="card card-outline card-danger">
-            <div class="card-body table-responsive p-0" style="height: 380px;">
-                <table class=" table table-head-fixed text-nowrap table-striped">
-                    <thead>
-                        <tr>
-                            <th class="text-start">Muestra</th>
-                            <th class="text-center">Cantidad</th>
-                            <th class="text-center">Inversión</th>
-                            <th class="text-right">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="doctor-muestras-details-table" class="table-dark">
-                        @include('empty-table', [
-                            'dataLength' => count($doctorReport['data']['muestras']),
-                            'colspan' => 4,
-                        ])
-                        @foreach ($doctorReport['data']['muestras'] as $muestra)
-                            <tr>
-                                <td>
-                                    {{ $muestra['name'] }}
-                                </td>
-                                <td class="text-center">
-                                    {{ $muestra['quantity'] }}
-                                </td>
-                                <td class="text-center">
-                                    S/ {{ $muestra['price'] }}
-                                </td>
-                                <td class="text-right">
-                                    S/ {{ $muestra['total_price'] }}
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        <x-grobdi.layout.table-card
+            title="Detalle de muestras"
+            subtitle="Cantidades e inversión por presentación"
+            table-class="table-striped table-hover align-middle"
+        >
+            <thead>
+                <tr>
+                    <th class="text-start">Muestra</th>
+                    <th class="text-center">Cantidad</th>
+                    <th class="text-center">Inversión</th>
+                    <th class="text-right">Total</th>
+                </tr>
+            </thead>
+            <tbody id="doctor-muestras-details-table">
+                @include('empty-table', [
+                    'dataLength' => count($doctorReport['data']['muestras']),
+                    'colspan' => 4,
+                ])
+                @foreach ($doctorReport['data']['muestras'] as $muestra)
+                    <tr>
+                        <td>
+                            {{ $muestra['name'] }}
+                        </td>
+                        <td class="text-center">
+                            {{ $muestra['quantity'] }}
+                        </td>
+                        <td class="text-center">
+                            S/ {{ $muestra['price'] }}
+                        </td>
+                        <td class="text-right">
+                            S/ {{ $muestra['total_price'] }}
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </x-grobdi.layout.table-card>
     </div>
 </div>
 

@@ -2,56 +2,35 @@
 
 @section('title', 'Dashboard')
 
-@section('content_header')
-    <div class="container-fluid">
-        <div class="row mb-2">
-            <div class="col-sm-6">
-                <h1 class="m-0"><i class="fas fa-pump-medical mr-1 text-danger"></i>Reporte de Muestras</h1>
-            </div>
-            <div class="col-sm-6">
-                <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="{{ route('home') }}">Inicio</a></li>
-                    <li class="breadcrumb-item active">Reporte de Muestras</li>
-                </ol>
-            </div>
-        </div>
-    </div>
-@stop
-
 @section('content')
-    <!-- Detalle adicional -->
-    <div class="card card-danger card-tabs">
-        <div class="card-header p-0 pt-1">
-            <ul class="nav nav-tabs" id="ventasTabs" role="tablist">
-                @foreach ($arrayTabs as $index => $tab)
-                    @php
-                        $isFirst = $index === 0;
-                    @endphp
-                    <li class="nav-item">
-                        <a class="nav-link {{ $isFirst ? 'active' : '' }}" id="{{ $tab['name'] }}-tab"
-                            data-target="#{{ $tab['name'] }}" role="tab" data-toggle="pill" href="#{{ $tab['name'] }}"
-                            aria-controls="{{ $tab['name'] }}" aria-selected="{{ $isFirst }}">
-                            <i class="{{ $tab['icon'] }}"></i> {{ ucfirst($tab['name']) }}
-                        </a>
-                    </li>
-                @endforeach
-            </ul>
-        </div>
+    @php
+        $muestrasTabs = collect($arrayTabs)->map(function ($tab) {
+            return [
+                'id' => $tab['name'],
+                'label' => ucfirst($tab['name']),
+                'icon' => $tab['icon'] ?? null,
+            ];
+        })->toArray();
+        $muestrasActiveTab = $muestrasTabs[0]['id'] ?? null;
+    @endphp
 
-        <div class="card-body">
-            <div class="tab-content" id="muestrasTabsContent">
-                @foreach ($arrayTabs as $index => $tab)
-                    @php
-                        $isFirst = $index === 0;
-                    @endphp
-                    <div class="tab-pane fade {{ $isFirst ? 'active show' : '' }}" id="{{ $tab['name'] }}"
-                        role="tabpanel">
-                        @include('reports.muestras.partials.' . $tab['name'])
-                    </div>
-                @endforeach
+    <x-grobdi.layout.tab-card
+        id="reports-muestras-tabs"
+        title="Reporte de Muestras"
+        subtitle="Explora métricas generales, por doctor y otros segmentos en una sola vista"
+        :tabs="$muestrasTabs"
+        :active-tab="$muestrasActiveTab"
+    >
+        @foreach ($arrayTabs as $index => $tab)
+            @php
+                $isFirst = $index === 0;
+            @endphp
+            <div class="tab-pane fade {{ $isFirst ? 'active show' : '' }}" id="{{ $tab['name'] }}" role="tabpanel"
+                aria-labelledby="reports-muestras-tabs-tab-{{ $tab['name'] }}">
+                @include('reports.muestras.partials.' . $tab['name'])
             </div>
-        </div>
-    </div>
+        @endforeach
+    </x-grobdi.layout.tab-card>
 @stop
 
 @section('css')
