@@ -8,9 +8,9 @@
     'selectedDistrito' => null,
     'name' => 'distrito_id',
     'required' => false,
-    'labelDepartamento' => 'Departamento',
-    'labelProvincia' => 'Provincia',
-    'labelDistrito' => 'Distrito',
+    'labelDepartamento' => '📍 Departamento',
+    'labelProvincia' => '🗺️ Provincia',
+    'labelDistrito' => '🏙️ Distrito',
     'errorKey' => null,
 ])
 
@@ -24,9 +24,22 @@
     $departamentoInputId = $uid . '_departamento';
     $provinciaInputId = $uid . '_provincia';
     $distritoInputId = $uid . '_distrito';
+
+    $ensureIcon = function ($label, $icon) {
+        $trimmed = trim((string) $label);
+        if ($trimmed === '') {
+            return $icon;
+        }
+
+        return str_starts_with($trimmed, $icon) ? $trimmed : $icon . ' ' . $trimmed;
+    };
+
+    $labelDepartamento = $ensureIcon($labelDepartamento, '📍');
+    $labelProvincia = $ensureIcon($labelProvincia, '🗺️');
+    $labelDistrito = $ensureIcon($labelDistrito, '🏙️');
 @endphp
 
-<div class="row g-4"
+<div class="row g-4 mb-4"
     data-location-selector
     data-departamentos-endpoint="{{ $departamentosEndpoint }}"
     data-provincias-endpoint="{{ $provinciasEndpoint }}"
