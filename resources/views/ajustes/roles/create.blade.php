@@ -22,18 +22,17 @@
             </ul>
         </div>
     @endif
-    <form action="{{ route('roles.store') }}" method="POST">
+    <form action="{{ route('roles.store') }}" method="POST" class="grobdi-form">
         @csrf
-        <div class="form-group">
-            <div class="form-group">
-                <label class="grobdi-label">Nombre</label>
-                <input type="text" name="name" class="form-control grobdi-input" required>
-            </div>
-            <div class="form-group">
-                <label class="grobdi-label">Descripción</label>
-                <input type="text" name="description" class="form-control grobdi-input">
-            </div>
-        </div>
+        <x-grobdi.form.input
+            label="Nombre"
+            name="name"
+            required
+        />
+        <x-grobdi.form.input
+            label="Descripción"
+            name="description"
+        />
         <button class="btn btn-grobdi btn-primary-grobdi">Guardar</button>
         <a href="{{ route('roles.index') }}" class="btn btn-secondary">Cancelar</a>
     </form>
