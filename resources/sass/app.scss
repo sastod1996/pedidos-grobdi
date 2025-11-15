@@ -88,9 +88,25 @@
 		padding: 1.25rem 1.5rem;
 		display: flex;
 		justify-content: space-between;
-		align-items: center;
+		align-items: flex-start;
 		flex-wrap: wrap;
 		gap: 1rem;
+
+		.grobdi-title-body {
+			flex: 1 1 260px;
+			min-width: 200px;
+			display: flex;
+			flex-direction: column;
+			gap: 0.35rem;
+		}
+
+		.grobdi-header-actions {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.75rem;
+			justify-content: flex-end;
+			margin-left: auto;
+		}
 
 		h1, h2, h3, h4, h5, h6 {
 			margin: 0;
@@ -596,6 +612,145 @@
 				flex: 1;
 			}
 		}
+	}
+
+	.grobdi-header-actions {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		width: 100%;
+		max-width: 320px;
+
+		@media (min-width: 576px) {
+			flex-direction: row;
+			justify-content: flex-end;
+			align-items: center;
+			width: auto;
+			max-width: none;
+		}
+	}
+
+	@media (max-width: 768px) {
+		.grobdi-title {
+			flex-direction: column;
+			align-items: stretch;
+
+			.grobdi-header-actions {
+				width: 100%;
+				justify-content: flex-start;
+			}
+		}
+	}
+}
+
+.tab-card-grobdi {
+	margin-bottom: 1.5rem;
+	overflow: hidden;
+	border-radius: 1rem;
+
+	.tab-card-nav {
+		background-color: $grobdi-bg-light;
+		border-bottom: 1px solid $grobdi-slate-200;
+		padding: 1rem 1.5rem 0.5rem;
+		margin: 0;
+	}
+
+	.grobdi-nav-tabs {
+		border: none;
+		flex-wrap: wrap;
+		gap: 0.35rem;
+
+		.nav-link {
+			color: $grobdi-text-muted;
+			border: none;
+			border-radius: 999px;
+			padding: 0.55rem 1.25rem;
+			background-color: transparent;
+			transition: background-color 0.2s ease, color 0.2s ease;
+
+			&.active {
+				background-color: $grobdi-red-500;
+				color: $grobdi-bg-white;
+				box-shadow: 0 0.25rem 0.75rem rgba(212, 12, 13, 0.2);
+			}
+
+			&:hover {
+				background-color: rgba(212, 12, 13, 0.1);
+			}
+		}
+	}
+
+	.card-body-grobdi {
+		padding: 1.75rem;
+	}
+}
+
+.chart-card-grobdi {
+	.chart-card-actions {
+		button,
+		a {
+			min-width: 160px;
+		}
+	}
+}
+
+.stat-card-grobdi {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	padding: 1rem 1.25rem;
+	border-radius: 1rem;
+	border: 1px solid $grobdi-slate-200;
+	box-shadow: 0 0.25rem 0.85rem rgba(15, 23, 42, 0.08);
+
+	.stat-card-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+	}
+
+	.stat-card-icon {
+		width: 48px;
+		height: 48px;
+		border-radius: 12px;
+		display: grid;
+		place-items: center;
+		background-color: rgba(255, 255, 255, 0.25);
+		color: inherit;
+		font-size: 1.35rem;
+	}
+
+	.stat-card-value {
+		font-size: 2rem;
+		font-weight: 700;
+		color: $grobdi-navy-900;
+	}
+
+	.stat-card-trend {
+		font-weight: 600;
+		display: flex;
+		align-items: baseline;
+		gap: 0.35rem;
+	}
+
+	&.stat-card-primary {
+		background: linear-gradient(135deg, rgba(212, 12, 13, 0.1), $grobdi-bg-white);
+	}
+	&.stat-card-secondary {
+		background: linear-gradient(135deg, rgba(15, 23, 42, 0.08), $grobdi-bg-white);
+	}
+	&.stat-card-success {
+		background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), $grobdi-bg-white);
+	}
+	&.stat-card-warning {
+		background: linear-gradient(135deg, rgba(250, 204, 21, 0.2), $grobdi-bg-white);
+	}
+	&.stat-card-danger {
+		background: linear-gradient(135deg, rgba(239, 68, 68, 0.18), $grobdi-bg-white);
+	}
+	&.stat-card-info {
+		background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), $grobdi-bg-white);
 	}
 }
 
@@ -1534,6 +1689,35 @@
 		background-color: $grobdi-bg-light;
 		padding: 1rem 1.25rem;
 		border-top: 1px solid $grobdi-slate-200;
+	}
+}
+
+.table-card-grobdi {
+	margin-bottom: 1.5rem;
+
+	.table-card-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		justify-content: flex-start;
+	}
+
+	.table-toolbar {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	.table-empty-state {
+		background-color: $grobdi-bg-light;
+		border: 1px dashed $grobdi-slate-300;
+		border-radius: 0.75rem;
+		padding: 1.25rem;
+		text-align: center;
+		color: $grobdi-text-muted;
+		font-weight: 600;
 	}
 }
 
@@ -3336,6 +3520,37 @@ select.form-control-grobdi {
 	}
 }
 
+// Autocomplete dropdowns
+#doctor-suggestions-list,
+.autocomplete-dropdown {
+	background-color: $grobdi-bg-white;
+	border: 1px solid $grobdi-slate-200;
+	border-radius: 0.75rem;
+	box-shadow: 0 12px 32px rgba(15, 23, 42, 0.15);
+	color: $grobdi-text-strong;
+	max-height: 18rem;
+	overflow-y: auto;
+	z-index: 1070;
+}
+
+.autocomplete-item {
+	background-color: transparent;
+	color: inherit;
+	font-weight: 500;
+	padding: 0.65rem 0.9rem;
+}
+
+.autocomplete-item + .autocomplete-item {
+	border-top: 1px solid $grobdi-slate-100;
+}
+
+.autocomplete-item:hover,
+.autocomplete-item:focus,
+.autocomplete-item.active {
+	background-color: rgba($grobdi-red-500, 0.08);
+	color: $grobdi-red-700;
+}
+
 // Contador de caracteres
 .char-counter {
 	display: flex;
@@ -4104,4 +4319,185 @@ select.form-control-grobdi {
 		font-size: 0.8rem;
 	}
 }
+
+	// modal de recetas
+	.recipes-modal {
+		.modal-content {
+			border-radius: 1rem;
+			border: 1px solid $grobdi-slate-200;
+			box-shadow: 0 1rem 2rem rgba(15, 23, 42, 0.12);
+		}
+
+		.modal-header {
+			border-bottom: 1px solid $grobdi-slate-200;
+		}
+
+		.modal-footer {
+			border-top: 1px solid $grobdi-slate-200;
+		}
+	}
+
+	.recipes-modal__actions {
+		display: flex;
+		gap: 0.75rem;
+		width: 100%;
+		justify-content: flex-end;
+
+		@media (min-width: 768px) {
+			width: auto;
+		}
+	}
+
+	.recipe-dropzone {
+		border: 1.5px dashed $grobdi-slate-400;
+		border-radius: 1rem;
+		padding: 1.75rem 1rem;
+		background-color: $grobdi-bg-white;
+		transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+		cursor: pointer;
+		text-align: center;
+	}
+
+	.recipe-dropzone:focus,
+	.recipe-dropzone.recipe-dropzone--hover {
+		outline: none;
+		border-color: $grobdi-navy-700;
+		background-color: rgba($grobdi-navy-700, 0.03);
+		box-shadow: 0 0 0 3px rgba($grobdi-navy-700, 0.12);
+	}
+
+	.recipe-dropzone__icon {
+		font-size: 2.25rem;
+		display: inline-block;
+	}
+
+
+	.recipes-preview-container {
+		margin-top: 1.5rem;
+	}
+
+	.recipes-preview-list {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+		gap: 1rem;
+	}
+
+	.recipes-preview-item {
+		border: 1px solid $grobdi-slate-200;
+		border-radius: 0.75rem;
+		padding: 0.75rem;
+		background: $grobdi-bg-white;
+		position: relative;
+		box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+		min-height: 240px;
+	}
+
+	.recipes-preview-item__thumb {
+		width: 100%;
+		height: 160px;
+		border-radius: 0.5rem;
+		object-fit: cover;
+		margin-bottom: 0.5rem;
+		background-color: $grobdi-slate-100;
+	}
+
+	.recipes-preview-item__meta {
+		display: flex;
+		flex-direction: column;
+		gap: 0.15rem;
+	}
+
+	.recipes-preview-item__name {
+		font-size: 0.9rem;
+		font-weight: 600;
+		color: $grobdi-text-strong;
+		word-break: break-all;
+	}
+
+	.recipes-preview-item__size {
+		font-size: 0.8rem;
+		color: $grobdi-slate-500;
+	}
+
+	.recipes-preview-item__remove {
+		position: absolute;
+		top: 0.5rem;
+		right: 0.5rem;
+		border: none;
+		background: rgba(15, 23, 42, 0.6);
+		color: #fff;
+		border-radius: 999px;
+		width: 28px;
+		height: 28px;
+		font-size: 1.1rem;
+		line-height: 1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		transition: background 0.2s ease;
+	}
+
+	.recipes-preview-item__remove:hover {
+		background: rgba(239, 68, 68, 0.85);
+	}
+
+	.recipe-mini-carousel {
+		border: 1px dashed $grobdi-slate-300;
+		border-radius: 0.75rem;
+		padding: 0.75rem;
+		min-height: 96px;
+		background-color: $grobdi-slate-100;
+	}
+
+	.recipe-mini-carousel__track {
+		display: flex;
+		gap: 0.5rem;
+		overflow-x: auto;
+		scrollbar-width: thin;
+	}
+
+	.recipe-mini-carousel__track::-webkit-scrollbar {
+		height: 6px;
+	}
+
+	.recipe-mini-carousel__track::-webkit-scrollbar-thumb {
+		background-color: $grobdi-slate-400;
+		border-radius: 999px;
+	}
+
+	.recipe-mini-thumb {
+		width: 72px;
+		height: 72px;
+		border-radius: 0.5rem;
+		overflow: hidden;
+		border: 1px solid $grobdi-slate-200;
+		background: $grobdi-bg-white;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		box-shadow: inset 0 0 0 1px $grobdi-slate-100;
+	}
+
+	.recipe-mini-thumb img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.recipe-mini-carousel__empty {
+		text-align: center;
+		color: $grobdi-slate-500;
+		font-size: 0.85rem;
+	}
+
+	@media (max-width: 576px) {
+		.recipes-preview-list {
+			grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+		}
+
+		.recipe-mini-carousel {
+			min-height: 72px;
+		}
+	}
 
