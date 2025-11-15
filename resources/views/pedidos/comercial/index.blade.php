@@ -4,20 +4,16 @@
 
 @section('content')
     <div class="container-fluid">
-        <div class="grobdi-header">
-            <div class="grobdi-title">
-                <h3 class="card-title mb-0">Pedidos Comercial</h3>
-                <div class="d-flex flex-column flex-sm-row">
-                    <a href="{{ route('pedidoscomercial.export', $filters ?? []) }}"
-                        class="btn btn-success btn-sm mb-2 mb-sm-0 mr-sm-2">
-                        <i class="fa fa-file-excel"></i> Exportar Excel
-                    </a>
-                    <a href="{{ route('pedidoscomercial.index') }}" class="btn btn-outline-secondary btn-sm">
-                        Limpiar filtros
-                    </a>
-                </div>
-            </div>
-            <div class="grobdi-filter">
+        <x-grobdi.layout.header-card title="Pedidos Comercial"
+            subtitle="Control y seguimiento de pedidos comerciales">
+            <x-slot:actions>
+                <x-grobdi.button variant="success" size="sm" icon="fa fa-file-excel"
+                    :href="route('pedidoscomercial.export', $filters ?? [])">
+                    Exportar Excel
+                </x-grobdi.button>
+            </x-slot:actions>
+
+            <x-slot:filter>
                 <form action="{{ route('pedidoscomercial.index') }}" method="GET" class="grobdi-form">
                     <div class="form-grid grid-cols-3">
                         <div class="form-group-grobdi">
@@ -127,100 +123,107 @@
                         </div>
                     </div>
                     <div class="filter-actions">
-                        <button type="submit">
-                            <i class="fa fa-search"></i> Aplicar filtros
-                        </button>
-                        <a href="{{ route('pedidoscomercial.index') }}" class="btn btn-outline">
-                            <i class="fa fa-undo"></i> Restablecer
-                        </a>
+                        <x-grobdi.button type="submit" icon="fa fa-search">
+                            Aplicar filtros
+                        </x-grobdi.button>
+                        <x-grobdi.button variant="outline" icon="fa fa-undo"
+                            :href="route('pedidoscomercial.index')">
+                            Restablecer
+                        </x-grobdi.button>
                     </div>
                 </form>
-            </div>
-        </div>
-        <div class="card-body">
+            </x-slot:filter>
+        </x-grobdi.layout.header-card>
 
+        @php
+            $modalPedidos = [];
+        @endphp
 
+        <x-grobdi.layout.table-card title="Pedidos Comercial"
+            subtitle="Listado de pedidos con su información clave" tableClass="table-striped table-hover">
             @if ($errors->any())
-                <div class="alert alert-danger">
-                    <ul class="mb-0">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
+                <x-slot:toolbar>
+                    <div class="alert alert-danger mb-0 w-100">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </x-slot:toolbar>
             @endif
 
-            @php
-                $modalPedidos = [];
-            @endphp
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
+                    <th>Visitadora</th>
+                    <th>Doctor</th>
+                    <th>Distrito de entrega</th>
+                    <th>Estado</th>
+                    <th>Precio total</th>
+                    <th>Zona de entrega</th>
+                    <th>Usuario registrado</th>
+                    <th>Productos</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($pedidos as $pedido)
+                    @php
+                        $modalPedidos[] = $pedido;
+                    @endphp
+                    <tr>
+                        <td>{{ $pedido->orderId }}</td>
+                        <td>{{ optional($pedido->created_at)->format('d/m/Y H:i') }}</td>
+                        <td>
+                            <div class="font-weight-bold">{{ $pedido->customerName }}</div>
+                            <small class="text-muted">{{ $pedido->customerNumber }}</small>
+                        </td>
+                        <td>{{ optional($pedido->visitadora)->name ?? 'Sin asignar' }}</td>
+                        <td class="text-center">
+                            <x-grobdi.button variant="outline" size="sm" icon="fa fa-user-md" data-toggle="modal"
+                                data-target="#doctorModal-{{ $pedido->id }}">
+                                Ver doctor
+                            </x-grobdi.button>
+                        </td>
+                        <td>{{ $pedido->district ?? (optional(optional($pedido->doctor)->distrito)->name ?? 'Sin distrito') }}
+                        </td>
+                        <td>
+                            @if ($pedido->status)
+                                <span class="badge badge-success">Activo</span>
+                            @else
+                                <span class="badge badge-secondary">Inactivo</span>
+                            @endif
+                        </td>
+                        <td>S/ {{ number_format($pedido->prize ?? 0, 2) }}</td>
+                        <td>{{ optional($pedido->zone)->name ?? 'Sin zona' }}</td>
+                        <td>{{ optional($pedido->user)->name ?? 'Sin registrar' }}</td>
+                        <td>
+                            <x-grobdi.button variant="outline" size="sm" icon="fa fa-box" data-toggle="modal"
+                                data-target="#productosModal-{{ $pedido->id }}">
+                                Ver productos
+                            </x-grobdi.button>
+                        </td>
+                    </tr>
 
-            <div class="table-responsive">
-                <table class="table table-striped table-hover table-grobdi">
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Fecha</th>
-                            <th>Cliente</th>
-                            <th>Visitadora</th>
-                            <th>Doctor</th>
-                            <th>Distrito de entrega</th>
-                            <th>Estado</th>
-                            <th>Precio total</th>
-                            <th>Zona de entrega</th>
-                            <th>Usuario registrado</th>
-                            <th>Productos</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($pedidos as $pedido)
-                            @php
-                                $modalPedidos[] = $pedido;
-                            @endphp
-                            <tr>
-                                <td>{{ $pedido->orderId }}</td>
-                                <td>{{ optional($pedido->created_at)->format('d/m/Y H:i') }}</td>
-                                <td>
-                                    <div class="font-weight-bold">{{ $pedido->customerName }}</div>
-                                    <small class="text-muted">{{ $pedido->customerNumber }}</small>
-                                </td>
-                                <td>{{ optional($pedido->visitadora)->name ?? 'Sin asignar' }}</td>
-                                <td class="text-center">
-                                    <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal"
-                                        data-target="#doctorModal-{{ $pedido->id }}">
-                                        Ver doctor
-                                    </button>
-                                </td>
-                                <td>{{ $pedido->district ?? (optional(optional($pedido->doctor)->distrito)->name ?? 'Sin distrito') }}
-                                </td>
-                                <td>
-                                    @if ($pedido->status)
-                                        <span class="badge badge-success">Activo</span>
-                                    @else
-                                        <span class="badge badge-secondary">Inactivo</span>
-                                    @endif
-                                </td>
-                                <td>S/ {{ number_format($pedido->prize ?? 0, 2) }}</td>
-                                <td>{{ optional($pedido->zone)->name ?? 'Sin zona' }}</td>
-                                <td>{{ optional($pedido->user)->name ?? 'Sin registrar' }}</td>
-                                <td>
-                                    <button type="button" class="btn btn-outline-info btn-sm" data-toggle="modal"
-                                        data-target="#productosModal-{{ $pedido->id }}">
-                                        Ver productos
-                                    </button>
-                                </td>
-                            </tr>
+                @empty
+                    <tr>
+                        <td colspan="11" class="text-center">No se encontraron pedidos con los filtros seleccionados.</td>
+                    </tr>
+                @endforelse
+            </tbody>
 
-                        @empty
-                            <tr>
-                                <td colspan="11" class="text-center">No se encontraron pedidos con los filtros
-                                    seleccionados.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+            @if (method_exists($pedidos, 'links'))
+                <x-slot:footer>
+                    <div class="d-flex justify-content-center">
+                        {{ $pedidos->links() }}
+                    </div>
+                </x-slot:footer>
+            @endif
+        </x-grobdi.layout.table-card>
 
-            @foreach ($modalPedidos as $modalPedido)
+        @foreach ($modalPedidos as $modalPedido)
                 <div class="modal fade" id="doctorModal-{{ $modalPedido->id }}" tabindex="-1" role="dialog"
                     aria-labelledby="doctorModalLabel-{{ $modalPedido->id }}" aria-hidden="true">
                     <div class="modal-dialog modal-lg" role="document">
@@ -339,58 +342,11 @@
                         </div>
                     </div>
                 </div>
-            @endforeach
-
-            @if (method_exists($pedidos, 'links'))
-                <div class="d-flex justify-content-center">
-                    {{ $pedidos->links() }}
-                </div>
-            @endif
-        </div>
+        @endforeach
     </div>
 @endsection
 
 @section('css')
-    <style>
-        .pedidos-comercial-card .card-header {
-            background: linear-gradient(135deg, #007bff, #6610f2);
-            color: #fff;
-            border-bottom: 0;
-        }
-
-        .pedidos-comercial-card .card-title {
-            font-weight: 600;
-        }
-
-        .pedidos-comercial-card .btn-outline-secondary {
-            color: #fff;
-            border-color: rgba(255, 255, 255, 0.4);
-        }
-
-        .pedidos-comercial-card .btn-outline-secondary:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-        }
-
-        .pedidos-comercial-card .badge {
-            font-size: 0.85rem;
-            padding: 0.4em 0.6em;
-        }
-
-        @media (max-width: 767.98px) {
-            .pedidos-comercial-card .card-header {
-                text-align: center;
-            }
-
-            .pedidos-comercial-card .card-header .d-flex {
-                align-items: stretch;
-            }
-
-            .pedidos-comercial-card .card-header a {
-                width: 100%;
-            }
-        }
-    </style>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@1.5.2/dist/select2-bootstrap4.min.css"
         rel="stylesheet" />
