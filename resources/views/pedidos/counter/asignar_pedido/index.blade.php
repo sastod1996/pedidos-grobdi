@@ -3,14 +3,11 @@
 @section('title', 'Asignar Pedidos')
 @section('content')
 @can('asignarpedidos.index')
-<div class="grobdi-header">
-    <div class="grobdi-title">
-        <div>
-            <h2>Pedidos</h2>
-        </div>
-    </div>
-
-    <div class="grobdi-filter">
+<x-grobdi.layout.header-card
+    title="Pedidos"
+    subtitle="Asigna y reubica pedidos por zona"
+>
+    <x-slot:filter>
         <form id="filterForm" action="{{ route('asignarpedidos.index') }}" method="GET">
             <div class="row">
                 <div class="col-md-4">
@@ -24,14 +21,14 @@
                 </div>
 
                 <div class="col-md-4 d-flex align-items-end">
-                    <button id="searchBtn" type="submit">
-                        <i class="fa fa-search"></i> Buscar
-                    </button>
+                    <x-grobdi.button id="searchBtn" type="submit" icon="fa fa-search">
+                        Buscar
+                    </x-grobdi.button>
                 </div>
             </div>
         </form>
-    </div>
-</div>
+    </x-slot:filter>
+</x-grobdi.layout.header-card>
 
 @error('message')
     <div class="alert alert-danger my-3">
@@ -52,59 +49,58 @@
 
     @foreach($displayZonas as $zona)
         <div class="col-md-6 mb-4">
-            <label class="fw-bold mb-2">{{ $zona->name }}</label>
+            <x-grobdi.layout.table-card
+                :title="$zona->name"
+                tableClass="table-striped table-hover"
+            >
+                <thead>
+                    <tr>
+                        <th>Nro</th>
+                        <th>Nro pedido</th>
+                        <th>Fecha creada</th>
+                        <th>Distrito</th>
+                        <th>Zonas</th>
+                        <th width="120px">Opciones</th>
+                    </tr>
+                </thead>
 
-            <div class="table-responsive">
-                <table class="table table-grobdi table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>Nro</th>
-                            <th>Nro pedido</th>
-                            <th>Fecha creada</th>
-                            <th>Distrito</th>
-                            <th>Zonas</th>
-                            <th width="120px">Opciones</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        @forelse ($pedidos as $pedido)
-                            @if ($pedido->zone_id == $zona->id)
-                                <tr>
-                                    <td>{{ $pedido->nroOrder }}</td>
-                                    <td>{{ $pedido->orderId }}</td>
-                                    <td>{{ $pedido->created_at }}</td>
-                                    <td>{{ $pedido->district }}</td>
-
-                                    <form action="{{ route('asignarpedidos.update', $pedido->id) }}" method="POST">
-                                        @csrf
-                                        @method('PUT')
-                                        <td>
-                                            <select name="zone_id" id="zone_id" class="form-select form-select-sm">
-                                                <option disabled>Cambiar zona</option>
-                                                @foreach ($zonas as $zon)
-                                                    <option value="{{ $zon->id }}" {{ $pedido->zone_id === $zon->id ? 'selected' : '' }}>
-                                                        {{ $zon->name }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <button type="submit" class="btn btn-primary btn-sm">
-                                                <i class="fa fa-pencil-square"></i> cambiar
-                                            </button>
-                                        </td>
-                                    </form>
-                                </tr>
-                            @endif
-                        @empty
+                <tbody>
+                    @forelse ($pedidos as $pedido)
+                        @if ($pedido->zone_id == $zona->id)
                             <tr>
-                                <td colspan="6">No hay información que mostrar</td>
+                                <td>{{ $pedido->nroOrder }}</td>
+                                <td>{{ $pedido->orderId }}</td>
+                                <td>{{ $pedido->created_at }}</td>
+                                <td>{{ $pedido->district }}</td>
+
+                                <form action="{{ route('asignarpedidos.update', $pedido->id) }}" method="POST">
+                                    @csrf
+                                    @method('PUT')
+                                    <td>
+                                        <select name="zone_id" id="zone_id" class="form-select form-select-sm">
+                                            <option disabled>Cambiar zona</option>
+                                            @foreach ($zonas as $zon)
+                                                <option value="{{ $zon->id }}" {{ $pedido->zone_id === $zon->id ? 'selected' : '' }}>
+                                                    {{ $zon->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <x-grobdi.button type="submit" variant="primary" size="sm" icon="fa fa-pencil-square">
+                                            Cambiar
+                                        </x-grobdi.button>
+                                    </td>
+                                </form>
                             </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+                        @endif
+                    @empty
+                        <tr>
+                            <td colspan="6">No hay información que mostrar</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </x-grobdi.layout.table-card>
         </div>
     @endforeach
 </div>
