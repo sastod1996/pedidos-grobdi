@@ -9,13 +9,19 @@
 @section('content')
 @can('cargarpedidos.edit')
 
-<div class="card mt-5">
-  <h2 class="card-header">Actualizar Pedido</h2>
-  <div class="card-body">
+<x-grobdi.layout.header-card
+    title="Actualizar Pedido"
+    subtitle="Actualiza datos de contacto, entrega y estados"
+>
+    <x-slot:actions>
+        <x-grobdi.button href="{{ url()->previous() }}" variant="outline" size="sm" icon="fa fa-arrow-left">
+            Atrás
+        </x-grobdi.button>
+    </x-slot:actions>
+</x-grobdi.layout.header-card>
 
-    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-        <a class="btn btn-primary btn-sm" href="{{ url()->previous() }}"><i class="fa fa-arrow-left"></i> Atrás</a>
-    </div>
+<div class="card mt-5">
+  <div class="card-body">
 
     <form action="{{ route('cargarpedidos.update',$pedido->id) }}" method="POST">
         @csrf
@@ -170,7 +176,9 @@
             </div>
         </div>
         <br>
-        <button type="submit" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> Actualizar</button>
+                <x-grobdi.button type="submit" variant="success" icon="fa-solid fa-floppy-disk">
+                        Actualizar
+                </x-grobdi.button>
     </form>
 
   </div>

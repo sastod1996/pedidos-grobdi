@@ -8,8 +8,18 @@
 
 @section('content')
 @can('cargarpedidos.create')
+<x-grobdi.layout.header-card
+    title="Cargar Pedido"
+    subtitle="Sube archivos Excel y sincroniza doctores con sus pedidos"
+>
+    <x-slot:actions>
+        <x-grobdi.button href="{{ url()->previous() }}" variant="outline" size="sm" icon="fa fa-arrow-left">
+            Atrás
+        </x-grobdi.button>
+    </x-slot:actions>
+</x-grobdi.layout.header-card>
+
 <div class="card mt-2">
-    <h2 class="card-header">Cargar Pedido</h2>
     <div class="card-body">
         @if($summary = session('processed_summary'))
             @php
@@ -56,10 +66,6 @@
             </div>
         @endif
 
-        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-            <a class="btn btn-primary btn-sm" href="{{ url()->previous() }}"><i class="fa fa-arrow-left"></i> Atrás</a>
-        </div>
-        <br>
         <div class="alert alert-info d-flex align-items-center" role="alert">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-info-circle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Info:">
                 <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
@@ -110,13 +116,13 @@
         <div class="mb-5">
             <label class="form-label">Sincronizar Doctores - Pedidos:</label>
             <div class="d-flex align-items-center gap-2">
-                <button class="btn btn-outline-primary mr-2" type="button" id="sincronizarBtn">
-                    <i class="fa fa-sync-alt"></i> Sincronizar
-                </button>
+                <x-grobdi.button variant="outline" type="button" id="sincronizarBtn" icon="fa fa-sync-alt">
+                    Sincronizar
+                </x-grobdi.button>
 
-                <button class="btn btn-outline-success" type="button" id="sincronizarManualBtn">
-                    <i class="fa fa-calendar-alt"></i> Sincronizar manual
-                </button>
+                <x-grobdi.button variant="outline" type="button" id="sincronizarManualBtn" icon="fa fa-calendar-alt">
+                    Sincronizar manual
+                </x-grobdi.button>
             </div>
             <small class="form-text text-muted">Opcional: pulsa "Sincronizar manual" para elegir un rango de fechas y sincronizar solo esos pedidos.</small>
         </div>
